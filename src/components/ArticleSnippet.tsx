@@ -15,23 +15,60 @@ interface ArticleSnippetProps {
 const ArticleSnippet: React.FC<ArticleSnippetProps> = ({ article }) => {
   return (
     <Link href={`/content/${article.id}`}>
-      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden cursor-pointer group">
-        <div className="aspect-w-16 aspect-h-9">
-          <img 
-            src={article.image_path} 
-            alt={article.title}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        </div>
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors duration-300">
-            {article.title}
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {article.content_text.substring(0, 120)}...
-          </p>
-          <div className="mt-4 text-blue-600 font-medium group-hover:text-blue-700">
-            Read more →
+      <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl hover:shadow-purple-500/25 transition-all duration-500 overflow-hidden cursor-pointer group transform hover:-translate-y-2 border border-white/20 hover:border-purple-400/50">
+        <div className="flex flex-col md:flex-row">
+          {/* Thumbnail */}
+          <div className="relative w-full md:w-48 h-48 md:h-auto overflow-hidden">
+            <img 
+              src={article.image_path} 
+              alt={article.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="bg-purple-500/90 backdrop-blur-sm rounded-full p-2">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          
+          {/* Content */}
+          <div className="flex-1 p-6">
+            <div className="flex items-center mb-3">
+              <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+              <span className="text-purple-300 text-sm font-medium">
+                {new Date(article.published_date).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
+            </div>
+            
+            <h2 className="text-xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors duration-300 line-clamp-2">
+              {article.title}
+            </h2>
+            
+            <p className="text-white/70 leading-relaxed text-sm mb-4 line-clamp-3">
+              {article.content_text.substring(0, 120)}...
+            </p>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-purple-300 font-medium text-sm group-hover:text-purple-200 transition-colors duration-300">
+                <span>Read story</span>
+                <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+              
+              <div className="flex items-center space-x-1">
+                <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-purple-400/60 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-purple-400/30 rounded-full"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

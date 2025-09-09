@@ -19,7 +19,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles`);
+        const res = await fetch(`http://localhost:3001/api/articles`);
         if (!res.ok) {
           throw new Error('Failed to fetch articles');
         }
@@ -39,23 +39,26 @@ const Home: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading articles...</span>
+      <div className="flex justify-center items-center py-20">
+        <div className="relative">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500/30 border-t-purple-500"></div>
+          <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-4 border-purple-500/20"></div>
+        </div>
+        <span className="ml-6 text-white/80 text-lg">Loading amazing stories...</span>
       </div>
     );
   }
 
   if (articles.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
-          <div className="text-6xl mb-4">📚</div>
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">
-            No Articles Available
+      <div className="text-center py-20">
+        <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-12 max-w-lg mx-auto border border-white/20">
+          <div className="text-8xl mb-6">✨</div>
+          <h3 className="text-2xl font-bold text-white mb-4">
+            Stories Coming Soon
           </h3>
-          <p className="text-gray-500">
-            Check back later for new articles and stories!
+          <p className="text-white/70 text-lg">
+            We're crafting amazing adventures just for you. Check back soon for incredible stories!
           </p>
         </div>
       </div>
@@ -63,9 +66,11 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {articles.map((article) => (
-        <ArticleSnippet key={article.id} article={article} />
+    <div className="space-y-6">
+      {articles.map((article, index) => (
+        <div key={article.id}>
+          <ArticleSnippet article={article} />
+        </div>
       ))}
     </div>
   );
