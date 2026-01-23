@@ -1,11 +1,16 @@
+"use client";
+
 // components/ArticleSnippet.tsx
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface Article {
   id: number;
   title: string;
   content_text: string;
   image_path: string;
+  published_date?: string;
 }
 
 interface ArticleSnippetProps {
@@ -13,8 +18,30 @@ interface ArticleSnippetProps {
 }
 
 const ArticleSnippet: React.FC<ArticleSnippetProps> = ({ article }) => {
+  const params = useParams();
+  const language = params.language as string || 'en';
+  const { t } = useTranslation();
+  
+  // Map language codes to locale codes for date formatting
+  const localeMap: Record<string, string> = {
+    'en': 'en-US',
+    'es': 'es-ES',
+    'fr': 'fr-FR',
+    'de': 'de-DE',
+    'it': 'it-IT',
+    'pt': 'pt-PT',
+    'zh': 'zh-CN',
+    'ja': 'ja-JP',
+    'ko': 'ko-KR',
+    'ar': 'ar-SA',
+    'hi': 'hi-IN',
+    'ru': 'ru-RU'
+  };
+  
+  const locale = localeMap[language] || 'en-US';
+  
   return (
-    <Link href={`/content/${article.id}`}>
+    <Link href={`/${language}/content/${article.id}`}>
       <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl hover:shadow-purple-500/25 transition-all duration-500 overflow-hidden cursor-pointer group transform hover:-translate-y-2 border border-white/20 hover:border-purple-400/50">
         <div className="flex flex-col md:flex-row">
           {/* Thumbnail */}
@@ -36,16 +63,18 @@ const ArticleSnippet: React.FC<ArticleSnippetProps> = ({ article }) => {
           
           {/* Content */}
           <div className="flex-1 p-6">
-            <div className="flex items-center mb-3">
-              <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
-              <span className="text-purple-300 text-sm font-medium">
-                {new Date(article.published_date).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </span>
-            </div>
+            {article.published_date && (
+              <div className="flex items-center mb-3">
+                <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                <span className="text-purple-300 text-sm font-medium">
+                  {new Date(article.published_date).toLocaleDateString(locale, { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+            )}
             
             <h2 className="text-xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors duration-300 line-clamp-2">
               {article.title}
@@ -57,7 +86,7 @@ const ArticleSnippet: React.FC<ArticleSnippetProps> = ({ article }) => {
             
             <div className="flex items-center justify-between">
               <div className="flex items-center text-purple-300 font-medium text-sm group-hover:text-purple-200 transition-colors duration-300">
-                <span>Read story</span>
+                <span>{t('content.readStory')}</span>
                 <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>

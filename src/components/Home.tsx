@@ -2,16 +2,22 @@
 
 // components/Home.tsx
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import ArticleSnippet from './ArticleSnippet';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface Article {
   id: number;
   title: string;
   content_text: string;
   image_path: string;
+  published_date?: string;
 }
 
 const Home: React.FC = () => {
+  const params = useParams();
+  const language = params.language as string || 'en';
+  const { t } = useTranslation();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +25,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/articles`);
+        const res = await fetch(`http://localhost:3001/api/articles?lang=${language}`);
         if (!res.ok) {
           throw new Error('Failed to fetch articles');
         }
@@ -34,8 +40,10 @@ const Home: React.FC = () => {
       }
     };
 
-    fetchArticles();
-  }, []);
+    if (language) {
+      fetchArticles();
+    }
+  }, [language]);
 
   if (loading) {
     return (
@@ -44,7 +52,7 @@ const Home: React.FC = () => {
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500/30 border-t-purple-500"></div>
           <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-4 border-purple-500/20"></div>
         </div>
-        <span className="ml-6 text-white/80 text-lg">Loading amazing stories...</span>
+        <span className="ml-6 text-white/80 text-lg">{t('loading.stories')}</span>
       </div>
     );
   }
@@ -55,10 +63,10 @@ const Home: React.FC = () => {
         <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-12 max-w-lg mx-auto border border-white/20">
           <div className="text-8xl mb-6">✨</div>
           <h3 className="text-2xl font-bold text-white mb-4">
-            Stories Coming Soon
+            {t('empty.title')}
           </h3>
           <p className="text-white/70 text-lg">
-            We're crafting amazing adventures just for you. Check back soon for incredible stories!
+            {t('empty.message')}
           </p>
         </div>
       </div>
