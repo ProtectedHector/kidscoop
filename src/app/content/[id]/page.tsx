@@ -26,7 +26,7 @@ export default function ContentPage() {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/articles/${params.id}?lang=${language}`);
+        const res = await fetch(`/api/articles/${params.id}?lang=${language}`);
         if (!res.ok) {
           throw new Error('Failed to fetch article');
         }

@@ -6,12 +6,11 @@ export async function generateMetadata({
   params: { language: string; id: string };
 }): Promise<Metadata> {
   const { language, id } = params;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kidscoop.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
   
   try {
-    const apiUrl = process.env.API_URL || 'http://localhost:3001';
     const res = await fetch(
-      `${apiUrl}/api/articles/${id}?lang=${language}`,
+      `${baseUrl}/api/articles/${id}?lang=${language}`,
       { 
         next: { revalidate: 3600 },
         headers: {
