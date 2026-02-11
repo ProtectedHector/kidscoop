@@ -48,6 +48,36 @@ export default function ContentPage() {
   const [hasAudio, setHasAudio] = useState(false);
   const [audioLanguage, setAudioLanguage] = useState<string>(language);
   const [lyricsLanguage, setLyricsLanguage] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+
+  const downloadColoringPage = () => {
+    if (!article) {
+      return;
+    }
+    const link = document.createElement('a');
+    link.href = `/articles/${article.id}c.png`;
+    link.download = `${article.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_coloring_page.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  useEffect(() => {
+    if (!lightbox) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setLightbox(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [lightbox]);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -244,7 +274,15 @@ export default function ContentPage() {
 
           {/* Article Image */}
           <div className="mb-8">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+            <div
+              className="relative rounded-2xl overflow-hidden shadow-2xl cursor-zoom-in"
+              onClick={() =>
+                setLightbox({
+                  src: article.image_path,
+                  alt: article.title,
+                })
+              }
+            >
               <Image
                 src={article.image_path}
                 alt={article.title}
@@ -330,15 +368,16 @@ export default function ContentPage() {
                 <p className="text-white/70">{t('content.coloringDescription')}</p>
               </div>
             
-            <div className="flex justify-center">
-              <div className="relative group cursor-pointer" onClick={() => {
-                const link = document.createElement('a');
-                link.href = `/articles/${article.id}c.png`;
-                link.download = `${article.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_coloring_page.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              }}>
+            <div className="flex flex-col items-center gap-4">
+              <div
+                className="relative group cursor-zoom-in"
+                onClick={() =>
+                  setLightbox({
+                    src: `/articles/${article.id}c.png`,
+                    alt: `Coloring page for ${article.title}`,
+                  })
+                }
+              >
                 <Image
                   src={`/articles/${article.id}c.png`}
                   alt={`Coloring page for ${article.title}`}
@@ -346,13 +385,15 @@ export default function ContentPage() {
                   height={400}
                   className="rounded-xl shadow-lg group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-purple-500/90 backdrop-blur-sm rounded-full px-4 py-2">
-                    <span className="text-white text-sm font-medium">{t('content.clickToDownload')}</span>
-                  </div>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
               </div>
+              <button
+                type="button"
+                onClick={downloadColoringPage}
+                className="bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-5 py-2 rounded-full border border-white/20 transition"
+              >
+                {t('content.clickToDownload')}
+              </button>
             </div>
           </div>
 
@@ -368,6 +409,51 @@ export default function ContentPage() {
         </div>
       </div>
     </div>
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-6 py-10"
+          onClick={() => setLightbox(null)}
+        >
+          <div className="absolute top-6 right-6 flex items-center gap-3">
+            {lightbox.src.endsWith('c.png') && (
+              <button
+                type="button"
+                className="rounded-full bg-white/10 px-4 py-2 text-white/90 hover:bg-white/20 transition"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  downloadColoringPage();
+                }}
+              >
+                {t('content.clickToDownload')}
+              </button>
+            )}
+            <button
+              type="button"
+              className="rounded-full bg-white/10 px-4 py-2 text-white/90 hover:bg-white/20 transition"
+              onClick={(event) => {
+                event.stopPropagation();
+                setLightbox(null);
+              }}
+              aria-label="Close image"
+            >
+              Close
+            </button>
+          </div>
+          <div
+            className="max-h-full w-full max-w-5xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Image
+              src={lightbox.src}
+              alt={lightbox.alt}
+              width={1200}
+              height={1200}
+              className="w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
+              priority
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }
