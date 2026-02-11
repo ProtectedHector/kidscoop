@@ -1,0 +1,482 @@
+{
+  "en": {
+    "nav": {
+      "home": "Home",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "hero": {
+      "tagline": "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds."
+    },
+    "loading": {
+      "stories": "Loading amazing stories...",
+      "story": "Loading story..."
+    },
+    "empty": {
+      "title": "Stories Coming Soon",
+      "message": "We're crafting amazing adventures just for you. Check back soon for incredible stories!"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • Made with ❤️ for curious minds"
+    },
+    "content": {
+      "backToStories": "Back to Stories",
+      "readMoreStories": "Read More Stories",
+      "storyNotFound": "Story Not Found",
+      "storyNotFoundMessage": "We couldn't find this story.",
+      "readStory": "Read story",
+      "storySong": "Story Song!",
+      "storySongDescription": "Listen to the musical version of this story!",
+      "coloringFun": "Coloring Fun!",
+      "coloringDescription": "Download and color this picture!",
+      "clickToDownload": "Click to download",
+      "audioNotSupported": "Your browser does not support the audio element.",
+      "lyrics": "Lyrics",
+      "lyricsInLanguage": "in English"
+    },
+    "metadata": {
+      "title": "KidScoop - Amazing Stories for Kids",
+      "description": "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds."
+    }
+  },
+  "es": {
+    "nav": {
+      "home": "Inicio",
+      "about": "Acerca de",
+      "contact": "Contacto"
+    },
+    "hero": {
+      "tagline": "Donde la curiosidad se encuentra con el descubrimiento. Sumérgete en un mundo de historias increíbles, datos fascinantes y aventuras sin fin diseñadas para mentes jóvenes."
+    },
+    "loading": {
+      "stories": "Cargando historias increíbles...",
+      "story": "Cargando historia..."
+    },
+    "empty": {
+      "title": "Historias Próximamente",
+      "message": "¡Estamos creando aventuras increíbles solo para ti! Vuelve pronto para historias increíbles."
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • Hecho con ❤️ para mentes curiosas"
+    },
+    "content": {
+      "backToStories": "Volver a Historias",
+      "readMoreStories": "Leer Más Historias",
+      "storyNotFound": "Historia No Encontrada",
+      "storyNotFoundMessage": "No pudimos encontrar esta historia.",
+      "readStory": "Leer historia",
+      "storySong": "¡Canción de la Historia!",
+      "storySongDescription": "¡Escucha la versión musical de esta historia!",
+      "coloringFun": "¡Diversión para Colorear!",
+      "coloringDescription": "¡Descarga y colorea esta imagen!",
+      "clickToDownload": "Haz clic para descargar",
+      "audioNotSupported": "Tu navegador no admite el elemento de audio.",
+      "lyrics": "Letra",
+      "lyricsInLanguage": "en inglés"
+    },
+    "metadata": {
+      "title": "KidScoop - Historias Increíbles para Niños",
+      "description": "Donde la curiosidad se encuentra con el descubrimiento. Sumérgete en un mundo de historias increíbles, datos fascinantes y aventuras sin fin diseñadas para mentes jóvenes."
+    }
+  },
+  "fr": {
+    "nav": {
+      "home": "Accueil",
+      "about": "À propos",
+      "contact": "Contact"
+    },
+    "hero": {
+      "tagline": "Où la curiosité rencontre la découverte. Plongez dans un monde d'histoires incroyables, de faits fascinants et d'aventures sans fin conçues pour les jeunes esprits."
+    },
+    "loading": {
+      "stories": "Chargement d'histoires incroyables...",
+      "story": "Chargement de l'histoire..."
+    },
+    "empty": {
+      "title": "Histoires à Venir",
+      "message": "Nous préparons des aventures incroyables rien que pour vous. Revenez bientôt pour des histoires incroyables !"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • Fait avec ❤️ pour les esprits curieux"
+    },
+    "content": {
+      "backToStories": "Retour aux Histoires",
+      "readMoreStories": "Lire Plus d'Histoires",
+      "storyNotFound": "Histoire Non Trouvée",
+      "storyNotFoundMessage": "Nous n'avons pas pu trouver cette histoire.",
+      "readStory": "Lire l'histoire",
+      "storySong": "Chanson de l'Histoire !",
+      "storySongDescription": "Écoutez la version musicale de cette histoire !",
+      "coloringFun": "Amusement de Coloriage !",
+      "coloringDescription": "Téléchargez et coloriez cette image !",
+      "clickToDownload": "Cliquez pour télécharger",
+      "audioNotSupported": "Votre navigateur ne prend pas en charge l'élément audio.",
+      "lyrics": "Paroles",
+      "lyricsInLanguage": "en anglais"
+    },
+    "metadata": {
+      "title": "KidScoop - Histoires Incroyables pour Enfants",
+      "description": "Où la curiosité rencontre la découverte. Plongez dans un monde d'histoires incroyables, de faits fascinants et d'aventures sans fin conçues pour les jeunes esprits."
+    }
+  },
+  "de": {
+    "nav": {
+      "home": "Startseite",
+      "about": "Über uns",
+      "contact": "Kontakt"
+    },
+    "hero": {
+      "tagline": "Wo Neugier auf Entdeckung trifft. Tauche ein in eine Welt voller erstaunlicher Geschichten, faszinierender Fakten und endloser Abenteuer, die für junge Köpfe gemacht sind."
+    },
+    "loading": {
+      "stories": "Lade erstaunliche Geschichten...",
+      "story": "Lade Geschichte..."
+    },
+    "empty": {
+      "title": "Geschichten Kommen Bald",
+      "message": "Wir erstellen erstaunliche Abenteuer nur für dich. Schau bald wieder vorbei für unglaubliche Geschichten!"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • Mit ❤️ für neugierige Köpfe gemacht"
+    },
+    "content": {
+      "backToStories": "Zurück zu Geschichten",
+      "readMoreStories": "Mehr Geschichten Lesen",
+      "storyNotFound": "Geschichte Nicht Gefunden",
+      "storyNotFoundMessage": "Wir konnten diese Geschichte nicht finden.",
+      "readStory": "Geschichte lesen",
+      "storySong": "Geschichtenlied!",
+      "storySongDescription": "Höre dir die musikalische Version dieser Geschichte an!",
+      "coloringFun": "Malspaß!",
+      "coloringDescription": "Lade dieses Bild herunter und male es aus!",
+      "clickToDownload": "Zum Herunterladen klicken",
+      "audioNotSupported": "Ihr Browser unterstützt das Audio-Element nicht.",
+      "lyrics": "Liedtext",
+      "lyricsInLanguage": "auf Englisch"
+    },
+    "metadata": {
+      "title": "KidScoop - Erstaunliche Geschichten für Kinder",
+      "description": "Wo Neugier auf Entdeckung trifft. Tauche ein in eine Welt voller erstaunlicher Geschichten, faszinierender Fakten und endloser Abenteuer, die für junge Köpfe gemacht sind."
+    }
+  },
+  "it": {
+    "nav": {
+      "home": "Home",
+      "about": "Chi Siamo",
+      "contact": "Contatto"
+    },
+    "hero": {
+      "tagline": "Dove la curiosità incontra la scoperta. Immergiti in un mondo di storie incredibili, fatti affascinanti e avventure infinite progettate per le giovani menti."
+    },
+    "loading": {
+      "stories": "Caricamento di storie incredibili...",
+      "story": "Caricamento della storia..."
+    },
+    "empty": {
+      "title": "Storie in Arrivo",
+      "message": "Stiamo creando avventure incredibili solo per te. Torna presto per storie incredibili!"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • Fatto con ❤️ per menti curiose"
+    },
+    "content": {
+      "backToStories": "Torna alle Storie",
+      "readMoreStories": "Leggi Altre Storie",
+      "storyNotFound": "Storia Non Trovata",
+      "storyNotFoundMessage": "Non siamo riusciti a trovare questa storia.",
+      "readStory": "Leggi la storia",
+      "storySong": "Canzone della Storia!",
+      "storySongDescription": "Ascolta la versione musicale di questa storia!",
+      "coloringFun": "Divertimento da Colorare!",
+      "coloringDescription": "Scarica e colora questa immagine!",
+      "clickToDownload": "Clicca per scaricare",
+      "audioNotSupported": "Il tuo browser non supporta l'elemento audio.",
+      "lyrics": "Testo",
+      "lyricsInLanguage": "in inglese"
+    },
+    "metadata": {
+      "title": "KidScoop - Storie Incredibili per Bambini",
+      "description": "Dove la curiosità incontra la scoperta. Immergiti in un mondo di storie incredibili, fatti affascinanti e avventure infinite progettate per le giovani menti."
+    }
+  },
+  "pt": {
+    "nav": {
+      "home": "Início",
+      "about": "Sobre",
+      "contact": "Contato"
+    },
+    "hero": {
+      "tagline": "Onde a curiosidade encontra a descoberta. Mergulhe em um mundo de histórias incríveis, fatos fascinantes e aventuras sem fim projetadas para mentes jovens."
+    },
+    "loading": {
+      "stories": "Carregando histórias incríveis...",
+      "story": "Carregando história..."
+    },
+    "empty": {
+      "title": "Histórias em Breve",
+      "message": "Estamos criando aventuras incríveis apenas para você. Volte em breve para histórias incríveis!"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • Feito com ❤️ para mentes curiosas"
+    },
+    "content": {
+      "backToStories": "Voltar às Histórias",
+      "readMoreStories": "Ler Mais Histórias",
+      "storyNotFound": "História Não Encontrada",
+      "storyNotFoundMessage": "Não conseguimos encontrar esta história.",
+      "readStory": "Ler história",
+      "storySong": "Canção da História!",
+      "storySongDescription": "Ouça a versão musical desta história!",
+      "coloringFun": "Diversão para Colorir!",
+      "coloringDescription": "Baixe e pinte esta imagem!",
+      "clickToDownload": "Clique para baixar",
+      "audioNotSupported": "Seu navegador não suporta o elemento de áudio.",
+      "lyrics": "Letra",
+      "lyricsInLanguage": "em inglês"
+    },
+    "metadata": {
+      "title": "KidScoop - Histórias Incríveis para Crianças",
+      "description": "Onde a curiosidade encontra a descoberta. Mergulhe em um mundo de histórias incríveis, fatos fascinantes e aventuras sem fim projetadas para mentes jovens."
+    }
+  },
+  "zh": {
+    "nav": {
+      "home": "首页",
+      "about": "关于",
+      "contact": "联系"
+    },
+    "hero": {
+      "tagline": "好奇心与发现相遇的地方。潜入一个充满精彩故事、迷人事实和专为年轻心灵设计的无尽冒险的世界。"
+    },
+    "loading": {
+      "stories": "加载精彩故事...",
+      "story": "加载故事..."
+    },
+    "empty": {
+      "title": "故事即将推出",
+      "message": "我们正在为您制作精彩的冒险。请稍后再来查看精彩的故事！"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • 为好奇的心灵而制作 ❤️"
+    },
+    "content": {
+      "backToStories": "返回故事",
+      "readMoreStories": "阅读更多故事",
+      "storyNotFound": "未找到故事",
+      "storyNotFoundMessage": "我们找不到这个故事。",
+      "readStory": "阅读故事",
+      "storySong": "故事歌曲！",
+      "storySongDescription": "聆听这个故事的音乐版本！",
+      "coloringFun": "涂色乐趣！",
+      "coloringDescription": "下载并给这张图片上色！",
+      "clickToDownload": "点击下载",
+      "audioNotSupported": "您的浏览器不支持音频元素。",
+      "lyrics": "歌词",
+      "lyricsInLanguage": "（英文）"
+    },
+    "metadata": {
+      "title": "KidScoop - 孩子们的精彩故事",
+      "description": "好奇心与发现相遇的地方。潜入一个充满精彩故事、迷人事实和专为年轻心灵设计的无尽冒险的世界。"
+    }
+  },
+  "ja": {
+    "nav": {
+      "home": "ホーム",
+      "about": "について",
+      "contact": "お問い合わせ"
+    },
+    "hero": {
+      "tagline": "好奇心と発見が出会う場所。若い心のために設計された素晴らしい物語、魅力的な事実、そして無限の冒険の世界に飛び込みましょう。"
+    },
+    "loading": {
+      "stories": "素晴らしい物語を読み込んでいます...",
+      "story": "物語を読み込んでいます..."
+    },
+    "empty": {
+      "title": "物語がまもなく公開されます",
+      "message": "あなたのために素晴らしい冒険を作成しています。すぐに戻って素晴らしい物語をチェックしてください！"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • 好奇心旺盛な心のために ❤️ で作られました"
+    },
+    "content": {
+      "backToStories": "物語に戻る",
+      "readMoreStories": "もっと物語を読む",
+      "storyNotFound": "物語が見つかりません",
+      "storyNotFoundMessage": "この物語を見つけることができませんでした。",
+      "readStory": "物語を読む",
+      "storySong": "物語の歌！",
+      "storySongDescription": "この物語の音楽バージョンを聞いてください！",
+      "coloringFun": "塗り絵の楽しみ！",
+      "coloringDescription": "この画像をダウンロードして色を塗ってください！",
+      "clickToDownload": "クリックしてダウンロード",
+      "audioNotSupported": "お使いのブラウザはオーディオ要素をサポートしていません。",
+      "lyrics": "歌詞",
+      "lyricsInLanguage": "（英語）"
+    },
+    "metadata": {
+      "title": "KidScoop - 子供のための素晴らしい物語",
+      "description": "好奇心と発見が出会う場所。若い心のために設計された素晴らしい物語、魅力的な事実、そして無限の冒険の世界に飛び込みましょう。"
+    }
+  },
+  "ko": {
+    "nav": {
+      "home": "홈",
+      "about": "소개",
+      "contact": "연락처"
+    },
+    "hero": {
+      "tagline": "호기심과 발견이 만나는 곳. 젊은 마음을 위해 설계된 놀라운 이야기, 매혹적인 사실, 끝없는 모험의 세계로 뛰어드세요."
+    },
+    "loading": {
+      "stories": "놀라운 이야기를 불러오는 중...",
+      "story": "이야기를 불러오는 중..."
+    },
+    "empty": {
+      "title": "곧 이야기가 제공됩니다",
+      "message": "당신을 위해 놀라운 모험을 만들고 있습니다. 곧 다시 돌아와 놀라운 이야기를 확인하세요!"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • 호기심 많은 마음을 위해 ❤️ 로 제작되었습니다"
+    },
+    "content": {
+      "backToStories": "이야기로 돌아가기",
+      "readMoreStories": "더 많은 이야기 읽기",
+      "storyNotFound": "이야기를 찾을 수 없음",
+      "storyNotFoundMessage": "이 이야기를 찾을 수 없습니다.",
+      "readStory": "이야기 읽기",
+      "storySong": "이야기 노래!",
+      "storySongDescription": "이 이야기의 음악 버전을 들어보세요!",
+      "coloringFun": "색칠하기 재미!",
+      "coloringDescription": "이 이미지를 다운로드하고 색칠하세요!",
+      "clickToDownload": "다운로드하려면 클릭",
+      "audioNotSupported": "브라우저가 오디오 요소를 지원하지 않습니다.",
+      "lyrics": "가사",
+      "lyricsInLanguage": "（영어）"
+    },
+    "metadata": {
+      "title": "KidScoop - 어린이를 위한 놀라운 이야기",
+      "description": "호기심과 발견이 만나는 곳. 젊은 마음을 위해 설계된 놀라운 이야기, 매혹적인 사실, 끝없는 모험의 세계로 뛰어드세요."
+    }
+  },
+  "ar": {
+    "nav": {
+      "home": "الرئيسية",
+      "about": "حول",
+      "contact": "اتصل"
+    },
+    "hero": {
+      "tagline": "حيث تلتقي الفضول بالاكتشاف. انغمس في عالم من القصص المذهلة والحقائق الرائعة والمغامرات التي لا تنتهي المصممة للعقول الشابة."
+    },
+    "loading": {
+      "stories": "جاري تحميل القصص المذهلة...",
+      "story": "جاري تحميل القصة..."
+    },
+    "empty": {
+      "title": "القصص قادمة قريباً",
+      "message": "نحن نصنع مغامرات مذهلة فقط لك. عد قريباً للتحقق من القصص المذهلة!"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • مصنوع بـ ❤️ للعقول الفضولية"
+    },
+    "content": {
+      "backToStories": "العودة إلى القصص",
+      "readMoreStories": "اقرأ المزيد من القصص",
+      "storyNotFound": "القصة غير موجودة",
+      "storyNotFoundMessage": "لم نتمكن من العثور على هذه القصة.",
+      "readStory": "اقرأ القصة",
+      "storySong": "أغنية القصة!",
+      "storySongDescription": "استمع إلى النسخة الموسيقية من هذه القصة!",
+      "coloringFun": "متعة التلوين!",
+      "coloringDescription": "قم بتنزيل هذه الصورة ولونها!",
+      "clickToDownload": "انقر للتنزيل",
+      "audioNotSupported": "المتصفح الخاص بك لا يدعم عنصر الصوت.",
+      "lyrics": "كلمات",
+      "lyricsInLanguage": "بالإنجليزية"
+    },
+    "metadata": {
+      "title": "KidScoop - قصص مذهلة للأطفال",
+      "description": "حيث تلتقي الفضول بالاكتشاف. انغمس في عالم من القصص المذهلة والحقائق الرائعة والمغامرات التي لا تنتهي المصممة للعقول الشابة."
+    }
+  },
+  "hi": {
+    "nav": {
+      "home": "होम",
+      "about": "के बारे में",
+      "contact": "संपर्क"
+    },
+    "hero": {
+      "tagline": "जहाँ जिज्ञासा खोज से मिलती है। अद्भुत कहानियों, आकर्षक तथ्यों और युवा दिमागों के लिए डिज़ाइन किए गए अंतहीन रोमांच की दुनिया में गोता लगाएँ।"
+    },
+    "loading": {
+      "stories": "अद्भुत कहानियाँ लोड हो रही हैं...",
+      "story": "कहानी लोड हो रही है..."
+    },
+    "empty": {
+      "title": "कहानियाँ जल्दी आ रही हैं",
+      "message": "हम आपके लिए अद्भुत रोमांच बना रहे हैं। अद्भुत कहानियों के लिए जल्द ही वापस आएं!"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • जिज्ञासु दिमागों के लिए ❤️ से बनाया गया"
+    },
+    "content": {
+      "backToStories": "कहानियों पर वापस जाएं",
+      "readMoreStories": "और कहानियाँ पढ़ें",
+      "storyNotFound": "कहानी नहीं मिली",
+      "storyNotFoundMessage": "हम इस कहानी को नहीं ढूंढ सके।",
+      "readStory": "कहानी पढ़ें",
+      "storySong": "कहानी गीत!",
+      "storySongDescription": "इस कहानी का संगीत संस्करण सुनें!",
+      "coloringFun": "रंग भरने का मज़ा!",
+      "coloringDescription": "इस छवि को डाउनलोड करें और रंग भरें!",
+      "clickToDownload": "डाउनलोड करने के लिए क्लिक करें",
+      "audioNotSupported": "आपका ब्राउज़र ऑडियो तत्व का समर्थन नहीं करता है।",
+      "lyrics": "गीत",
+      "lyricsInLanguage": "अंग्रेजी में"
+    },
+    "metadata": {
+      "title": "KidScoop - बच्चों के लिए अद्भुत कहानियाँ",
+      "description": "जहाँ जिज्ञासा खोज से मिलती है। अद्भुत कहानियों, आकर्षक तथ्यों और युवा दिमागों के लिए डिज़ाइन किए गए अंतहीन रोमांच की दुनिया में गोता लगाएँ।"
+    }
+  },
+  "ru": {
+    "nav": {
+      "home": "Главная",
+      "about": "О нас",
+      "contact": "Контакты"
+    },
+    "hero": {
+      "tagline": "Где любопытство встречается с открытием. Погрузитесь в мир удивительных историй, захватывающих фактов и бесконечных приключений, созданных для юных умов."
+    },
+    "loading": {
+      "stories": "Загрузка удивительных историй...",
+      "story": "Загрузка истории..."
+    },
+    "empty": {
+      "title": "Истории Скоро",
+      "message": "Мы создаём удивительные приключения специально для вас. Заходите скоро за невероятными историями!"
+    },
+    "footer": {
+      "copyright": "© 2024 KidScoop • Сделано с ❤️ для любознательных умов"
+    },
+    "content": {
+      "backToStories": "Вернуться к Историям",
+      "readMoreStories": "Читать Больше Историй",
+      "storyNotFound": "История Не Найдена",
+      "storyNotFoundMessage": "Мы не смогли найти эту историю.",
+      "readStory": "Читать историю",
+      "storySong": "Песня Истории!",
+      "storySongDescription": "Послушайте музыкальную версию этой истории!",
+      "coloringFun": "Раскраска!",
+      "coloringDescription": "Скачайте и раскрасьте эту картинку!",
+      "clickToDownload": "Нажмите, чтобы скачать",
+      "audioNotSupported": "Ваш браузер не поддерживает аудио элемент.",
+      "lyrics": "Текст песни",
+      "lyricsInLanguage": "на английском"
+    },
+    "metadata": {
+      "title": "KidScoop - Удивительные Истории для Детей",
+      "description": "Где любопытство встречается с открытием. Погрузитесь в мир удивительных историй, захватывающих фактов и бесконечных приключений, созданных для юных умов."
+    }
+  }
+}
