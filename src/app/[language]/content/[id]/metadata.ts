@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
 
 export async function generateMetadata({
   params,
@@ -6,7 +7,13 @@ export async function generateMetadata({
   params: { language: string; id: string };
 }): Promise<Metadata> {
   const { language, id } = params;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const requestHeaders = headers();
+  const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host');
+  const protocol = requestHeaders.get('x-forwarded-proto') || 'http';
+  const baseUrl =
+    (host ? `${protocol}://${host}` : '') ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    'http://localhost:3000';
   
   try {
     const res = await fetch(
