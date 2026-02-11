@@ -1,6 +1,14 @@
 // pages/content/[id].tsx
 import { useRouter } from 'next/router';
 
+interface Article {
+  id: number;
+  title: string;
+  content_text: string;
+  image_path: string;
+  published_date: string;
+}
+
 interface ContentProps {
   article: Article;
 }

@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useLanguage } from '../../contexts/LanguageContext';
-import LanguageSelector from '../../components/LanguageSelector';
+import { useLanguage } from '../../../contexts/LanguageContext';
+import LanguageSelector from '../../../components/LanguageSelector';
 
 interface Article {
   id: number;
