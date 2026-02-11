@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from 'react';
 import Home from '../../components/Home';
 import Image from 'next/image';
 import LanguageSelector from '../../components/LanguageSelector';
@@ -7,6 +8,26 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 export default function Page({ params }: { params: { language: string } }) {
   const { t } = useTranslation();
+  const language = params.language;
+
+  // Log visit to home page
+  useEffect(() => {
+    const logVisit = async () => {
+      try {
+        await fetch(`http://localhost:3001/api/log-visit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            language: language,
+            type: 'home',
+          }),
+        });
+      } catch (error) {
+        console.log('Visit logging failed:', error);
+      }
+    };
+    logVisit();
+  }, [language]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       {/* Animated Background Elements */}

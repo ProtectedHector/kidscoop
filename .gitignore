@@ -27,3 +27,7 @@ yarn-error.log*
 
 .idea
 .dockerignore
+
+# logs
+/logs/
+*.log

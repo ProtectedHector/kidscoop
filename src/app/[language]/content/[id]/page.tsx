@@ -52,6 +52,21 @@ export default function ContentPage() {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
+        // Log visit
+        try {
+          await fetch(`http://localhost:3001/api/log-visit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              article_id: articleId,
+              language: language,
+              type: 'article',
+            }),
+          });
+        } catch (logError) {
+          console.log('Visit logging failed:', logError);
+        }
+
         const res = await fetch(`http://localhost:3001/api/articles/${articleId}?lang=${language}`);
         if (!res.ok) {
           throw new Error('Failed to fetch article');
@@ -140,8 +155,42 @@ export default function ContentPage() {
     );
   }
 
+  // Generate structured data for SEO
+  const structuredData = article ? {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": article.title,
+    "description": article.content_text.substring(0, 200),
+    "image": article.image_path,
+    "datePublished": article.published_date,
+    "author": {
+      "@type": "Organization",
+      "name": "KidScoop"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "KidScoop",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "/logo.png"
+      }
+    },
+    "inLanguage": language,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `/${language}/content/${article.id}`
+    }
+  } : null;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <>
+      {structuredData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+      )}
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Floating Logo */}
       <div className="fixed top-8 left-8 z-50">
         <Link href={`/${language}`}>
@@ -202,6 +251,8 @@ export default function ContentPage() {
                 width={800}
                 height={400}
                 className="w-full h-64 md:h-80 object-cover"
+                priority
+                loading="eager"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
@@ -252,23 +303,23 @@ export default function ContentPage() {
                   </div>
                 </div>
               </div>
-              
-              {/* Lyrics Section - Show if lyrics exist */}
-              {article.lyrics && article.lyrics.trim() !== '' && (
-                <div className="mt-8 bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-white">📝 {t('content.lyrics') || 'Lyrics'}</h3>
-                    {lyricsLanguage && lyricsLanguage !== language && (
-                      <span className="text-white/50 text-xs italic">
-                        {t('content.lyricsInLanguage') || `(${lyricsLanguage.toUpperCase()})`}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-white/90 leading-relaxed text-sm whitespace-pre-line">
-                    {article.lyrics}
-                  </div>
-                </div>
-              )}
+            </div>
+          )}
+
+          {/* Lyrics Section - Show if lyrics exist (independent of audio) */}
+          {article.lyrics && article.lyrics.trim() !== '' && (
+            <div className={`mt-12 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20 ${hasAudio ? '' : ''}`}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-white">📝 {t('content.lyrics') || 'Lyrics'}</h2>
+                {lyricsLanguage && lyricsLanguage !== language && (
+                  <span className="text-white/50 text-xs italic">
+                    {t('content.lyricsInLanguage') || `(${lyricsLanguage.toUpperCase()})`}
+                  </span>
+                )}
+              </div>
+              <div className="text-white/90 leading-relaxed text-sm whitespace-pre-line bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                {article.lyrics}
+              </div>
             </div>
           )}
 
@@ -317,5 +368,6 @@ export default function ContentPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
