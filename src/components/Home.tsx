@@ -25,7 +25,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/articles?lang=${language}`);
+        const res = await fetch(`/api/articles?lang=${language}`);
         if (!res.ok) {
           throw new Error('Failed to fetch articles');
         }

@@ -1,21 +1,18 @@
 import { MetadataRoute } from 'next';
 
 const languages = ['en', 'es', 'fr', 'de', 'it', 'pt'];
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kidscoop.com';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch articles from API to generate dynamic URLs
   let articles: Array<{ id: number }> = [];
   
   try {
-    const apiUrl = process.env.API_URL || (typeof process !== 'undefined' && process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001');
-    if (apiUrl) {
-      const res = await fetch(`${apiUrl}/api/articles?lang=en`, {
-        next: { revalidate: 3600 } // Revalidate every hour
-      });
-      if (res.ok) {
-        articles = await res.json();
-      }
+    const res = await fetch(`${baseUrl}/api/articles?lang=en`, {
+      next: { revalidate: 3600 },
+    });
+    if (res.ok) {
+      articles = await res.json();
     }
   } catch (error) {
     console.error('Error fetching articles for sitemap:', error);

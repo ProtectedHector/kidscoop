@@ -14,7 +14,7 @@ export default function Page({ params }: { params: { language: string } }) {
   useEffect(() => {
     const logVisit = async () => {
       try {
-        await fetch(`http://localhost:3001/api/log-visit`, {
+        await fetch(`/api/log-visit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -54,7 +54,7 @@ export default function ContentPage() {
       try {
         // Log visit
         try {
-          await fetch(`http://localhost:3001/api/log-visit`, {
+          await fetch(`/api/log-visit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -67,7 +67,7 @@ export default function ContentPage() {
           console.log('Visit logging failed:', logError);
         }
 
-        const res = await fetch(`http://localhost:3001/api/articles/${articleId}?lang=${language}`);
+        const res = await fetch(`/api/articles/${articleId}?lang=${language}`);
         if (!res.ok) {
           throw new Error('Failed to fetch article');
         }
