@@ -26,6 +26,17 @@ type TranslationKey =
   | 'content.audioNotSupported'
   | 'content.lyrics'
   | 'content.lyricsInLanguage'
+  | 'content.puzzleTitle'
+  | 'content.puzzleDescription'
+  | 'content.puzzleHint'
+  | 'content.puzzleSolved'
+  | 'content.puzzleSolvedDescription'
+  | 'content.puzzleShuffle'
+  | 'content.puzzleDifficulty'
+  | 'content.puzzleStatus'
+  | 'content.puzzleMoves'
+  | 'content.puzzleReady'
+  | 'content.puzzleSelected'
   | 'metadata.title'
   | 'metadata.description';
 

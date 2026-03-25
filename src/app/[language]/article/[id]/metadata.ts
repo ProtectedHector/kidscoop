@@ -57,14 +57,14 @@ export async function generateMetadata({
           images: [imageUrl],
         },
         alternates: {
-          canonical: `${baseUrl}/${language}/content/${id}`,
+          canonical: `${baseUrl}/${language}/article/${id}`,
           languages: {
-            'en': `${baseUrl}/en/content/${id}`,
-            'es': `${baseUrl}/es/content/${id}`,
-            'fr': `${baseUrl}/fr/content/${id}`,
-            'de': `${baseUrl}/de/content/${id}`,
-            'it': `${baseUrl}/it/content/${id}`,
-            'pt': `${baseUrl}/pt/content/${id}`,
+            'en': `${baseUrl}/en/article/${id}`,
+            'es': `${baseUrl}/es/article/${id}`,
+            'fr': `${baseUrl}/fr/article/${id}`,
+            'de': `${baseUrl}/de/article/${id}`,
+            'it': `${baseUrl}/it/article/${id}`,
+            'pt': `${baseUrl}/pt/article/${id}`,
           },
         },
       };

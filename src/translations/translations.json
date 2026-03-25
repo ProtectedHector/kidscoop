@@ -32,7 +32,18 @@
       "clickToDownload": "Click to download",
       "audioNotSupported": "Your browser does not support the audio element.",
       "lyrics": "Lyrics",
-      "lyricsInLanguage": "in English"
+      "lyricsInLanguage": "in English",
+      "puzzleTitle": "Puzzle Time!",
+      "puzzleDescription": "Put the article image back together by swapping the pieces.",
+      "puzzleHint": "Drag one piece onto another, or tap two pieces on touch screens.",
+      "puzzleSolved": "You solved it!",
+      "puzzleSolvedDescription": "The picture is back together.",
+      "puzzleShuffle": "Shuffle again",
+      "puzzleDifficulty": "Difficulty",
+      "puzzleStatus": "Status",
+      "puzzleMoves": "Moves",
+      "puzzleReady": "Ready to play",
+      "puzzleSelected": "Piece selected"
     },
     "metadata": {
       "title": "KidScoop - Amazing Stories for Kids",
@@ -72,7 +83,18 @@
       "clickToDownload": "Haz clic para descargar",
       "audioNotSupported": "Tu navegador no admite el elemento de audio.",
       "lyrics": "Letra",
-      "lyricsInLanguage": "en inglés"
+      "lyricsInLanguage": "en inglés",
+      "puzzleTitle": "¡Hora del rompecabezas!",
+      "puzzleDescription": "Vuelve a armar la imagen del artículo intercambiando las piezas.",
+      "puzzleHint": "Arrastra una pieza sobre otra, o toca dos piezas en pantallas táctiles.",
+      "puzzleSolved": "¡Lo lograste!",
+      "puzzleSolvedDescription": "La imagen está completa otra vez.",
+      "puzzleShuffle": "Mezclar de nuevo",
+      "puzzleDifficulty": "Dificultad",
+      "puzzleStatus": "Estado",
+      "puzzleMoves": "Movimientos",
+      "puzzleReady": "Listo para jugar",
+      "puzzleSelected": "Pieza seleccionada"
     },
     "metadata": {
       "title": "KidScoop - Historias Increíbles para Niños",
@@ -112,7 +134,18 @@
       "clickToDownload": "Cliquez pour télécharger",
       "audioNotSupported": "Votre navigateur ne prend pas en charge l'élément audio.",
       "lyrics": "Paroles",
-      "lyricsInLanguage": "en anglais"
+      "lyricsInLanguage": "en anglais",
+      "puzzleTitle": "L'heure du puzzle !",
+      "puzzleDescription": "Reconstitue l'image de l'article en échangeant les pièces.",
+      "puzzleHint": "Faites glisser une pièce sur une autre, ou touchez deux pièces sur un écran tactile.",
+      "puzzleSolved": "Tu l'as réussi !",
+      "puzzleSolvedDescription": "L'image est à nouveau complète.",
+      "puzzleShuffle": "Mélanger à nouveau",
+      "puzzleDifficulty": "Difficulté",
+      "puzzleStatus": "Statut",
+      "puzzleMoves": "Déplacements",
+      "puzzleReady": "Prêt à jouer",
+      "puzzleSelected": "Pièce sélectionnée"
     },
     "metadata": {
       "title": "KidScoop - Histoires Incroyables pour Enfants",
@@ -152,7 +185,18 @@
       "clickToDownload": "Zum Herunterladen klicken",
       "audioNotSupported": "Ihr Browser unterstützt das Audio-Element nicht.",
       "lyrics": "Liedtext",
-      "lyricsInLanguage": "auf Englisch"
+      "lyricsInLanguage": "auf Englisch",
+      "puzzleTitle": "Puzzle-Zeit!",
+      "puzzleDescription": "Setze das Bild des Artikels wieder zusammen, indem du die Teile vertauschst.",
+      "puzzleHint": "Ziehe ein Teil auf ein anderes oder tippe auf Touchscreens zwei Teile an.",
+      "puzzleSolved": "Du hast es geschafft!",
+      "puzzleSolvedDescription": "Das Bild ist wieder vollständig.",
+      "puzzleShuffle": "Neu mischen",
+      "puzzleDifficulty": "Schwierigkeit",
+      "puzzleStatus": "Status",
+      "puzzleMoves": "Züge",
+      "puzzleReady": "Bereit zum Spielen",
+      "puzzleSelected": "Teil ausgewählt"
     },
     "metadata": {
       "title": "KidScoop - Erstaunliche Geschichten für Kinder",
@@ -192,7 +236,18 @@
       "clickToDownload": "Clicca per scaricare",
       "audioNotSupported": "Il tuo browser non supporta l'elemento audio.",
       "lyrics": "Testo",
-      "lyricsInLanguage": "in inglese"
+      "lyricsInLanguage": "in inglese",
+      "puzzleTitle": "Ora del puzzle!",
+      "puzzleDescription": "Ricomponi l'immagine dell'articolo scambiando i pezzi.",
+      "puzzleHint": "Trascina un pezzo sopra un altro, oppure tocca due pezzi sugli schermi touch.",
+      "puzzleSolved": "Ce l'hai fatta!",
+      "puzzleSolvedDescription": "L'immagine è di nuovo completa.",
+      "puzzleShuffle": "Mescola di nuovo",
+      "puzzleDifficulty": "Difficoltà",
+      "puzzleStatus": "Stato",
+      "puzzleMoves": "Mosse",
+      "puzzleReady": "Pronto a giocare",
+      "puzzleSelected": "Pezzo selezionato"
     },
     "metadata": {
       "title": "KidScoop - Storie Incredibili per Bambini",
@@ -232,7 +287,18 @@
       "clickToDownload": "Clique para baixar",
       "audioNotSupported": "Seu navegador não suporta o elemento de áudio.",
       "lyrics": "Letra",
-      "lyricsInLanguage": "em inglês"
+      "lyricsInLanguage": "em inglês",
+      "puzzleTitle": "Hora do quebra-cabeça!",
+      "puzzleDescription": "Monte novamente a imagem do artigo trocando as peças.",
+      "puzzleHint": "Arraste uma peça sobre a outra, ou toque em duas peças em telas sensíveis ao toque.",
+      "puzzleSolved": "Você conseguiu!",
+      "puzzleSolvedDescription": "A imagem está completa novamente.",
+      "puzzleShuffle": "Embaralhar novamente",
+      "puzzleDifficulty": "Dificuldade",
+      "puzzleStatus": "Status",
+      "puzzleMoves": "Movimentos",
+      "puzzleReady": "Pronto para jogar",
+      "puzzleSelected": "Peça selecionada"
     },
     "metadata": {
       "title": "KidScoop - Histórias Incríveis para Crianças",
@@ -272,7 +338,18 @@
       "clickToDownload": "点击下载",
       "audioNotSupported": "您的浏览器不支持音频元素。",
       "lyrics": "歌词",
-      "lyricsInLanguage": "（英文）"
+      "lyricsInLanguage": "（英文）",
+      "puzzleTitle": "拼图时间！",
+      "puzzleDescription": "通过交换拼图块，把文章图片重新拼好。",
+      "puzzleHint": "把一块拖到另一块上，或者在触摸屏上点按两块。",
+      "puzzleSolved": "你完成了！",
+      "puzzleSolvedDescription": "图片又完整啦。",
+      "puzzleShuffle": "重新打乱",
+      "puzzleDifficulty": "难度",
+      "puzzleStatus": "状态",
+      "puzzleMoves": "移动次数",
+      "puzzleReady": "准备开始",
+      "puzzleSelected": "已选拼图块"
     },
     "metadata": {
       "title": "KidScoop - 孩子们的精彩故事",
@@ -312,7 +389,18 @@
       "clickToDownload": "クリックしてダウンロード",
       "audioNotSupported": "お使いのブラウザはオーディオ要素をサポートしていません。",
       "lyrics": "歌詞",
-      "lyricsInLanguage": "（英語）"
+      "lyricsInLanguage": "（英語）",
+      "puzzleTitle": "パズルの時間！",
+      "puzzleDescription": "ピースを入れ替えて記事の画像を完成させよう。",
+      "puzzleHint": "1つのピースを別のピースにドラッグするか、タッチ画面では2つのピースを順番にタップしてください。",
+      "puzzleSolved": "できたね！",
+      "puzzleSolvedDescription": "画像が元どおりになりました。",
+      "puzzleShuffle": "もう一度シャッフル",
+      "puzzleDifficulty": "むずかしさ",
+      "puzzleStatus": "ステータス",
+      "puzzleMoves": "手数",
+      "puzzleReady": "プレイする準備完了",
+      "puzzleSelected": "選択中のピース"
     },
     "metadata": {
       "title": "KidScoop - 子供のための素晴らしい物語",
@@ -352,7 +440,18 @@
       "clickToDownload": "다운로드하려면 클릭",
       "audioNotSupported": "브라우저가 오디오 요소를 지원하지 않습니다.",
       "lyrics": "가사",
-      "lyricsInLanguage": "（영어）"
+      "lyricsInLanguage": "（영어）",
+      "puzzleTitle": "퍼즐 시간!",
+      "puzzleDescription": "조각을 서로 바꿔서 기사 이미지를 다시 완성해 보세요.",
+      "puzzleHint": "한 조각을 다른 조각 위로 드래그하거나, 터치 화면에서는 두 조각을 차례로 탭하세요.",
+      "puzzleSolved": "완성했어요!",
+      "puzzleSolvedDescription": "이미지가 다시 완성됐어요.",
+      "puzzleShuffle": "다시 섞기",
+      "puzzleDifficulty": "난이도",
+      "puzzleStatus": "상태",
+      "puzzleMoves": "이동 횟수",
+      "puzzleReady": "플레이할 준비 완료",
+      "puzzleSelected": "선택된 조각"
     },
     "metadata": {
       "title": "KidScoop - 어린이를 위한 놀라운 이야기",
@@ -392,7 +491,18 @@
       "clickToDownload": "انقر للتنزيل",
       "audioNotSupported": "المتصفح الخاص بك لا يدعم عنصر الصوت.",
       "lyrics": "كلمات",
-      "lyricsInLanguage": "بالإنجليزية"
+      "lyricsInLanguage": "بالإنجليزية",
+      "puzzleTitle": "حان وقت الأحجية!",
+      "puzzleDescription": "أعد تكوين صورة المقال من خلال تبديل القطع.",
+      "puzzleHint": "اسحب قطعة فوق أخرى، أو اضغط على قطعتين على الشاشات اللمسية.",
+      "puzzleSolved": "لقد نجحت!",
+      "puzzleSolvedDescription": "عادت الصورة مكتملة من جديد.",
+      "puzzleShuffle": "أعد الخلط",
+      "puzzleDifficulty": "الصعوبة",
+      "puzzleStatus": "الحالة",
+      "puzzleMoves": "عدد الحركات",
+      "puzzleReady": "جاهز للعب",
+      "puzzleSelected": "القطعة المحددة"
     },
     "metadata": {
       "title": "KidScoop - قصص مذهلة للأطفال",
@@ -432,7 +542,18 @@
       "clickToDownload": "डाउनलोड करने के लिए क्लिक करें",
       "audioNotSupported": "आपका ब्राउज़र ऑडियो तत्व का समर्थन नहीं करता है।",
       "lyrics": "गीत",
-      "lyricsInLanguage": "अंग्रेजी में"
+      "lyricsInLanguage": "अंग्रेजी में",
+      "puzzleTitle": "पहेली का समय!",
+      "puzzleDescription": "टुकड़ों को बदलकर लेख की तस्वीर फिर से पूरी करो।",
+      "puzzleHint": "एक टुकड़े को दूसरे पर खींचो, या टच स्क्रीन पर दो टुकड़ों को टैप करो।",
+      "puzzleSolved": "तुमने कर दिखाया!",
+      "puzzleSolvedDescription": "तस्वीर फिर से पूरी हो गई है।",
+      "puzzleShuffle": "फिर से मिलाओ",
+      "puzzleDifficulty": "कठिनाई",
+      "puzzleStatus": "स्थिति",
+      "puzzleMoves": "चालें",
+      "puzzleReady": "खेलने के लिए तैयार",
+      "puzzleSelected": "चुना गया टुकड़ा"
     },
     "metadata": {
       "title": "KidScoop - बच्चों के लिए अद्भुत कहानियाँ",
@@ -472,7 +593,18 @@
       "clickToDownload": "Нажмите, чтобы скачать",
       "audioNotSupported": "Ваш браузер не поддерживает аудио элемент.",
       "lyrics": "Текст песни",
-      "lyricsInLanguage": "на английском"
+      "lyricsInLanguage": "на английском",
+      "puzzleTitle": "Время пазла!",
+      "puzzleDescription": "Собери картинку статьи заново, меняя местами части.",
+      "puzzleHint": "Перетащи одну часть на другую или коснись двух частей на сенсорном экране.",
+      "puzzleSolved": "У тебя получилось!",
+      "puzzleSolvedDescription": "Картинка снова собрана.",
+      "puzzleShuffle": "Перемешать снова",
+      "puzzleDifficulty": "Сложность",
+      "puzzleStatus": "Статус",
+      "puzzleMoves": "Ходы",
+      "puzzleReady": "Готово к игре",
+      "puzzleSelected": "Часть выбрана"
     },
     "metadata": {
       "title": "KidScoop - Удивительные Истории для Детей",
