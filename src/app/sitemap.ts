@@ -29,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Generate URLs for all article pages in all languages
   const articlePages: MetadataRoute.Sitemap = articles.flatMap(article =>
     languages.map(lang => ({
-      url: `${baseUrl}/${lang}/content/${article.id}`,
+      url: `${baseUrl}/${lang}/article/${article.id}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,

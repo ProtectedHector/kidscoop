@@ -41,7 +41,7 @@ const ArticleSnippet: React.FC<ArticleSnippetProps> = ({ article }) => {
   const locale = localeMap[language] || 'en-US';
   
   return (
-    <Link href={`/${language}/content/${article.id}`}>
+    <Link href={`/${language}/article/${article.id}`}>
       <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl hover:shadow-purple-500/25 transition-all duration-500 overflow-hidden cursor-pointer group transform hover:-translate-y-2 border border-white/20 hover:border-purple-400/50">
         <div className="flex flex-col md:flex-row">
           {/* Thumbnail */}
