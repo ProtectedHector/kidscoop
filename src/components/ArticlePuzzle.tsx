@@ -140,36 +140,36 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
 
   return (
     <section className="mt-12 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20 overflow-hidden">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="max-w-2xl">
-          <h2 className="text-2xl font-bold text-white mb-2">🧩 {labels.title}</h2>
-          <p className="text-white/70">{labels.description}</p>
-          <p className="mt-2 text-sm text-purple-200/80">{labels.hint}</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold uppercase tracking-[0.2em] text-white/50">
-            {labels.difficulty}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {GRID_OPTIONS.map((option) => {
-              const isActive = option === gridSize;
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setGridSize(option)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                    isActive
-                      ? 'bg-gradient-to-r from-amber-400 to-pink-500 text-slate-950 shadow-lg shadow-pink-500/30'
-                      : 'bg-white/10 text-white border border-white/15 hover:bg-white/20'
-                  }`}
-                >
-                  {option} x {option}
-                  <span className="ml-2 text-xs opacity-80">{option * option}</span>
-                </button>
-              );
-            })}
+      <div className="flex flex-col gap-5">
+        <h2 className="text-2xl font-bold text-white text-center">🧩 {labels.title}</h2>
+        <p className="mx-auto max-w-4xl text-center text-white/70">
+          {labels.description} <span className="text-purple-200/80">{labels.hint}</span>
+        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm font-semibold uppercase tracking-[0.2em] text-white/50">
+              {labels.difficulty}
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {GRID_OPTIONS.map((option) => {
+                const isActive = option === gridSize;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setGridSize(option)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                      isActive
+                        ? 'bg-gradient-to-r from-amber-400 to-pink-500 text-slate-950 shadow-lg shadow-pink-500/30'
+                        : 'bg-white/10 text-white border border-white/15 hover:bg-white/20'
+                    }`}
+                  >
+                    {option} x {option}
+                    <span className="ml-2 text-xs opacity-80">{option * option}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <button
             type="button"
