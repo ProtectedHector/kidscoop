@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import LanguageSelector from '../../../../components/LanguageSelector';
+import ArticleColoringStudio from '../../../../components/ArticleColoringStudio';
 import ArticlePuzzle from '../../../../components/ArticlePuzzle';
 import { useTranslation } from '../../../../hooks/useTranslation';
 
@@ -20,28 +21,9 @@ interface Article {
 
 export default function ContentPage() {
   const params = useParams();
-  const router = useRouter();
   const language = params.language as string;
   const articleId = params.id as string;
   const { t } = useTranslation();
-  
-  // Map language codes to locale codes for date formatting
-  const localeMap: Record<string, string> = {
-    'en': 'en-US',
-    'es': 'es-ES',
-    'fr': 'fr-FR',
-    'de': 'de-DE',
-    'it': 'it-IT',
-    'pt': 'pt-PT',
-    'zh': 'zh-CN',
-    'ja': 'ja-JP',
-    'ko': 'ko-KR',
-    'ar': 'ar-SA',
-    'hi': 'hi-IN',
-    'ru': 'ru-RU'
-  };
-  
-  const locale = localeMap[language] || 'en-US';
   
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,18 +32,6 @@ export default function ContentPage() {
   const [audioLanguage, setAudioLanguage] = useState<string>(language);
   const [lyricsLanguage, setLyricsLanguage] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
-
-  const downloadColoringPage = () => {
-    if (!article) {
-      return;
-    }
-    const link = document.createElement('a');
-    link.href = `/articles/${article.id}c.png`;
-    link.download = `${article.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_coloring_page.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   useEffect(() => {
     if (!lightbox) {
@@ -258,16 +228,6 @@ export default function ContentPage() {
         <div className="max-w-4xl mx-auto px-6">
           {/* Article Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
-              <span className="text-purple-300 text-sm font-medium">
-                {new Date(article.published_date).toLocaleDateString(locale, { 
-                  month: 'long', 
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </span>
-            </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
               {article.title}
             </h1>
@@ -328,6 +288,22 @@ export default function ContentPage() {
             }}
           />
 
+          <ArticleColoringStudio
+            imageId={article.id}
+            imageAlt={article.title}
+            labels={{
+              title: t('content.coloringFun'),
+              description: t('content.coloringStudioDescription'),
+              hint: t('content.coloringStudioHint'),
+              undo: t('content.coloringUndo'),
+              redo: t('content.coloringRedo'),
+              reset: t('content.coloringReset'),
+              downloadArtwork: t('content.coloringDownloadArtwork'),
+              downloadPage: t('content.coloringDownloadPage'),
+              loading: t('content.coloringLoading'),
+            }}
+          />
+
           {/* Audio Section - Only show if audio file exists */}
           {hasAudio && (
             <div className="mt-12 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20">
@@ -380,42 +356,6 @@ export default function ContentPage() {
             </div>
           )}
 
-          {/* Coloring Section */}
-          <div className="mt-12 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">🎨 {t('content.coloringFun')}</h2>
-                <p className="text-white/70">{t('content.coloringDescription')}</p>
-              </div>
-            
-            <div className="flex flex-col items-center gap-4">
-              <div
-                className="relative group cursor-zoom-in"
-                onClick={() =>
-                  setLightbox({
-                    src: `/articles/${article.id}c.png`,
-                    alt: `Coloring page for ${article.title}`,
-                  })
-                }
-              >
-                <Image
-                  src={`/articles/${article.id}c.png`}
-                  alt={`Coloring page for ${article.title}`}
-                  width={400}
-                  height={400}
-                  className="rounded-xl shadow-lg group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-              </div>
-              <button
-                type="button"
-                onClick={downloadColoringPage}
-                className="bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-5 py-2 rounded-full border border-white/20 transition"
-              >
-                {t('content.clickToDownload')}
-              </button>
-            </div>
-          </div>
-
           {/* Footer */}
           <div className="mt-12 text-center">
             <Link 
@@ -434,18 +374,6 @@ export default function ContentPage() {
           onClick={() => setLightbox(null)}
         >
           <div className="absolute top-6 right-6 flex items-center gap-3">
-            {lightbox.src.endsWith('c.png') && (
-              <button
-                type="button"
-                className="rounded-full bg-white/10 px-4 py-2 text-white/90 hover:bg-white/20 transition"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  downloadColoringPage();
-                }}
-              >
-                {t('content.clickToDownload')}
-              </button>
-            )}
             <button
               type="button"
               className="rounded-full bg-white/10 px-4 py-2 text-white/90 hover:bg-white/20 transition"
