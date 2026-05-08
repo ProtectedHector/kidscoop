@@ -248,7 +248,7 @@ export default function ContentPage() {
       )}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Floating Logo */}
-      <div className="fixed top-8 left-8 z-50">
+      <div className="fixed top-8 left-8 z-50 scroll-stable">
         <Link href={`/${language}`}>
           <div className="relative">
             <Image
@@ -264,7 +264,7 @@ export default function ContentPage() {
       </div>
 
       {/* Back Button and Language Selector */}
-      <div className="fixed top-8 right-8 z-50 flex items-center space-x-4">
+      <div className="fixed top-8 right-8 z-50 flex items-center space-x-4 scroll-stable">
         <LanguageSelector />
         <Link href={`/${language}`}>
           <div className="bg-white/10 backdrop-blur-md rounded-full px-6 py-3 border border-white/20 hover:bg-white/20 transition-all duration-300">
