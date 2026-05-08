@@ -79,6 +79,14 @@ function parseCSV(csvText: string): SheetRow[] {
   return records;
 }
 
+function getField(row: SheetRow, name: string): string {
+  const normalizedName = name.trim().toLowerCase();
+  const entry = Object.entries(row).find(
+    ([key]) => key.replace(/^\uFEFF/, '').trim().toLowerCase() === normalizedName
+  );
+  return entry?.[1]?.trim() || '';
+}
+
 async function fetchFromSheet(url: string): Promise<SheetRow[]> {
   if (!url) {
     throw new Error('Sheet URL not configured');
@@ -118,9 +126,9 @@ export async function fetchArticlesWithContent(language: string): Promise<Articl
   const articlesMap: Record<number, { id: number; name: string }> = {};
 
   articlesData.forEach((article) => {
-    const id = parseInt(article.id || article.ID || '0', 10);
-    const deleted = parseInt(article.deleted || article.Deleted || '0', 10);
-    const name = article.name || article.Name || '';
+    const id = parseInt(getField(article, 'id') || '0', 10);
+    const deleted = parseInt(getField(article, 'deleted') || '0', 10);
+    const name = getField(article, 'name');
 
     if (id > 0 && deleted === 0) {
       articlesMap[id] = { id, name };
