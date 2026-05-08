@@ -3,6 +3,7 @@
 // components/ArticleSnippet.tsx
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import { useTranslation } from '../hooks/useTranslation';
 
 interface Article {
@@ -42,18 +43,20 @@ const ArticleSnippet: React.FC<ArticleSnippetProps> = ({ article }) => {
   
   return (
     <Link href={`/${language}/article/${article.id}`}>
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl hover:shadow-purple-500/25 transition-all duration-500 overflow-hidden cursor-pointer group transform hover:-translate-y-2 border border-white/20 hover:border-purple-400/50">
+      <div className="article-card scroll-stable bg-white/10 rounded-2xl shadow-xl hover:shadow-purple-500/25 transition-shadow duration-300 overflow-hidden cursor-pointer group border border-white/20 hover:border-purple-400/50">
         <div className="flex flex-col md:flex-row">
           {/* Thumbnail */}
           <div className="relative w-full md:w-48 h-48 md:h-auto overflow-hidden">
-            <img 
+            <Image
               src={article.image_path} 
               alt={article.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              sizes="(min-width: 768px) 12rem, 100vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="bg-purple-500/90 backdrop-blur-sm rounded-full p-2">
+              <div className="bg-purple-500/90 rounded-full p-2">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
