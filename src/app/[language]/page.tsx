@@ -9,6 +9,11 @@ import { useTranslation } from '../../hooks/useTranslation';
 export default function Page({ params }: { params: { language: string } }) {
   const { t } = useTranslation();
   const language = params.language;
+  const heroTagline = t('hero.tagline');
+  const heroTaglineLines = heroTagline
+    .replace(/([.!?])\s+/g, '$1\n')
+    .split('\n')
+    .filter(Boolean);
 
   // Log visit to home page
   useEffect(() => {
@@ -66,7 +71,11 @@ export default function Page({ params }: { params: { language: string } }) {
               </div>
             </div>
             <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-              {t('hero.tagline')}
+              {heroTaglineLines.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
             </p>
           </div>
         </div>
