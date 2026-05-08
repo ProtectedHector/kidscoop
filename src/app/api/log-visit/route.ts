@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 const DEFAULT_LOG_DIR = process.env.VERCEL
   ? '/tmp/kidscoop-logs'
   : path.join(process.cwd(), 'logs');
+const GOOGLE_SHEETS_VISITS_URL = process.env.GOOGLE_SHEETS_VISITS_URL || '';
 
 async function ensureLogFile(filePath: string) {
   const dir = path.dirname(filePath);
@@ -24,6 +25,27 @@ export async function POST(request: Request) {
     const { article_id, language, type } = await request.json();
     const today = new Date().toISOString().split('T')[0];
     const articleIdValue = type === 'home' || !article_id ? '' : article_id;
+
+    if (GOOGLE_SHEETS_VISITS_URL) {
+      const response = await fetch(GOOGLE_SHEETS_VISITS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          date: today,
+          type: type || 'unknown',
+          article_id: articleIdValue,
+          language: language || 'unknown',
+        }),
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to log visit to Google Sheets (${response.status})`);
+      }
+
+      return NextResponse.json({ success: true });
+    }
+
     const logEntry = `${today},${type || 'unknown'},${articleIdValue},${language || 'unknown'}\n`;
 
     const logDir = process.env.LOG_DIR || DEFAULT_LOG_DIR;

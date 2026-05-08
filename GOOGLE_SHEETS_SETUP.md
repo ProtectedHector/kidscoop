@@ -136,6 +136,46 @@ GOOGLE_SHEETS_CONTENT_URL=https://docs.google.com/spreadsheets/d/abc123xyz/expor
 - **Real-time updates**: Changes in your Google Sheet will appear on your website immediately (no need to restart the server)
 - **Multiple columns**: The parser is flexible - it will work with column names like `id`, `ID`, `title`, `Title`, `content_text`, `content`, `Content`, etc.
 
+## 📈 Optional: Log Visits to Google Sheets
+
+Create a third tab named `Visits` with these columns:
+
+| date | type | article_id | language |
+|---|---|---|---|
+
+Then open **Extensions → Apps Script** and deploy this script as a Web App:
+
+```javascript
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Visits');
+  const data = JSON.parse(e.postData.contents);
+
+  sheet.appendRow([
+    data.date || '',
+    data.type || 'unknown',
+    data.article_id || '',
+    data.language || 'unknown',
+  ]);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+```
+
+Deploy with:
+
+- **Execute as:** Me
+- **Who has access:** Anyone
+
+Copy the Web App URL and add it to `.env.local` and Vercel Environment Variables:
+
+```
+GOOGLE_SHEETS_VISITS_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+```
+
+If `GOOGLE_SHEETS_VISITS_URL` is not set, the app falls back to the local CSV log.
+
 ## 🚀 That's it!
 
 Now you can manage all your articles directly in Google Sheets - no database needed! 🎉
