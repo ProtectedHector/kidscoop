@@ -34,7 +34,8 @@ const PALETTE = [
 ] as const;
 
 const BOARD_ASPECT_RATIO = '3 / 2';
-const LINE_THRESHOLD = 245;
+const LINE_THRESHOLD = 252;
+const LINE_DILATION_RADIUS = 1;
 
 interface ArticleColoringStudioLabels {
   title: string;
@@ -80,6 +81,45 @@ function isLinePixel(data: Uint8ClampedArray, index: number) {
   return alpha > 0 && brightness < LINE_THRESHOLD;
 }
 
+function buildLineMask(imageData: ImageData) {
+  const { width, height, data } = imageData;
+  const sourceMask = new Uint8Array(width * height);
+  const lineMask = new Uint8Array(width * height);
+
+  for (let pixel = 0; pixel < sourceMask.length; pixel++) {
+    if (isLinePixel(data, pixel * 4)) {
+      sourceMask[pixel] = 1;
+    }
+  }
+
+  for (let pixel = 0; pixel < sourceMask.length; pixel++) {
+    if (sourceMask[pixel] !== 1) {
+      continue;
+    }
+
+    const column = pixel % width;
+    const row = Math.floor(pixel / width);
+
+    for (let offsetY = -LINE_DILATION_RADIUS; offsetY <= LINE_DILATION_RADIUS; offsetY++) {
+      const nextRow = row + offsetY;
+      if (nextRow < 0 || nextRow >= height) {
+        continue;
+      }
+
+      for (let offsetX = -LINE_DILATION_RADIUS; offsetX <= LINE_DILATION_RADIUS; offsetX++) {
+        const nextColumn = column + offsetX;
+        if (nextColumn < 0 || nextColumn >= width) {
+          continue;
+        }
+
+        lineMask[nextRow * width + nextColumn] = 1;
+      }
+    }
+  }
+
+  return lineMask;
+}
+
 function getBrushCursor(color: string) {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -98,8 +138,10 @@ export default function ArticleColoringStudio({
   labels,
 }: ArticleColoringStudioProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const outlineCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const baseImageDataRef = useRef<ImageData | null>(null);
   const workingImageDataRef = useRef<ImageData | null>(null);
+  const lineMaskRef = useRef<Uint8Array | null>(null);
   const undoHistoryRef = useRef<ImageData[]>([]);
   const redoHistoryRef = useRef<ImageData[]>([]);
 
@@ -123,6 +165,37 @@ export default function ArticleColoringStudio({
     }
 
     context.putImageData(imageData, 0, 0);
+  };
+
+  const drawOutline = (imageData: ImageData) => {
+    const canvas = outlineCanvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    const context = canvas.getContext('2d');
+    if (!context) {
+      return;
+    }
+
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    const outlineImageData = new ImageData(canvas.width, canvas.height);
+    const sourceData = imageData.data;
+    const outlineData = outlineImageData.data;
+
+    for (let index = 0; index < sourceData.length; index += 4) {
+      if (isLinePixel(sourceData, index)) {
+        outlineData[index] = sourceData[index];
+        outlineData[index + 1] = sourceData[index + 1];
+        outlineData[index + 2] = sourceData[index + 2];
+        outlineData[index + 3] = sourceData[index + 3];
+      }
+    }
+
+    context.putImageData(outlineImageData, 0, 0);
   };
 
   const resetArtwork = () => {
@@ -202,8 +275,13 @@ export default function ArticleColoringStudio({
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
       const baseImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      const blankImageData = new ImageData(canvas.width, canvas.height);
+      blankImageData.data.fill(255);
+
       baseImageDataRef.current = baseImageData;
-      workingImageDataRef.current = cloneImageData(baseImageData);
+      workingImageDataRef.current = blankImageData;
+      lineMaskRef.current = buildLineMask(baseImageData);
+      drawOutline(baseImageData);
       undoHistoryRef.current = [];
       redoHistoryRef.current = [];
       setUndoCount(0);
@@ -226,8 +304,9 @@ export default function ArticleColoringStudio({
     const canvas = canvasRef.current;
     const baseImageData = baseImageDataRef.current;
     const workingImageData = workingImageDataRef.current;
+    const lineMask = lineMaskRef.current;
 
-    if (!canvas || !baseImageData || !workingImageData) {
+    if (!canvas || !baseImageData || !workingImageData || !lineMask) {
       return;
     }
 
@@ -240,9 +319,8 @@ export default function ArticleColoringStudio({
     }
 
     const seed = y * canvas.width + x;
-    const seedDataIndex = seed * 4;
 
-    if (isLinePixel(baseImageData.data, seedDataIndex)) {
+    if (lineMask[seed] === 1) {
       return;
     }
 
@@ -253,9 +331,9 @@ export default function ArticleColoringStudio({
 
     const { r, g, b } = hexToRgb(selectedColor);
     const visited = new Uint8Array(canvas.width * canvas.height);
+    const regionMask = new Uint8Array(canvas.width * canvas.height);
     const stack = [seed];
     const nextData = workingImageData.data;
-    const baseData = baseImageData.data;
 
     while (stack.length > 0) {
       const current = stack.pop();
@@ -265,11 +343,13 @@ export default function ArticleColoringStudio({
 
       visited[current] = 1;
 
-      const pixelIndex = current * 4;
-      if (isLinePixel(baseData, pixelIndex)) {
+      if (lineMask[current] === 1) {
         continue;
       }
 
+      regionMask[current] = 1;
+
+      const pixelIndex = current * 4;
       nextData[pixelIndex] = r;
       nextData[pixelIndex + 1] = g;
       nextData[pixelIndex + 2] = b;
@@ -302,12 +382,24 @@ export default function ArticleColoringStudio({
 
   const downloadArtwork = () => {
     const canvas = canvasRef.current;
-    if (!canvas) {
+    const outlineCanvas = outlineCanvasRef.current;
+    if (!canvas || !outlineCanvas) {
       return;
     }
 
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = canvas.width;
+    exportCanvas.height = canvas.height;
+    const context = exportCanvas.getContext('2d');
+    if (!context) {
+      return;
+    }
+
+    context.drawImage(canvas, 0, 0);
+    context.drawImage(outlineCanvas, 0, 0);
+
     const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
+    link.href = exportCanvas.toDataURL('image/png');
     link.download = `${sanitizeFileName(imageAlt)}_colored.png`;
     document.body.appendChild(link);
     link.click();
@@ -405,7 +497,7 @@ export default function ArticleColoringStudio({
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-white/15 bg-white shadow-2xl">
+      <div className="relative mt-6 overflow-hidden rounded-2xl border border-white/15 bg-white shadow-2xl">
         <canvas
           ref={canvasRef}
           className="block w-full h-auto bg-white"
@@ -415,6 +507,11 @@ export default function ArticleColoringStudio({
             cursor: isReady ? brushCursor : 'default',
           }}
           onPointerDown={handleCanvasPointerDown}
+        />
+        <canvas
+          ref={outlineCanvasRef}
+          className="pointer-events-none absolute inset-0 block h-full w-full"
+          style={{ aspectRatio: BOARD_ASPECT_RATIO }}
         />
       </div>
 
