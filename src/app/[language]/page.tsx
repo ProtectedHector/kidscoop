@@ -44,7 +44,7 @@ export default function Page({ params }: { params: { language: string } }) {
 
 
       {/* Floating Navigation */}
-      <nav className="fixed top-8 right-8 z-50 flex items-center space-x-4 scroll-stable">
+      <nav className="fixed top-8 right-8 z-50 flex items-center space-x-4">
         <LanguageSelector />
         <div className="bg-white/10 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
           <div className="flex space-x-4 text-white/80 text-sm">
