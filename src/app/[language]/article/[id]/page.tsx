@@ -264,7 +264,7 @@ export default function ContentPage() {
       </div>
 
       {/* Back Button and Language Selector */}
-      <div className="fixed top-8 right-8 z-50 flex items-center space-x-4 scroll-stable">
+      <div className="fixed top-8 right-8 z-50 flex items-center space-x-4">
         <LanguageSelector />
         <Link href={`/${language}`}>
           <div className="bg-white/10 backdrop-blur-md rounded-full px-6 py-3 border border-white/20 hover:bg-white/20 transition-all duration-300">
