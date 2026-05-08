@@ -92,7 +92,7 @@ async function fetchFromSheet(url: string): Promise<SheetRow[]> {
     throw new Error('Sheet URL not configured');
   }
 
-  const res = await fetch(url, { redirect: 'follow' });
+  const res = await fetch(url, { redirect: 'follow', cache: 'no-store' });
   const data = await res.text();
 
   if (!res.ok) {
