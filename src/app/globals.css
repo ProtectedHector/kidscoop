@@ -100,6 +100,25 @@ body {
   contain: paint;
 }
 
+.article-card {
+  transform: translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob,
+  .animate-puzzle-glow,
+  .puzzle-confetti {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .animate-blob {
+    animation: none;
+    opacity: 0.28;
+  }
+}
+
 .animate-puzzle-glow {
   animation: puzzle-board-glow 900ms ease-out;
 }
