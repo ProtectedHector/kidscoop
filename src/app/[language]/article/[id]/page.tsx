@@ -32,6 +32,8 @@ export default function ContentPage() {
   const [audioLanguage, setAudioLanguage] = useState<string>(language);
   const [lyricsLanguage, setLyricsLanguage] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(true);
 
   useEffect(() => {
     if (!lightbox) {
@@ -49,6 +51,23 @@ export default function ContentPage() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [lightbox]);
+
+  useEffect(() => {
+    const supported =
+      typeof window !== 'undefined' &&
+      'speechSynthesis' in window &&
+      typeof window.SpeechSynthesisUtterance !== 'undefined';
+
+    setSpeechSupported(supported);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -183,6 +202,42 @@ export default function ContentPage() {
     }
   } : null;
 
+  const handleToggleSpeak = () => {
+    if (
+      !speechSupported ||
+      typeof window === 'undefined' ||
+      !article ||
+      !('speechSynthesis' in window)
+    ) {
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new window.SpeechSynthesisUtterance(`${article.title}. ${article.content_text}`);
+    utterance.lang = language;
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+    const matchedVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith(language.toLowerCase()));
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
   return (
     <>
       {structuredData && (
@@ -268,6 +323,21 @@ export default function ContentPage() {
                 ))}
               </div>
             </div>
+          </div>
+          <div className="mt-5 mb-8 flex flex-col items-center gap-3">
+            <button
+              type="button"
+              onClick={handleToggleSpeak}
+              disabled={!speechSupported}
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 text-white font-semibold shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-300"
+              aria-pressed={isSpeaking}
+            >
+              <span>{isSpeaking ? '⏹️' : '🔊'}</span>
+              <span>{isSpeaking ? t('content.stopListening') : t('content.listenArticle')}</span>
+            </button>
+            {!speechSupported && (
+              <p className="text-white/70 text-sm">{t('content.speechNotSupported')}</p>
+            )}
           </div>
 
           <ArticlePuzzle
