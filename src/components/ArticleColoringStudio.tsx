@@ -34,8 +34,9 @@ const PALETTE = [
 ] as const;
 
 const BOARD_ASPECT_RATIO = '3 / 2';
-const LINE_THRESHOLD = 252;
+const LINE_THRESHOLD = 248;
 const LINE_DILATION_RADIUS = 1;
+const FILL_SEED_SEARCH_RADIUS = 8;
 
 interface ArticleColoringStudioLabels {
   title: string;
@@ -78,19 +79,11 @@ function isLinePixel(data: Uint8ClampedArray, index: number) {
   const alpha = data[index + 3];
   const brightness = (data[index] + data[index + 1] + data[index + 2]) / 3;
 
-  return alpha > 0 && brightness < LINE_THRESHOLD;
+  return alpha > 16 && brightness < LINE_THRESHOLD;
 }
 
-function buildLineMask(imageData: ImageData) {
-  const { width, height, data } = imageData;
-  const sourceMask = new Uint8Array(width * height);
+function dilateLineMask(sourceMask: Uint8Array, width: number, height: number) {
   const lineMask = new Uint8Array(width * height);
-
-  for (let pixel = 0; pixel < sourceMask.length; pixel++) {
-    if (isLinePixel(data, pixel * 4)) {
-      sourceMask[pixel] = 1;
-    }
-  }
 
   for (let pixel = 0; pixel < sourceMask.length; pixel++) {
     if (sourceMask[pixel] !== 1) {
@@ -118,6 +111,134 @@ function buildLineMask(imageData: ImageData) {
   }
 
   return lineMask;
+}
+
+function filterBarrierComponents(sourceMask: Uint8Array, width: number, height: number) {
+  const barrierMask = new Uint8Array(width * height);
+  const visited = new Uint8Array(width * height);
+  const dimensionScale = Math.max(0.75, Math.min(width, height) / 1024);
+  const minBarrierPixels = Math.round(70 * dimensionScale);
+  const minBarrierSpan = Math.round(18 * dimensionScale);
+  const maxTextureThickness = Math.round(7 * dimensionScale);
+
+  for (let pixel = 0; pixel < sourceMask.length; pixel++) {
+    if (sourceMask[pixel] !== 1 || visited[pixel] === 1) {
+      continue;
+    }
+
+    const stack = [pixel];
+    const componentPixels: number[] = [];
+    let minColumn = width;
+    let maxColumn = 0;
+    let minRow = height;
+    let maxRow = 0;
+
+    while (stack.length > 0) {
+      const current = stack.pop();
+      if (current === undefined || visited[current] === 1 || sourceMask[current] !== 1) {
+        continue;
+      }
+
+      visited[current] = 1;
+      componentPixels.push(current);
+
+      const column = current % width;
+      const row = Math.floor(current / width);
+      minColumn = Math.min(minColumn, column);
+      maxColumn = Math.max(maxColumn, column);
+      minRow = Math.min(minRow, row);
+      maxRow = Math.max(maxRow, row);
+
+      for (let offsetY = -1; offsetY <= 1; offsetY++) {
+        const nextRow = row + offsetY;
+        if (nextRow < 0 || nextRow >= height) {
+          continue;
+        }
+
+        for (let offsetX = -1; offsetX <= 1; offsetX++) {
+          if (offsetX === 0 && offsetY === 0) {
+            continue;
+          }
+
+          const nextColumn = column + offsetX;
+          if (nextColumn < 0 || nextColumn >= width) {
+            continue;
+          }
+
+          const nextPixel = nextRow * width + nextColumn;
+          if (sourceMask[nextPixel] === 1 && visited[nextPixel] !== 1) {
+            stack.push(nextPixel);
+          }
+        }
+      }
+    }
+
+    const componentWidth = maxColumn - minColumn + 1;
+    const componentHeight = maxRow - minRow + 1;
+    const smallerSpan = Math.min(componentWidth, componentHeight);
+    const largerSpan = Math.max(componentWidth, componentHeight);
+    const isTinyMark = componentPixels.length < minBarrierPixels && largerSpan < minBarrierSpan * 2;
+    const isThinTextureLine = smallerSpan <= maxTextureThickness && largerSpan > minBarrierSpan;
+
+    if (isTinyMark || isThinTextureLine) {
+      continue;
+    }
+
+    for (const componentPixel of componentPixels) {
+      barrierMask[componentPixel] = 1;
+    }
+  }
+
+  return barrierMask;
+}
+
+function buildLineMask(imageData: ImageData) {
+  const { width, height, data } = imageData;
+  const sourceMask = new Uint8Array(width * height);
+
+  for (let pixel = 0; pixel < sourceMask.length; pixel++) {
+    if (isLinePixel(data, pixel * 4)) {
+      sourceMask[pixel] = 1;
+    }
+  }
+
+  return dilateLineMask(filterBarrierComponents(sourceMask, width, height), width, height);
+}
+
+function findFillSeed(seed: number, lineMask: Uint8Array, width: number, height: number) {
+  if (lineMask[seed] !== 1) {
+    return seed;
+  }
+
+  const seedColumn = seed % width;
+  const seedRow = Math.floor(seed / width);
+
+  for (let radius = 1; radius <= FILL_SEED_SEARCH_RADIUS; radius++) {
+    for (let offsetY = -radius; offsetY <= radius; offsetY++) {
+      const row = seedRow + offsetY;
+      if (row < 0 || row >= height) {
+        continue;
+      }
+
+      for (let offsetX = -radius; offsetX <= radius; offsetX++) {
+        if (Math.abs(offsetX) !== radius && Math.abs(offsetY) !== radius) {
+          continue;
+        }
+
+        const column = seedColumn + offsetX;
+        if (column < 0 || column >= width) {
+          continue;
+        }
+
+        const candidate = row * width + column;
+        if (lineMask[candidate] !== 1) {
+          return candidate;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 function getBrushCursor(color: string) {
@@ -318,22 +439,16 @@ export default function ArticleColoringStudio({
       return;
     }
 
-    const seed = y * canvas.width + x;
+    const seed = findFillSeed(y * canvas.width + x, lineMask, canvas.width, canvas.height);
 
-    if (lineMask[seed] === 1) {
+    if (seed === null) {
       return;
     }
 
-    undoHistoryRef.current = [...undoHistoryRef.current.slice(-4), cloneImageData(workingImageData)];
-    redoHistoryRef.current = [];
-    setUndoCount(undoHistoryRef.current.length);
-    setRedoCount(0);
-
     const { r, g, b } = hexToRgb(selectedColor);
     const visited = new Uint8Array(canvas.width * canvas.height);
-    const regionMask = new Uint8Array(canvas.width * canvas.height);
+    const regionPixels: number[] = [];
     const stack = [seed];
-    const nextData = workingImageData.data;
 
     while (stack.length > 0) {
       const current = stack.pop();
@@ -347,13 +462,7 @@ export default function ArticleColoringStudio({
         continue;
       }
 
-      regionMask[current] = 1;
-
-      const pixelIndex = current * 4;
-      nextData[pixelIndex] = r;
-      nextData[pixelIndex + 1] = g;
-      nextData[pixelIndex + 2] = b;
-      nextData[pixelIndex + 3] = 255;
+      regionPixels.push(current);
 
       const column = current % canvas.width;
       const row = Math.floor(current / canvas.width);
@@ -370,6 +479,25 @@ export default function ArticleColoringStudio({
       if (row < canvas.height - 1) {
         stack.push(current + canvas.width);
       }
+    }
+
+    if (regionPixels.length === 0) {
+      return;
+    }
+
+    undoHistoryRef.current = [...undoHistoryRef.current.slice(-4), cloneImageData(workingImageData)];
+    redoHistoryRef.current = [];
+    setUndoCount(undoHistoryRef.current.length);
+    setRedoCount(0);
+
+    const nextData = workingImageData.data;
+
+    for (const pixel of regionPixels) {
+      const pixelIndex = pixel * 4;
+      nextData[pixelIndex] = r;
+      nextData[pixelIndex + 1] = g;
+      nextData[pixelIndex + 2] = b;
+      nextData[pixelIndex + 3] = 255;
     }
 
     drawImageData(workingImageData);

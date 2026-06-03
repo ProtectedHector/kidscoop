@@ -1,4 +1,9 @@
 import { Metadata } from 'next';
+import { AVAILABLE_LANGUAGES } from '../../lib/languages';
+
+const languageNames = Object.fromEntries(
+  AVAILABLE_LANGUAGES.map((language) => [language.code, language.name])
+);
 
 export async function generateMetadata({
   params,
@@ -7,17 +12,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { language } = params;
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kidscoop.com';
-  
-  const languageNames: Record<string, string> = {
-    en: 'English',
-    es: 'Español',
-    fr: 'Français',
-    de: 'Deutsch',
-    it: 'Italiano',
-    pt: 'Português',
-  };
-  
   const langName = languageNames[language] || language;
+  const languageAlternates = Object.fromEntries(
+    AVAILABLE_LANGUAGES.map((availableLanguage) => [
+      availableLanguage.code,
+      `${baseUrl}/${availableLanguage.code}`,
+    ])
+  );
   
   return {
     title: `KidScoop - Amazing Stories for Kids (${langName})`,
@@ -31,14 +32,7 @@ export async function generateMetadata({
     },
     alternates: {
       canonical: `${baseUrl}/${language}`,
-      languages: {
-        'en': `${baseUrl}/en`,
-        'es': `${baseUrl}/es`,
-        'fr': `${baseUrl}/fr`,
-        'de': `${baseUrl}/de`,
-        'it': `${baseUrl}/it`,
-        'pt': `${baseUrl}/pt`,
-      },
+      languages: languageAlternates,
     },
   };
 }
