@@ -13,7 +13,7 @@ export async function generateMetadata({
   const baseUrl =
     (host ? `${protocol}://${host}` : '') ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    'http://localhost:3000';
+    'https://kidscoop.vercel.app';
   
   try {
     const res = await fetch(
@@ -38,6 +38,8 @@ export async function generateMetadata({
         openGraph: {
           title,
           description,
+          url: `${baseUrl}/${language}/article/${id}`,
+          siteName: 'KidScoop',
           images: [
             {
               url: imageUrl,

@@ -4,10 +4,33 @@ import "./globals.css";
 import { LanguageProvider } from "../contexts/LanguageContext";
 
 const inter = Inter({ subsets: ["latin"] });
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kidscoop.vercel.app';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "KidScoop - Amazing Stories for Kids",
   description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
+  openGraph: {
+    title: "KidScoop - Amazing Stories for Kids",
+    description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
+    url: siteUrl,
+    siteName: "KidScoop",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1019,
+        height: 573,
+        alt: "KidScoop",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KidScoop - Amazing Stories for Kids",
+    description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
+    images: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({
@@ -15,7 +38,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kidscoop.com';
+  const baseUrl = siteUrl;
   
   // Organization structured data
   const organizationSchema = {

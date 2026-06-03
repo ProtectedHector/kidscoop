@@ -2,50 +2,47 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-
-type Language = 'en' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'zh' | 'ja' | 'ko' | 'ar' | 'hi' | 'ru';
+import {
+  AVAILABLE_LANGUAGES,
+  DEFAULT_LANGUAGE,
+  Language,
+  isSupportedLanguage,
+} from '../lib/languages';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  availableLanguages: { code: Language; name: string; flag: string }[];
+  availableLanguages: typeof AVAILABLE_LANGUAGES;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const AVAILABLE_LANGUAGES = [
-  { code: 'en' as Language, name: 'English', flag: '🇺🇸' },
-  { code: 'es' as Language, name: 'Español', flag: '🇪🇸' },
-  { code: 'fr' as Language, name: 'Français', flag: '🇫🇷' },
-  { code: 'de' as Language, name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'it' as Language, name: 'Italiano', flag: '🇮🇹' },
-  { code: 'pt' as Language, name: 'Português', flag: '🇵🇹' },
-  { code: 'zh' as Language, name: '中文', flag: '🇨🇳' },
-  { code: 'ja' as Language, name: '日本語', flag: '🇯🇵' },
-  { code: 'ko' as Language, name: '한국어', flag: '🇰🇷' },
-  { code: 'ar' as Language, name: 'العربية', flag: '🇸🇦' },
-  { code: 'hi' as Language, name: 'हिन्दी', flag: '🇮🇳' },
-  { code: 'ru' as Language, name: 'Русский', flag: '🇷🇺' },
-];
+const LANGUAGE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+function persistLanguage(lang: Language) {
+  localStorage.setItem('language', lang);
+  document.cookie = `language=${lang}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; SameSite=Lax`;
+}
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(DEFAULT_LANGUAGE);
 
   // Extract language from URL path
   useEffect(() => {
     const pathParts = pathname.split('/').filter(Boolean);
-    const urlLanguage = pathParts[0] as Language;
+    const urlLanguage = pathParts[0];
     
-    if (urlLanguage && AVAILABLE_LANGUAGES.some(lang => lang.code === urlLanguage)) {
+    if (isSupportedLanguage(urlLanguage)) {
       setLanguageState(urlLanguage);
-      localStorage.setItem('language', urlLanguage);
+      persistLanguage(urlLanguage);
     } else {
       // If no valid language in URL, redirect to default
-      const savedLanguage = (localStorage.getItem('language') || 'en') as Language;
-      if (pathname === '/' || !AVAILABLE_LANGUAGES.some(lang => lang.code === urlLanguage)) {
-        router.replace(`/${savedLanguage}`);
+      const savedLanguage = localStorage.getItem('language');
+      const languageToUse = isSupportedLanguage(savedLanguage) ? savedLanguage : DEFAULT_LANGUAGE;
+      if (pathname === '/' || !isSupportedLanguage(urlLanguage)) {
+        router.replace(`/${languageToUse}`);
       }
     }
   }, [pathname, router]);
@@ -53,11 +50,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // Navigate to new URL when language changes
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('language', lang);
+    persistLanguage(lang);
     
     // Get current path and replace language segment
     const pathParts = pathname.split('/').filter(Boolean);
-    if (pathParts.length > 0 && AVAILABLE_LANGUAGES.some(l => l.code === pathParts[0])) {
+    if (pathParts.length > 0 && isSupportedLanguage(pathParts[0])) {
       // Replace language in URL
       pathParts[0] = lang;
       router.push(`/${pathParts.join('/')}`);

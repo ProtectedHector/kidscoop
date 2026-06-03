@@ -34,7 +34,9 @@ const PALETTE = [
 ] as const;
 
 const BOARD_ASPECT_RATIO = '3 / 2';
-const LINE_THRESHOLD = 245;
+const LINE_THRESHOLD = 248;
+const LINE_DILATION_RADIUS = 1;
+const FILL_SEED_SEARCH_RADIUS = 8;
 
 interface ArticleColoringStudioLabels {
   title: string;
@@ -77,7 +79,166 @@ function isLinePixel(data: Uint8ClampedArray, index: number) {
   const alpha = data[index + 3];
   const brightness = (data[index] + data[index + 1] + data[index + 2]) / 3;
 
-  return alpha > 0 && brightness < LINE_THRESHOLD;
+  return alpha > 16 && brightness < LINE_THRESHOLD;
+}
+
+function dilateLineMask(sourceMask: Uint8Array, width: number, height: number) {
+  const lineMask = new Uint8Array(width * height);
+
+  for (let pixel = 0; pixel < sourceMask.length; pixel++) {
+    if (sourceMask[pixel] !== 1) {
+      continue;
+    }
+
+    const column = pixel % width;
+    const row = Math.floor(pixel / width);
+
+    for (let offsetY = -LINE_DILATION_RADIUS; offsetY <= LINE_DILATION_RADIUS; offsetY++) {
+      const nextRow = row + offsetY;
+      if (nextRow < 0 || nextRow >= height) {
+        continue;
+      }
+
+      for (let offsetX = -LINE_DILATION_RADIUS; offsetX <= LINE_DILATION_RADIUS; offsetX++) {
+        const nextColumn = column + offsetX;
+        if (nextColumn < 0 || nextColumn >= width) {
+          continue;
+        }
+
+        lineMask[nextRow * width + nextColumn] = 1;
+      }
+    }
+  }
+
+  return lineMask;
+}
+
+function filterBarrierComponents(sourceMask: Uint8Array, width: number, height: number) {
+  const barrierMask = new Uint8Array(width * height);
+  const visited = new Uint8Array(width * height);
+  const dimensionScale = Math.max(0.75, Math.min(width, height) / 1024);
+  const minBarrierPixels = Math.round(70 * dimensionScale);
+  const minBarrierSpan = Math.round(18 * dimensionScale);
+  const maxTextureThickness = Math.round(7 * dimensionScale);
+
+  for (let pixel = 0; pixel < sourceMask.length; pixel++) {
+    if (sourceMask[pixel] !== 1 || visited[pixel] === 1) {
+      continue;
+    }
+
+    const stack = [pixel];
+    const componentPixels: number[] = [];
+    let minColumn = width;
+    let maxColumn = 0;
+    let minRow = height;
+    let maxRow = 0;
+
+    while (stack.length > 0) {
+      const current = stack.pop();
+      if (current === undefined || visited[current] === 1 || sourceMask[current] !== 1) {
+        continue;
+      }
+
+      visited[current] = 1;
+      componentPixels.push(current);
+
+      const column = current % width;
+      const row = Math.floor(current / width);
+      minColumn = Math.min(minColumn, column);
+      maxColumn = Math.max(maxColumn, column);
+      minRow = Math.min(minRow, row);
+      maxRow = Math.max(maxRow, row);
+
+      for (let offsetY = -1; offsetY <= 1; offsetY++) {
+        const nextRow = row + offsetY;
+        if (nextRow < 0 || nextRow >= height) {
+          continue;
+        }
+
+        for (let offsetX = -1; offsetX <= 1; offsetX++) {
+          if (offsetX === 0 && offsetY === 0) {
+            continue;
+          }
+
+          const nextColumn = column + offsetX;
+          if (nextColumn < 0 || nextColumn >= width) {
+            continue;
+          }
+
+          const nextPixel = nextRow * width + nextColumn;
+          if (sourceMask[nextPixel] === 1 && visited[nextPixel] !== 1) {
+            stack.push(nextPixel);
+          }
+        }
+      }
+    }
+
+    const componentWidth = maxColumn - minColumn + 1;
+    const componentHeight = maxRow - minRow + 1;
+    const smallerSpan = Math.min(componentWidth, componentHeight);
+    const largerSpan = Math.max(componentWidth, componentHeight);
+    const isTinyMark = componentPixels.length < minBarrierPixels && largerSpan < minBarrierSpan * 2;
+    const isThinTextureLine = smallerSpan <= maxTextureThickness && largerSpan > minBarrierSpan;
+
+    if (isTinyMark || isThinTextureLine) {
+      continue;
+    }
+
+    for (const componentPixel of componentPixels) {
+      barrierMask[componentPixel] = 1;
+    }
+  }
+
+  return barrierMask;
+}
+
+function buildLineMask(imageData: ImageData) {
+  const { width, height, data } = imageData;
+  const sourceMask = new Uint8Array(width * height);
+
+  for (let pixel = 0; pixel < sourceMask.length; pixel++) {
+    if (isLinePixel(data, pixel * 4)) {
+      sourceMask[pixel] = 1;
+    }
+  }
+
+  return dilateLineMask(filterBarrierComponents(sourceMask, width, height), width, height);
+}
+
+function findFillSeed(seed: number, lineMask: Uint8Array, width: number, height: number) {
+  if (lineMask[seed] !== 1) {
+    return seed;
+  }
+
+  const seedColumn = seed % width;
+  const seedRow = Math.floor(seed / width);
+
+  for (let radius = 1; radius <= FILL_SEED_SEARCH_RADIUS; radius++) {
+    for (let offsetY = -radius; offsetY <= radius; offsetY++) {
+      const row = seedRow + offsetY;
+      if (row < 0 || row >= height) {
+        continue;
+      }
+
+      for (let offsetX = -radius; offsetX <= radius; offsetX++) {
+        if (Math.abs(offsetX) !== radius && Math.abs(offsetY) !== radius) {
+          continue;
+        }
+
+        const column = seedColumn + offsetX;
+        if (column < 0 || column >= width) {
+          continue;
+        }
+
+        const candidate = row * width + column;
+        if (lineMask[candidate] !== 1) {
+          return candidate;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 function getBrushCursor(color: string) {
@@ -98,8 +259,10 @@ export default function ArticleColoringStudio({
   labels,
 }: ArticleColoringStudioProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const outlineCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const baseImageDataRef = useRef<ImageData | null>(null);
   const workingImageDataRef = useRef<ImageData | null>(null);
+  const lineMaskRef = useRef<Uint8Array | null>(null);
   const undoHistoryRef = useRef<ImageData[]>([]);
   const redoHistoryRef = useRef<ImageData[]>([]);
 
@@ -123,6 +286,37 @@ export default function ArticleColoringStudio({
     }
 
     context.putImageData(imageData, 0, 0);
+  };
+
+  const drawOutline = (imageData: ImageData) => {
+    const canvas = outlineCanvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    const context = canvas.getContext('2d');
+    if (!context) {
+      return;
+    }
+
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    const outlineImageData = new ImageData(canvas.width, canvas.height);
+    const sourceData = imageData.data;
+    const outlineData = outlineImageData.data;
+
+    for (let index = 0; index < sourceData.length; index += 4) {
+      if (isLinePixel(sourceData, index)) {
+        outlineData[index] = sourceData[index];
+        outlineData[index + 1] = sourceData[index + 1];
+        outlineData[index + 2] = sourceData[index + 2];
+        outlineData[index + 3] = sourceData[index + 3];
+      }
+    }
+
+    context.putImageData(outlineImageData, 0, 0);
   };
 
   const resetArtwork = () => {
@@ -202,8 +396,13 @@ export default function ArticleColoringStudio({
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
       const baseImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      const blankImageData = new ImageData(canvas.width, canvas.height);
+      blankImageData.data.fill(255);
+
       baseImageDataRef.current = baseImageData;
-      workingImageDataRef.current = cloneImageData(baseImageData);
+      workingImageDataRef.current = blankImageData;
+      lineMaskRef.current = buildLineMask(baseImageData);
+      drawOutline(baseImageData);
       undoHistoryRef.current = [];
       redoHistoryRef.current = [];
       setUndoCount(0);
@@ -226,8 +425,9 @@ export default function ArticleColoringStudio({
     const canvas = canvasRef.current;
     const baseImageData = baseImageDataRef.current;
     const workingImageData = workingImageDataRef.current;
+    const lineMask = lineMaskRef.current;
 
-    if (!canvas || !baseImageData || !workingImageData) {
+    if (!canvas || !baseImageData || !workingImageData || !lineMask) {
       return;
     }
 
@@ -239,23 +439,16 @@ export default function ArticleColoringStudio({
       return;
     }
 
-    const seed = y * canvas.width + x;
-    const seedDataIndex = seed * 4;
+    const seed = findFillSeed(y * canvas.width + x, lineMask, canvas.width, canvas.height);
 
-    if (isLinePixel(baseImageData.data, seedDataIndex)) {
+    if (seed === null) {
       return;
     }
 
-    undoHistoryRef.current = [...undoHistoryRef.current.slice(-4), cloneImageData(workingImageData)];
-    redoHistoryRef.current = [];
-    setUndoCount(undoHistoryRef.current.length);
-    setRedoCount(0);
-
     const { r, g, b } = hexToRgb(selectedColor);
     const visited = new Uint8Array(canvas.width * canvas.height);
+    const regionPixels: number[] = [];
     const stack = [seed];
-    const nextData = workingImageData.data;
-    const baseData = baseImageData.data;
 
     while (stack.length > 0) {
       const current = stack.pop();
@@ -265,15 +458,11 @@ export default function ArticleColoringStudio({
 
       visited[current] = 1;
 
-      const pixelIndex = current * 4;
-      if (isLinePixel(baseData, pixelIndex)) {
+      if (lineMask[current] === 1) {
         continue;
       }
 
-      nextData[pixelIndex] = r;
-      nextData[pixelIndex + 1] = g;
-      nextData[pixelIndex + 2] = b;
-      nextData[pixelIndex + 3] = 255;
+      regionPixels.push(current);
 
       const column = current % canvas.width;
       const row = Math.floor(current / canvas.width);
@@ -292,6 +481,25 @@ export default function ArticleColoringStudio({
       }
     }
 
+    if (regionPixels.length === 0) {
+      return;
+    }
+
+    undoHistoryRef.current = [...undoHistoryRef.current.slice(-4), cloneImageData(workingImageData)];
+    redoHistoryRef.current = [];
+    setUndoCount(undoHistoryRef.current.length);
+    setRedoCount(0);
+
+    const nextData = workingImageData.data;
+
+    for (const pixel of regionPixels) {
+      const pixelIndex = pixel * 4;
+      nextData[pixelIndex] = r;
+      nextData[pixelIndex + 1] = g;
+      nextData[pixelIndex + 2] = b;
+      nextData[pixelIndex + 3] = 255;
+    }
+
     drawImageData(workingImageData);
   };
 
@@ -302,12 +510,24 @@ export default function ArticleColoringStudio({
 
   const downloadArtwork = () => {
     const canvas = canvasRef.current;
-    if (!canvas) {
+    const outlineCanvas = outlineCanvasRef.current;
+    if (!canvas || !outlineCanvas) {
       return;
     }
 
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = canvas.width;
+    exportCanvas.height = canvas.height;
+    const context = exportCanvas.getContext('2d');
+    if (!context) {
+      return;
+    }
+
+    context.drawImage(canvas, 0, 0);
+    context.drawImage(outlineCanvas, 0, 0);
+
     const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
+    link.href = exportCanvas.toDataURL('image/png');
     link.download = `${sanitizeFileName(imageAlt)}_colored.png`;
     document.body.appendChild(link);
     link.click();
@@ -405,7 +625,7 @@ export default function ArticleColoringStudio({
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-white/15 bg-white shadow-2xl">
+      <div className="relative mt-6 overflow-hidden rounded-2xl border border-white/15 bg-white shadow-2xl">
         <canvas
           ref={canvasRef}
           className="block w-full h-auto bg-white"
@@ -415,6 +635,11 @@ export default function ArticleColoringStudio({
             cursor: isReady ? brushCursor : 'default',
           }}
           onPointerDown={handleCanvasPointerDown}
+        />
+        <canvas
+          ref={outlineCanvasRef}
+          className="pointer-events-none absolute inset-0 block h-full w-full"
+          style={{ aspectRatio: BOARD_ASPECT_RATIO }}
         />
       </div>
 
