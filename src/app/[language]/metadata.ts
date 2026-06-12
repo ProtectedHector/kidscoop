@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { AVAILABLE_LANGUAGES } from '../../lib/languages';
+import { SOCIAL_IMAGE, SITE_URL, absoluteUrl } from '../../lib/site';
 import { getMetadataTranslations } from '../../translations/metadata';
 
 const languageNames = Object.fromEntries(
@@ -12,7 +13,8 @@ export async function generateMetadata({
   params: { language: string };
 }): Promise<Metadata> {
   const { language } = params;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kidscoop.vercel.app';
+  const baseUrl = SITE_URL;
+  const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path, baseUrl);
   const langName = languageNames[language] || language;
   const metadataTranslations = getMetadataTranslations(language as Parameters<typeof getMetadataTranslations>[0]);
   const title = metadataTranslations.title;
@@ -34,10 +36,11 @@ export async function generateMetadata({
       siteName: 'KidScoop',
       images: [
         {
-          url: `${baseUrl}/logo.png`,
-          width: 1019,
-          height: 573,
-          alt: 'KidScoop',
+          url: socialImageUrl,
+          width: SOCIAL_IMAGE.width,
+          height: SOCIAL_IMAGE.height,
+          alt: SOCIAL_IMAGE.alt,
+          type: SOCIAL_IMAGE.type,
         },
       ],
       locale: language,
@@ -47,7 +50,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: [`${baseUrl}/logo.png`],
+      images: [socialImageUrl],
     },
     alternates: {
       canonical: `${baseUrl}/${language}`,

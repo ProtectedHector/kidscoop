@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { AVAILABLE_LANGUAGES } from '../../../../lib/languages';
+import { SITE_URL, absoluteUrl } from '../../../../lib/site';
 
 export async function generateMetadata({
   params,
@@ -9,11 +11,10 @@ export async function generateMetadata({
   const { language, id } = params;
   const requestHeaders = headers();
   const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host');
-  const protocol = requestHeaders.get('x-forwarded-proto') || 'http';
+  const protocol = requestHeaders.get('x-forwarded-proto') || 'https';
   const baseUrl =
     (host ? `${protocol}://${host}` : '') ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    'https://kidscoop.vercel.app';
+    SITE_URL;
   
   try {
     const res = await fetch(
@@ -30,7 +31,16 @@ export async function generateMetadata({
       const article = await res.json();
       const title = `${article.title} | KidScoop`;
       const description = article.content_text.substring(0, 160).replace(/\n/g, ' ');
-      const imageUrl = `${baseUrl}${article.image_path}`;
+      const imageUrl = absoluteUrl(article.image_path, baseUrl);
+      const imageType = article.image_path.toLowerCase().endsWith('.jpg') || article.image_path.toLowerCase().endsWith('.jpeg')
+        ? 'image/jpeg'
+        : 'image/png';
+      const languageAlternates = Object.fromEntries(
+        AVAILABLE_LANGUAGES.map((availableLanguage) => [
+          availableLanguage.code,
+          `${baseUrl}/${availableLanguage.code}/article/${id}`,
+        ])
+      );
       
       return {
         title,
@@ -46,6 +56,7 @@ export async function generateMetadata({
               width: 800,
               height: 400,
               alt: article.title,
+              type: imageType,
             },
           ],
           locale: language,
@@ -60,14 +71,7 @@ export async function generateMetadata({
         },
         alternates: {
           canonical: `${baseUrl}/${language}/article/${id}`,
-          languages: {
-            'en': `${baseUrl}/en/article/${id}`,
-            'es': `${baseUrl}/es/article/${id}`,
-            'fr': `${baseUrl}/fr/article/${id}`,
-            'de': `${baseUrl}/de/article/${id}`,
-            'it': `${baseUrl}/it/article/${id}`,
-            'pt': `${baseUrl}/pt/article/${id}`,
-          },
+          languages: languageAlternates,
         },
       };
     }
