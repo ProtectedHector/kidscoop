@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "../contexts/LanguageContext";
+import { SOCIAL_IMAGE, SITE_URL, absoluteUrl } from "../lib/site";
 
 const inter = Inter({ subsets: ["latin"] });
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kidscoop.vercel.app';
+const siteUrl = SITE_URL;
+const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path, siteUrl);
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -17,10 +19,11 @@ export const metadata: Metadata = {
     siteName: "KidScoop",
     images: [
       {
-        url: "/logo.png",
-        width: 1019,
-        height: 573,
-        alt: "KidScoop",
+        url: socialImageUrl,
+        width: SOCIAL_IMAGE.width,
+        height: SOCIAL_IMAGE.height,
+        alt: SOCIAL_IMAGE.alt,
+        type: SOCIAL_IMAGE.type,
       },
     ],
     type: "website",
@@ -29,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "KidScoop - Amazing Stories for Kids",
     description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
-    images: ["/logo.png"],
+    images: [socialImageUrl],
   },
 };
 
