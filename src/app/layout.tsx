@@ -10,13 +10,13 @@ const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path, siteUrl);
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "KidScoop - Amazing Stories for Kids",
+  title: "KidZcoop - Amazing Stories for Kids",
   description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
   openGraph: {
-    title: "KidScoop - Amazing Stories for Kids",
+    title: "KidZcoop - Amazing Stories for Kids",
     description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
     url: siteUrl,
-    siteName: "KidScoop",
+    siteName: "KidZcoop",
     images: [
       {
         url: socialImageUrl,
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KidScoop - Amazing Stories for Kids",
+    title: "KidZcoop - Amazing Stories for Kids",
     description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
     images: [socialImageUrl],
   },
@@ -47,7 +47,7 @@ export default function RootLayout({
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "KidScoop",
+    "name": "KidZcoop",
     "url": baseUrl,
     "logo": `${baseUrl}/logo.png`,
     "description": "Amazing stories for kids - Where curiosity meets discovery",
@@ -57,7 +57,7 @@ export default function RootLayout({
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "KidScoop",
+    "name": "KidZcoop",
     "url": baseUrl,
     "potentialAction": {
       "@type": "SearchAction",

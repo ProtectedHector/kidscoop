@@ -6,7 +6,7 @@ Your app now uses Google Sheets instead of a database! This means you can edit y
 
 1. Go to [Google Sheets](https://sheets.google.com)
 2. Create a new spreadsheet
-3. Name it something like "KidScoop Articles"
+3. Name it something like "KidZcoop Articles"
 
 ## 📊 Step 2: Set Up Your Sheet Structure
 

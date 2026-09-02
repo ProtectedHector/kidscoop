@@ -22,14 +22,14 @@ export async function generateMetadata({
       { 
         next: { revalidate: 3600 },
         headers: {
-          'User-Agent': 'KidScoop-SEO-Bot/1.0'
+          'User-Agent': 'KidZcoop-SEO-Bot/1.0'
         }
       }
     );
     
     if (res.ok) {
       const article = await res.json();
-      const title = `${article.title} | KidScoop`;
+      const title = `${article.title} | KidZcoop`;
       const description = article.content_text.substring(0, 160).replace(/\n/g, ' ');
       const imageUrl = absoluteUrl(article.image_path, baseUrl);
       const imageType = article.image_path.toLowerCase().endsWith('.jpg') || article.image_path.toLowerCase().endsWith('.jpeg')
@@ -49,7 +49,7 @@ export async function generateMetadata({
           title,
           description,
           url: `${baseUrl}/${language}/article/${id}`,
-          siteName: 'KidScoop',
+          siteName: 'KidZcoop',
           images: [
             {
               url: imageUrl,
@@ -80,7 +80,7 @@ export async function generateMetadata({
   }
   
   return {
-    title: 'Article | KidScoop',
+    title: 'Article | KidZcoop',
     description: 'Amazing stories for kids',
   };
 }

@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const DEFAULT_LOG_DIR = process.env.VERCEL
-  ? '/tmp/kidscoop-logs'
+  ? '/tmp/kidzcoop-logs'
   : path.join(process.cwd(), 'logs');
 const GOOGLE_SHEETS_VISITS_URL = process.env.GOOGLE_SHEETS_VISITS_URL || '';
 

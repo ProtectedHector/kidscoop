@@ -185,11 +185,11 @@ export default function ContentPage() {
     "datePublished": article.published_date,
     "author": {
       "@type": "Organization",
-      "name": "KidScoop"
+      "name": "KidZcoop"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "KidScoop",
+      "name": "KidZcoop",
       "logo": {
         "@type": "ImageObject",
         "url": "/logo.png"
@@ -253,7 +253,7 @@ export default function ContentPage() {
           <div className="relative">
             <Image
               src="/logo.png"
-              alt="KidScoop Logo"
+              alt="KidZcoop Logo"
               width={60}
               height={60}
               className="rounded-full shadow-2xl hover:scale-110 transition-transform duration-300"

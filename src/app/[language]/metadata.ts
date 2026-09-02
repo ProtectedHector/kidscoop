@@ -33,7 +33,7 @@ export async function generateMetadata({
       title,
       description,
       url: `${baseUrl}/${language}`,
-      siteName: 'KidScoop',
+      siteName: 'KidZcoop',
       images: [
         {
           url: socialImageUrl,
