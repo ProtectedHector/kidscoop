@@ -63,7 +63,7 @@ export default function Page({ params }: { params: { language: string } }) {
               <div className="relative">
                 <Image
                   src="/logo.png"
-                  alt="KidScoop Logo"
+                  alt="KidZcoop Logo"
                   width={400}
                   height={400}
                   className="shadow-2xl hover:scale-105 transition-transform duration-300"

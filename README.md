@@ -1,4 +1,4 @@
-# KidScoop - Amazing Stories for Kids
+# KidZcoop - Amazing Stories for Kids
 
 A Next.js application for sharing amazing stories for kids in multiple languages.
 
@@ -130,7 +130,7 @@ The easiest way to deploy is using [Vercel](https://vercel.com):
 
 ## Prompt for Next Development Session
 
-**Context**: This is a Next.js 14 application for a kids' story website called KidScoop. The app:
+**Context**: This is a Next.js 14 application for a kids' story website called KidZcoop. The app:
 - Uses Google Sheets as a CMS (Article and Content tabs)
 - Supports 6 languages: en, es, fr, de, it, pt
 - Has an Express.js API server on port 3001
