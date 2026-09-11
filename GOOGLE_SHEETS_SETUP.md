@@ -176,6 +176,45 @@ GOOGLE_SHEETS_VISITS_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/e
 
 If `GOOGLE_SHEETS_VISITS_URL` is not set, the app falls back to the local CSV log.
 
+## ✉️ Optional: Newsletter Signups
+
+Create another tab named `newsletter` with these columns:
+
+| email | subscribed | signed_date |
+|---|---|---|
+
+Then deploy an Apps Script Web App for newsletter signups:
+
+```javascript
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('newsletter');
+  const data = JSON.parse(e.postData.contents);
+
+  sheet.appendRow([
+    data.email || '',
+    data.subscribed || 'TRUE',
+    data.signed_date || new Date().toISOString(),
+  ]);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+```
+
+Deploy with:
+
+- **Execute as:** Me
+- **Who has access:** Anyone
+
+Copy the Web App URL and add it to `.env.local` and Vercel Environment Variables:
+
+```
+GOOGLE_SHEETS_NEWSLETTER_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+```
+
+If `GOOGLE_SHEETS_NEWSLETTER_URL` is not set, the app saves signups to `logs/newsletter.csv` locally.
+
 ## 🚀 That's it!
 
 Now you can manage all your articles directly in Google Sheets - no database needed! 🎉

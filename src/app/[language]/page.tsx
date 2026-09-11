@@ -3,8 +3,9 @@
 import { useEffect } from 'react';
 import Home from '../../components/Home';
 import Image from 'next/image';
-import LanguageSelector from '../../components/LanguageSelector';
 import { useTranslation } from '../../hooks/useTranslation';
+import SiteChrome from '../../components/SiteChrome';
+import NewsletterSignup from '../../components/NewsletterSignup';
 
 export default function Page({ params }: { params: { language: string } }) {
   const { t } = useTranslation();
@@ -34,27 +35,7 @@ export default function Page({ params }: { params: { language: string } }) {
     logVisit();
   }, [language]);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden scroll-stable">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-4000"></div>
-      </div>
-
-
-      {/* Floating Navigation */}
-      <nav className="fixed top-8 right-8 z-50 flex items-center space-x-4">
-        <LanguageSelector />
-        <div className="bg-white/10 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
-          <div className="flex space-x-4 text-white/80 text-sm">
-            <a href="#" className="hover:text-white transition-colors">{t('nav.home')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('nav.about')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('nav.contact')}</a>
-          </div>
-        </div>
-      </nav>
-
+    <SiteChrome language={language}>
       {/* Hero Section */}
       <section className="relative z-10 pt-32 pb-16">
         <div className="max-w-6xl mx-auto px-6 text-center">
@@ -66,7 +47,7 @@ export default function Page({ params }: { params: { language: string } }) {
                   alt="KidZcoop Logo"
                   width={400}
                   height={400}
-                  className="shadow-2xl hover:scale-105 transition-transform duration-300"
+                  className="h-auto max-w-full shadow-2xl hover:scale-105 transition-transform duration-300"
                 />
               </div>
             </div>
@@ -83,20 +64,15 @@ export default function Page({ params }: { params: { language: string } }) {
 
       {/* Content Section */}
       <section className="relative z-10 pb-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <Home />
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+          <div className="min-w-0">
+            <Home />
+          </div>
+          <aside className="lg:sticky lg:top-32">
+            <NewsletterSignup language={language} variant="compact" />
+          </aside>
         </div>
       </section>
-
-      {/* Floating Footer */}
-      <footer className="relative z-10 pb-8 text-center">
-        <div className="inline-flex bg-white/10 rounded-full px-8 py-4 border border-white/20">
-          <p className="text-white/60 text-sm">
-            {t('footer.copyright')}
-          </p>
-        </div>
-      </footer>
-
-    </div>
+    </SiteChrome>
   );
 }

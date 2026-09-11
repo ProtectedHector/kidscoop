@@ -10,10 +10,12 @@ export default function LanguageSelector() {
   const currentLang = availableLanguages.find(lang => lang.code === language);
 
   return (
-    <div className="relative">
+    <div className="relative shrink-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 hover:bg-white/20 transition-all duration-300 flex items-center space-x-2"
+        className="flex min-w-[6.5rem] items-center justify-center space-x-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md transition-all duration-300 hover:bg-white/20"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
       >
         <span className="text-xl">{currentLang?.flag || '🌐'}</span>
         <span className="text-white/80 text-sm font-medium">{currentLang?.code.toUpperCase() || 'EN'}</span>
@@ -33,8 +35,8 @@ export default function LanguageSelector() {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full right-0 mt-2 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 z-50 min-w-[200px] overflow-hidden">
-            <div className="max-h-96 overflow-y-auto">
+          <div className="absolute left-0 top-full z-50 mt-2 w-[min(16rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/20 bg-slate-900/90 shadow-2xl backdrop-blur-md md:left-auto md:right-0" role="listbox">
+            <div className="max-h-[min(24rem,calc(100vh-8rem))] overflow-y-auto">
               {availableLanguages.map((lang) => (
                 <button
                   key={lang.code}
@@ -45,6 +47,8 @@ export default function LanguageSelector() {
                   className={`w-full px-4 py-3 text-left hover:bg-white/20 transition-colors duration-200 flex items-center space-x-3 ${
                     language === lang.code ? 'bg-white/15' : ''
                   }`}
+                  role="option"
+                  aria-selected={language === lang.code}
                 >
                   <span className="text-xl">{lang.flag}</span>
                   <div className="flex-1">

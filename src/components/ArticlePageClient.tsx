@@ -20,6 +20,21 @@ interface Article {
   lyrics_language?: string;
 }
 
+const storyNavCopy: Record<string, { previous: string; next: string }> = {
+  es: { previous: 'Historia anterior', next: 'Siguiente historia' },
+  en: { previous: 'Previous story', next: 'Next story' },
+  fr: { previous: 'Histoire précédente', next: 'Histoire suivante' },
+  de: { previous: 'Vorherige Geschichte', next: 'Nächste Geschichte' },
+  it: { previous: 'Storia precedente', next: 'Storia successiva' },
+  pt: { previous: 'História anterior', next: 'Próxima história' },
+  zh: { previous: '上一篇故事', next: '下一篇故事' },
+  ja: { previous: '前のストーリー', next: '次のストーリー' },
+  ko: { previous: '이전 이야기', next: '다음 이야기' },
+  ar: { previous: 'القصة السابقة', next: 'القصة التالية' },
+  hi: { previous: 'पिछली कहानी', next: 'अगली कहानी' },
+  ru: { previous: 'Предыдущая история', next: 'Следующая история' },
+};
+
 export default function ArticlePageClient() {
   const params = useParams();
   const language = params.language as string;
@@ -27,6 +42,7 @@ export default function ArticlePageClient() {
   const { t } = useTranslation();
   
   const [article, setArticle] = useState<Article | null>(null);
+  const [articleList, setArticleList] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasAudio, setHasAudio] = useState(false);
@@ -88,12 +104,24 @@ export default function ArticlePageClient() {
           console.log('Visit logging failed:', logError);
         }
 
-        const res = await fetch(`/api/articles/${articleId}?lang=${language}`);
-        if (!res.ok) {
+        const [articleResponse, articleListResponse] = await Promise.all([
+          fetch(`/api/articles/${articleId}?lang=${language}`),
+          fetch(`/api/articles?lang=${language}`),
+        ]);
+
+        if (!articleResponse.ok) {
           throw new Error('Failed to fetch article');
         }
-        const articleData = await res.json();
+
+        const articleData = await articleResponse.json();
         setArticle(articleData);
+
+        if (articleListResponse.ok) {
+          const articlesData = await articleListResponse.json();
+          setArticleList(articlesData);
+        } else {
+          setArticleList([]);
+        }
         
         // Track lyrics language (current language or 'en' if fallback)
         if (articleData.lyrics_language) {
@@ -239,6 +267,14 @@ export default function ArticlePageClient() {
     window.speechSynthesis.speak(utterance);
   };
 
+  const currentArticleIndex = articleList.findIndex((item) => String(item.id) === String(article.id));
+  const previousArticle = currentArticleIndex > 0 ? articleList[currentArticleIndex - 1] : null;
+  const nextArticle =
+    currentArticleIndex >= 0 && currentArticleIndex < articleList.length - 1
+      ? articleList[currentArticleIndex + 1]
+      : null;
+  const navCopy = storyNavCopy[language] || storyNavCopy.en;
+
   return (
     <>
       {structuredData && (
@@ -290,7 +326,7 @@ export default function ArticlePageClient() {
           </div>
 
           {/* Article Image */}
-          <div className="mb-8">
+          <div className="relative mb-8 px-12 md:px-28">
             <div
               className="relative rounded-2xl overflow-hidden shadow-2xl cursor-zoom-in"
               onClick={() =>
@@ -299,18 +335,44 @@ export default function ArticlePageClient() {
                   alt: article.title,
                 })
               }
-            >
+              >
               <Image
                 src={article.image_path}
                 alt={article.title}
                 width={800}
-                height={400}
-                className="w-full h-64 md:h-80 object-cover"
+                height={800}
+                className="h-[32rem] w-full bg-slate-950/35 object-contain md:h-[40rem]"
                 priority
                 loading="eager"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
+            {previousArticle && (
+              <Link
+                href={getArticlePath(language, previousArticle.id, previousArticle.title)}
+                className="absolute left-0 top-1/2 z-10 flex -translate-y-1/2 items-center gap-2 rounded-full border border-white/25 bg-slate-950/65 p-3 text-white shadow-2xl backdrop-blur-md transition hover:bg-purple-700/80 md:-left-10 md:px-4 md:py-3 lg:-left-16"
+                aria-label={navCopy.previous}
+                title={navCopy.previous}
+              >
+                <svg className="h-6 w-6 md:h-7 md:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="hidden text-sm font-black lg:inline">{navCopy.previous}</span>
+              </Link>
+            )}
+            {nextArticle && (
+              <Link
+                href={getArticlePath(language, nextArticle.id, nextArticle.title)}
+                className="absolute right-0 top-1/2 z-10 flex -translate-y-1/2 items-center gap-2 rounded-full border border-white/25 bg-slate-950/65 p-3 text-white shadow-2xl backdrop-blur-md transition hover:bg-purple-700/80 md:-right-10 md:px-4 md:py-3 lg:-right-16"
+                aria-label={navCopy.next}
+                title={navCopy.next}
+              >
+                <span className="hidden text-sm font-black lg:inline">{navCopy.next}</span>
+                <svg className="h-6 w-6 md:h-7 md:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            )}
           </div>
 
           {/* Article Content */}
