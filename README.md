@@ -64,8 +64,8 @@ npm run server
 Visit logs are stored in `logs/visits.csv` with format:
 ```
 date,type,article_id,language
-2024-01-23,article,1,en
-2024-01-23,home,en
+2026-01-23,article,1,en
+2026-01-23,home,en
 ```
 
 ## Image Generation

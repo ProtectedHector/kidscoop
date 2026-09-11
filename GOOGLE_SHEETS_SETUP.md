@@ -37,10 +37,10 @@ This tab contains the actual content for each article in different languages.
 **Columns:**
 | id | article_id | language | title | content_text | published_date | published | lyrics |
 |---|---|---|---|---|---|---|---|
-| 1 | 1 | en | Elephant Artist Brushes Up the Forest! | Full article content... | 2024-06-07T22:47:15.000Z | 1 | Song lyrics in English... |
-| 2 | 1 | es | Artista Elefante Pinta el Bosque | Contenido completo del artículo... | 2024-06-07T22:47:15.000Z | 1 | Letra de la canción en español... |
-| 3 | 2 | en | Amazing Adventure in the Jungle! | Full article content... | 2024-06-08T10:30:00.000Z | 1 | Song lyrics... |
-| 4 | 2 | es | ¡Aventura Increíble en la Selva! | Contenido completo del artículo... | 2024-06-08T10:30:00.000Z | 1 | Letra de la canción... |
+| 1 | 1 | en | Elephant Artist Brushes Up the Forest! | Full article content... | 2026-06-07T22:47:15.000Z | 1 | Song lyrics in English... |
+| 2 | 1 | es | Artista Elefante Pinta el Bosque | Contenido completo del artículo... | 2026-06-07T22:47:15.000Z | 1 | Letra de la canción en español... |
+| 3 | 2 | en | Amazing Adventure in the Jungle! | Full article content... | 2026-06-08T10:30:00.000Z | 1 | Song lyrics... |
+| 4 | 2 | es | ¡Aventura Increíble en la Selva! | Contenido completo del artículo... | 2026-06-08T10:30:00.000Z | 1 | Letra de la canción... |
 
 **Column Details:**
 - **id**: Unique content ID (1, 2, 3, etc.) - each content row has its own ID
@@ -48,7 +48,7 @@ This tab contains the actual content for each article in different languages.
 - **language**: ISO 639-1 language code (e.g., `en`, `es`, `fr`, `de`, `it`, `pt`, `zh`, `ja`, `ko`, `ar`, `hi`, `ru`)
 - **title**: The article title in the specified language
 - **content_text**: The full article content in the specified language (can include line breaks with `\n\n`)
-- **published_date**: Date in ISO format (e.g., `2024-06-07T22:47:15.000Z`)
+- **published_date**: Date in ISO format (e.g., `2026-06-07T22:47:15.000Z`)
 - **published**: `1` = published (shown on website), `0` = draft/unpublished (hidden from website)
 - **lyrics**: (Optional) Song lyrics for the article in the specified language. If not provided for the current language, English lyrics will be shown as fallback
 

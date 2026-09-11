@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslation } from '../hooks/useTranslation';
+import { getArticlePath } from '../lib/articleRoutes';
 
 interface Article {
   id: number;
@@ -42,7 +43,7 @@ const ArticleSnippet: React.FC<ArticleSnippetProps> = ({ article }) => {
   const locale = localeMap[language] || 'en-US';
   
   return (
-    <Link href={`/${language}/article/${article.id}`}>
+    <Link href={getArticlePath(language, article.id, article.title)}>
       <div className="article-card scroll-stable bg-white/10 rounded-2xl shadow-xl hover:shadow-purple-500/25 transition-shadow duration-300 overflow-hidden cursor-pointer group border border-white/20 hover:border-purple-400/50">
         <div className="flex flex-col md:flex-row">
           {/* Thumbnail */}
