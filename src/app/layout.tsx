@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import { SOCIAL_IMAGE, SITE_URL, absoluteUrl } from "../lib/site";
@@ -85,6 +86,11 @@ export default function RootLayout({
         <LanguageProvider>
           {children}
         </LanguageProvider>
+        <Script
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          strategy="afterInteractive"
+          data-cf-beacon={JSON.stringify({ token: "4868c7734ede47688d3c245ea3c683f8" })}
+        />
       </body>
     </html>
   );

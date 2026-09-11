@@ -136,25 +136,24 @@ GOOGLE_SHEETS_CONTENT_URL=https://docs.google.com/spreadsheets/d/abc123xyz/expor
 - **Real-time updates**: Changes in your Google Sheet will appear on your website immediately (no need to restart the server)
 - **Multiple columns**: The parser is flexible - it will work with column names like `id`, `ID`, `title`, `Title`, `content_text`, `content`, `Content`, etc.
 
-## 📈 Optional: Log Visits to Google Sheets
+## ✉️ Optional: Newsletter Signups
 
-Create a third tab named `Visits` with these columns:
+Create another tab named `newsletter` with these columns:
 
-| date | type | article_id | language |
-|---|---|---|---|
+| email | subscribed | signed_date |
+|---|---|---|
 
-Then open **Extensions → Apps Script** and deploy this script as a Web App:
+Then deploy an Apps Script Web App for newsletter signups:
 
 ```javascript
 function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Visits');
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('newsletter');
   const data = JSON.parse(e.postData.contents);
 
   sheet.appendRow([
-    data.date || '',
-    data.type || 'unknown',
-    data.article_id || '',
-    data.language || 'unknown',
+    data.email || '',
+    data.subscribed || 'TRUE',
+    data.signed_date || new Date().toISOString(),
   ]);
 
   return ContentService
@@ -171,10 +170,10 @@ Deploy with:
 Copy the Web App URL and add it to `.env.local` and Vercel Environment Variables:
 
 ```
-GOOGLE_SHEETS_VISITS_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+GOOGLE_SHEETS_NEWSLETTER_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
 ```
 
-If `GOOGLE_SHEETS_VISITS_URL` is not set, the app falls back to the local CSV log.
+If `GOOGLE_SHEETS_NEWSLETTER_URL` is not set, the app saves signups to `logs/newsletter.csv` locally.
 
 ## 🚀 That's it!
 

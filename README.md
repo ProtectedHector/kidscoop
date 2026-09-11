@@ -59,15 +59,6 @@ npm run server
 - `public/articles/` - Article images and audio files
 - `src/app/server.js` - Express API server
 
-## Visit Logging
-
-Visit logs are stored in `logs/visits.csv` with format:
-```
-date,type,article_id,language
-2026-01-23,article,1,en
-2026-01-23,home,en
-```
-
 ## Image Generation
 
 To generate images for articles using OpenAI DALL-E:
@@ -135,7 +126,6 @@ The easiest way to deploy is using [Vercel](https://vercel.com):
 - Supports 6 languages: en, es, fr, de, it, pt
 - Has an Express.js API server on port 3001
 - Uses Next.js App Router with TypeScript
-- Has visit logging to `logs/visits.csv` (date-only format)
 - Generates images using OpenAI DALL-E API
 - Is SEO optimized with structured data, sitemap, and robots.txt
 

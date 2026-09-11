@@ -18,44 +18,6 @@ app.use((req, res, next) => {
 // Parse JSON bodies
 app.use(express.json());
 
-// Visit logging endpoint
-const fs = require('fs');
-const path = require('path');
-
-const LOG_DIR = path.join(__dirname, '../../logs');
-const VISIT_LOG_FILE = path.join(LOG_DIR, 'visits.csv');
-
-// Ensure log directory exists
-if (!fs.existsSync(LOG_DIR)) {
-  fs.mkdirSync(LOG_DIR, { recursive: true });
-}
-
-// Initialize CSV file with headers if it doesn't exist
-if (!fs.existsSync(VISIT_LOG_FILE)) {
-  fs.writeFileSync(VISIT_LOG_FILE, 'date,type,article_id,language\n', 'utf8');
-}
-
-app.post('/api/log-visit', (req, res) => {
-  try {
-    const { article_id, language, type } = req.body;
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format (date only, no time)
-    
-    // If type is 'home' or article_id is not provided, use empty string for article_id
-    const articleIdValue = (type === 'home' || !article_id) ? '' : article_id;
-    
-    // Log format: date,type,article_id,language
-    const logEntry = `${today},${type || 'unknown'},${articleIdValue},${language || 'unknown'}\n`;
-    
-    // Append to CSV file
-    fs.appendFileSync(VISIT_LOG_FILE, logEntry, 'utf8');
-    
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error logging visit:', error);
-    res.status(500).json({ error: 'Failed to log visit' });
-  }
-});
-
 // Google Sheets CSV export URLs
 // Format: https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}
 // Get SHEET_ID from your Google Sheets URL: https://docs.google.com/spreadsheets/d/SHEET_ID/edit
