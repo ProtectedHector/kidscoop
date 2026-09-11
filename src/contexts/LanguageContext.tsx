@@ -8,6 +8,7 @@ import {
   Language,
   isSupportedLanguage,
 } from '../lib/languages';
+import { getArticlePath } from '../lib/articleRoutes';
 
 interface LanguageContextType {
   language: Language;
@@ -48,13 +49,26 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [pathname, router]);
 
   // Navigate to new URL when language changes
-  const setLanguage = (lang: Language) => {
+  const setLanguage = async (lang: Language) => {
     setLanguageState(lang);
     persistLanguage(lang);
     
     // Get current path and replace language segment
     const pathParts = pathname.split('/').filter(Boolean);
     if (pathParts.length > 0 && isSupportedLanguage(pathParts[0])) {
+      if (pathParts[1] === 'article' && pathParts[2]) {
+        try {
+          const res = await fetch(`/api/articles/${pathParts[2]}?lang=${lang}`);
+          if (res.ok) {
+            const article = await res.json();
+            router.push(getArticlePath(lang, pathParts[2], article.title));
+            return;
+          }
+        } catch (error) {
+          console.log('Could not resolve localized article slug:', error);
+        }
+      }
+
       // Replace language in URL
       pathParts[0] = lang;
       router.push(`/${pathParts.join('/')}`);
