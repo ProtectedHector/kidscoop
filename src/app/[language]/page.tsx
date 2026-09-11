@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from 'react';
 import Home from '../../components/Home';
 import Image from 'next/image';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -16,24 +15,6 @@ export default function Page({ params }: { params: { language: string } }) {
     .split('\n')
     .filter(Boolean);
 
-  // Log visit to home page
-  useEffect(() => {
-    const logVisit = async () => {
-      try {
-        await fetch(`/api/log-visit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            language: language,
-            type: 'home',
-          }),
-        });
-      } catch (error) {
-        console.log('Visit logging failed:', error);
-      }
-    };
-    logVisit();
-  }, [language]);
   return (
     <SiteChrome language={language}>
       {/* Hero Section */}

@@ -89,21 +89,6 @@ export default function ArticlePageClient() {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        // Log visit
-        try {
-          await fetch(`/api/log-visit`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              article_id: articleId,
-              language: language,
-              type: 'article',
-            }),
-          });
-        } catch (logError) {
-          console.log('Visit logging failed:', logError);
-        }
-
         const [articleResponse, articleListResponse] = await Promise.all([
           fetch(`/api/articles/${articleId}?lang=${language}`),
           fetch(`/api/articles?lang=${language}`),
