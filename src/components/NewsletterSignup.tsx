@@ -56,7 +56,10 @@ export default function NewsletterSignup({ language, variant = 'panel' }: Newsle
     try {
       const response = await fetch('/api/newsletter', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Kidzcoop-Language': language,
+        },
         body: JSON.stringify({ email, language }),
       });
 
