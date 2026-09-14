@@ -7,6 +7,7 @@ import Link from 'next/link';
 import LanguageSelector from './LanguageSelector';
 import ArticleColoringStudio from './ArticleColoringStudio';
 import ArticlePuzzle from './ArticlePuzzle';
+import ArticleShare from './ArticleShare';
 import { getArticlePath } from '../lib/articleRoutes';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -308,6 +309,12 @@ export default function ArticlePageClient() {
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
               {article.title}
             </h1>
+            <ArticleShare
+              key={`${language}-${article.id}`}
+              language={language}
+              title={article.title}
+              path={getArticlePath(language, article.id, article.title)}
+            />
           </div>
 
           {/* Article Image */}

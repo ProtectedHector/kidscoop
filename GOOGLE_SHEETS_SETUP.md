@@ -140,8 +140,8 @@ GOOGLE_SHEETS_CONTENT_URL=https://docs.google.com/spreadsheets/d/abc123xyz/expor
 
 Create another tab named `newsletter` with these columns:
 
-| email | subscribed | signed_date |
-|---|---|---|
+| email | subscribed | signed_date | language |
+|---|---|---|---|
 
 Then deploy an Apps Script Web App for newsletter signups:
 
@@ -154,6 +154,7 @@ function doPost(e) {
     data.email || '',
     data.subscribed || 'TRUE',
     data.signed_date || new Date().toISOString(),
+    data.language || 'en',
   ]);
 
   return ContentService
@@ -173,7 +174,9 @@ Copy the Web App URL and add it to `.env.local` and Vercel Environment Variables
 GOOGLE_SHEETS_NEWSLETTER_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
 ```
 
-If `GOOGLE_SHEETS_NEWSLETTER_URL` is not set, the app saves signups to `logs/newsletter.csv` locally.
+`GOOGLE_SHEETS_NEWSLETTER_URL` is required for the newsletter form to save signups.
+
+When you edit the Apps Script, update the existing deployment with a **new version**. Saving the script alone does not update the published Web App.
 
 ## 🚀 That's it!
 
