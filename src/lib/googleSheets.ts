@@ -13,8 +13,21 @@ export interface Article {
   lyrics_language?: string;
 }
 
+export interface AffiliateAd {
+  article_id: number;
+  product_name: string;
+  asin: string;
+  affiliate_url: string;
+  position: number;
+  active: boolean;
+  image_url: string;
+}
+
 const GOOGLE_SHEETS_ARTICLES_URL = process.env.GOOGLE_SHEETS_ARTICLES_URL || '';
 const GOOGLE_SHEETS_CONTENT_URL = process.env.GOOGLE_SHEETS_CONTENT_URL || '';
+const GOOGLE_SHEETS_AFFILIATES_URL =
+  process.env.GOOGLE_SHEETS_AFFILIATES_URL ||
+  deriveSheetCsvUrl(GOOGLE_SHEETS_ARTICLES_URL, 'Afiliados');
 
 function parseCSV(csvText: string): SheetRow[] {
   const rows: string[][] = [];
@@ -109,6 +122,16 @@ async function fetchFromSheet(url: string): Promise<SheetRow[]> {
   return parseCSV(data);
 }
 
+function deriveSheetCsvUrl(sourceUrl: string, sheetName: string): string {
+  const match = sourceUrl.match(/\/spreadsheets\/d\/([^/]+)/);
+  if (!match?.[1]) {
+    return '';
+  }
+
+  const sheetId = match[1];
+  return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+}
+
 export async function fetchArticlesWithContent(language: string): Promise<Article[]> {
   if (!GOOGLE_SHEETS_ARTICLES_URL || !GOOGLE_SHEETS_CONTENT_URL) {
     throw new Error(
@@ -181,4 +204,41 @@ export async function fetchArticlesWithContent(language: string): Promise<Articl
     .filter((article): article is Article => Boolean(article && article.title));
 
   return joinedArticles;
+}
+
+export async function fetchAffiliateAds(articleId?: number): Promise<AffiliateAd[]> {
+  if (!GOOGLE_SHEETS_AFFILIATES_URL) {
+    return [];
+  }
+
+  const rows = await fetchFromSheet(GOOGLE_SHEETS_AFFILIATES_URL);
+
+  return rows
+    .map((row) => {
+      const rowArticleId = parseInt(getField(row, 'article_id') || '0', 10);
+      const position = parseInt(getField(row, 'position') || '0', 10);
+      const active = parseInt(getField(row, 'active') || '0', 10) === 1;
+
+      return {
+        article_id: rowArticleId,
+        product_name: getField(row, 'product_name'),
+        asin: getField(row, 'asin'),
+        affiliate_url: getField(row, 'affiliate_url'),
+        position,
+        active,
+        image_url: getField(row, 'image_url'),
+      };
+    })
+    .filter((ad) => {
+      if (!ad.active || !ad.product_name || !ad.affiliate_url || !ad.image_url) {
+        return false;
+      }
+      return articleId === undefined || ad.article_id === articleId;
+    })
+    .sort((a, b) => {
+      if (a.article_id !== b.article_id) {
+        return a.article_id - b.article_id;
+      }
+      return a.position - b.position;
+    });
 }

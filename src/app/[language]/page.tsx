@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslation } from '../../hooks/useTranslation';
 import SiteChrome from '../../components/SiteChrome';
 import NewsletterSignup from '../../components/NewsletterSignup';
+import { HomeAffiliateRail } from '../../components/AffiliateAds';
 
 export default function Page({ params }: { params: { language: string } }) {
   const { t } = useTranslation();
@@ -49,8 +50,9 @@ export default function Page({ params }: { params: { language: string } }) {
           <div className="min-w-0">
             <Home />
           </div>
-          <aside className="lg:sticky lg:top-32">
+          <aside className="space-y-6 lg:sticky lg:top-32">
             <NewsletterSignup language={language} variant="compact" />
+            <HomeAffiliateRail language={language} limit={8} />
           </aside>
         </div>
       </section>

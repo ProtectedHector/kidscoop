@@ -8,6 +8,7 @@ import LanguageSelector from './LanguageSelector';
 import ArticleColoringStudio from './ArticleColoringStudio';
 import ArticlePuzzle from './ArticlePuzzle';
 import ArticleShare from './ArticleShare';
+import { AffiliateSection, type AffiliateAd } from './AffiliateAds';
 import { getArticlePath } from '../lib/articleRoutes';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -50,6 +51,7 @@ export default function ArticlePageClient() {
   const [audioLanguage, setAudioLanguage] = useState<string>(language);
   const [lyricsLanguage, setLyricsLanguage] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [affiliateAds, setAffiliateAds] = useState<AffiliateAd[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(true);
 
@@ -89,6 +91,9 @@ export default function ArticlePageClient() {
 
   useEffect(() => {
     const fetchArticle = async () => {
+      setLoading(true);
+      setError(null);
+      setAffiliateAds([]);
       try {
         const [articleResponse, articleListResponse] = await Promise.all([
           fetch(`/api/articles/${articleId}?lang=${language}`),
@@ -148,6 +153,18 @@ export default function ArticlePageClient() {
         };
         
         checkAudio();
+
+        try {
+          const affiliatesResponse = await fetch(`/api/affiliates?articleId=${articleData.id}`);
+          if (affiliatesResponse.ok) {
+            const affiliatesData = await affiliatesResponse.json();
+            setAffiliateAds(Array.isArray(affiliatesData) ? affiliatesData.slice(0, 3) : []);
+          } else {
+            setAffiliateAds([]);
+          }
+        } catch {
+          setAffiliateAds([]);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -318,9 +335,9 @@ export default function ArticlePageClient() {
           </div>
 
           {/* Article Image */}
-          <div className="relative mb-8 px-12 md:px-28">
+          <div className="relative mb-8 px-2 sm:px-10 md:px-28">
             <div
-              className="relative rounded-2xl overflow-hidden shadow-2xl cursor-zoom-in"
+              className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950/35 shadow-2xl cursor-zoom-in md:aspect-square"
               onClick={() =>
                 setLightbox({
                   src: article.image_path,
@@ -331,9 +348,9 @@ export default function ArticlePageClient() {
               <Image
                 src={article.image_path}
                 alt={article.title}
-                width={800}
-                height={800}
-                className="h-[32rem] w-full bg-slate-950/35 object-contain md:h-[40rem]"
+                fill
+                sizes="(min-width: 768px) 640px, calc(100vw - 1rem)"
+                className="object-cover md:object-contain"
                 priority
                 loading="eager"
               />
@@ -412,6 +429,10 @@ export default function ArticlePageClient() {
               selected: t('content.puzzleSelected'),
             }}
           />
+
+          <div className="mt-8">
+            <AffiliateSection ads={affiliateAds} language={language} />
+          </div>
 
           <ArticleColoringStudio
             imageId={article.id}
