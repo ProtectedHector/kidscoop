@@ -5,6 +5,7 @@ import { isSupportedLanguage, type Language } from '../lib/languages';
 
 type ShareCopy = {
   share: string;
+  message?: string;
   email: string;
   copy: string;
   copied: string;
@@ -15,9 +16,9 @@ type ShareCopy = {
 };
 
 const translations: Record<Language, ShareCopy> = {
-  en: { share: 'Share story', email: 'Email', copy: 'Copy link', copied: 'Link copied!', manualCopy: 'Select and copy the link below.', more: 'More apps', unavailable: 'Choose an option below to share this story.', link: 'Story link' },
-  es: { share: 'Compartir historia', email: 'Correo', copy: 'Copiar enlace', copied: '¡Enlace copiado!', manualCopy: 'Selecciona y copia el enlace de abajo.', more: 'Más aplicaciones', unavailable: 'Elige una opción de abajo para compartir esta historia.', link: 'Enlace de la historia' },
-  fr: { share: 'Partager l’histoire', email: 'E-mail', copy: 'Copier le lien', copied: 'Lien copié !', manualCopy: 'Sélectionnez et copiez le lien ci-dessous.', more: 'Autres applications', unavailable: 'Choisissez une option ci-dessous pour partager cette histoire.', link: 'Lien de l’histoire' },
+  en: { share: 'Share story', message: 'Read it and enjoy it together with your child!', email: 'Email', copy: 'Copy link', copied: 'Link copied!', manualCopy: 'Select and copy the link below.', more: 'More apps', unavailable: 'Choose an option below to share this story.', link: 'Story link' },
+  es: { share: 'Compartir historia', message: '¡Léela y disfrútala junto a tu peque!', email: 'Correo', copy: 'Copiar enlace', copied: '¡Enlace copiado!', manualCopy: 'Selecciona y copia el enlace de abajo.', more: 'Más aplicaciones', unavailable: 'Elige una opción de abajo para compartir esta historia.', link: 'Enlace de la historia' },
+  fr: { share: 'Partager l’histoire', message: 'Lisez-la et profitez-en avec votre enfant !', email: 'E-mail', copy: 'Copier le lien', copied: 'Lien copié !', manualCopy: 'Sélectionnez et copiez le lien ci-dessous.', more: 'Autres applications', unavailable: 'Choisissez une option ci-dessous pour partager cette histoire.', link: 'Lien de l’histoire' },
   de: { share: 'Geschichte teilen', email: 'E-Mail', copy: 'Link kopieren', copied: 'Link kopiert!', manualCopy: 'Wähle den Link unten aus und kopiere ihn.', more: 'Weitere Apps', unavailable: 'Wähle unten eine Option zum Teilen dieser Geschichte.', link: 'Link zur Geschichte' },
   it: { share: 'Condividi la storia', email: 'E-mail', copy: 'Copia link', copied: 'Link copiato!', manualCopy: 'Seleziona e copia il link qui sotto.', more: 'Altre app', unavailable: 'Scegli un’opzione qui sotto per condividere questa storia.', link: 'Link della storia' },
   pt: { share: 'Partilhar história', email: 'E-mail', copy: 'Copiar ligação', copied: 'Ligação copiada!', manualCopy: 'Seleciona e copia a ligação abaixo.', more: 'Mais aplicações', unavailable: 'Escolhe uma opção abaixo para partilhar esta história.', link: 'Ligação da história' },
@@ -42,6 +43,7 @@ function ShareIcon() {
 
 export default function ArticleShare({ language, title, path }: { language: string; title: string; path: string }) {
   const copy = translations[isSupportedLanguage(language) ? language : 'en'];
+  const shareMessage = copy.message || translations.en.message || 'Read it and enjoy it together with your child!';
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState('');
   const [nativeSupported, setNativeSupported] = useState(false);
@@ -81,7 +83,7 @@ export default function ArticleShare({ language, title, path }: { language: stri
     const articleUrl = new URL(path, window.location.origin).href;
     setUrl(articleUrl);
     setNativeSupported(typeof navigator.share === 'function' &&
-      (typeof navigator.canShare !== 'function' || navigator.canShare({ title, url: articleUrl })));
+      (typeof navigator.canShare !== 'function' || navigator.canShare({ title, text: shareMessage, url: articleUrl })));
     setStatus('');
     setOpen(!open);
   };
@@ -101,7 +103,7 @@ export default function ArticleShare({ language, title, path }: { language: stri
     setSharing(true);
     setStatus('');
     try {
-      await navigator.share({ title, url });
+      await navigator.share({ title, text: shareMessage, url });
     } catch (error) {
       if (!(error instanceof Error && error.name === 'AbortError')) {
         setStatus(copy.unavailable);
@@ -113,10 +115,10 @@ export default function ArticleShare({ language, title, path }: { language: stri
 
   const encodedUrl = encodeURIComponent(url);
   const options = [
-    { label: 'WhatsApp', href: `https://wa.me/?text=${encodeURIComponent(`${title}\n${url}`)}` },
-    { label: copy.email, href: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${title}\n\n${url}`)}` },
+    { label: 'WhatsApp', href: `https://wa.me/?text=${encodeURIComponent(`${title}\n${shareMessage}\n${url}`)}` },
+    { label: copy.email, href: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${title}\n\n${shareMessage}\n\n${url}`)}` },
     { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
-    { label: 'X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodedUrl}` },
+    { label: 'X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${title} — ${shareMessage}`)}&url=${encodedUrl}` },
   ];
   const optionClass = 'flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-sm font-semibold text-white transition hover:bg-purple-600/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300';
 
