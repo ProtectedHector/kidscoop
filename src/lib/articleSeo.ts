@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { AVAILABLE_LANGUAGES } from './languages';
 import { getArticlePath } from './articleRoutes';
-import { SITE_URL, SOCIAL_IMAGE, absoluteUrl } from './site';
+import { SITE_URL, absoluteUrl } from './site';
 
 interface ArticleSeoData {
   id: number;
@@ -63,8 +63,8 @@ export async function generateArticleMetadata({
 
   const title = `${article.title} | KidZcoop`;
   const description = article.content_text.substring(0, 160).replace(/\n/g, ' ');
-  // Social crawlers read this server-rendered image, not the share button or favicon.
-  const imageUrl = absoluteUrl(SOCIAL_IMAGE.path, baseUrl);
+  // Social crawlers use the page metadata, so expose this article's image.
+  const imageUrl = absoluteUrl(article.image_path, baseUrl);
   const canonicalPath = getArticlePath(language, id, article.title);
   const alternateEntries = await Promise.all(
     AVAILABLE_LANGUAGES.map(async (availableLanguage) => {
@@ -98,10 +98,7 @@ export async function generateArticleMetadata({
       images: [
         {
           url: imageUrl,
-          width: SOCIAL_IMAGE.width,
-          height: SOCIAL_IMAGE.height,
-          alt: SOCIAL_IMAGE.alt,
-          type: SOCIAL_IMAGE.type,
+          alt: article.title,
         },
       ],
       locale: language,

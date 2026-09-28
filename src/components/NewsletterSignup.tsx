@@ -18,7 +18,7 @@ const copyByLanguage: Record<string, NewsletterCopy> = {
   es: {
     eyebrow: 'Newsletter',
     title: 'Una historia nueva en tu buzón',
-    body: 'Apúntate para recibir una historia semanal de KidZcoop y algunas sorpresas para leer, escuchar, colorear o jugar en familia.',
+    body: 'Apúntate para recibir una historia semanal de KidZcoop y algunas sorpresas para leer, escuchar, colorear o jugar junto a tu peque.',
     placeholder: 'tu@email.com',
     button: 'Apuntarme',
     submitting: 'Guardando...',
@@ -29,7 +29,7 @@ const copyByLanguage: Record<string, NewsletterCopy> = {
   en: {
     eyebrow: 'Newsletter',
     title: 'A new story in your inbox',
-    body: 'Sign up to receive one weekly KidZcoop story and a few surprises for reading, listening, coloring, or playing together.',
+    body: 'Sign up to receive one weekly KidZcoop story and a few surprises to read, listen to, color, or play with your child.',
     placeholder: 'you@email.com',
     button: 'Sign up',
     submitting: 'Saving...',
@@ -39,13 +39,35 @@ const copyByLanguage: Record<string, NewsletterCopy> = {
   },
 };
 
+const bodyByLanguage: Record<string, string> = {
+  en: 'Sign up to receive one weekly KidZcoop story and a few surprises to read, listen to, color, or play with your child.',
+  es: 'Apúntate para recibir una historia semanal de KidZcoop y algunas sorpresas para leer, escuchar, colorear o jugar junto a tu peque.',
+  fr: 'Inscrivez-vous pour recevoir chaque semaine une histoire KidZcoop et quelques surprises à lire, à écouter, à colorier ou avec lesquelles jouer avec votre enfant.',
+  de: 'Melde dich an und erhalte jede Woche eine KidZcoop-Geschichte sowie kleine Überraschungen zum Lesen, Anhören, Ausmalen oder Spielen mit deinem Kind.',
+  it: 'Iscriviti per ricevere ogni settimana una storia di KidZcoop e qualche sorpresa da leggere, ascoltare, colorare o con cui giocare insieme al tuo bambino.',
+  pt: 'Inscreve-te para receber uma história KidZcoop por semana e algumas surpresas para ler, ouvir, colorir ou brincar com a tua criança.',
+  zh: '订阅后，每周即可收到一个 KidZcoop 故事，还有适合和孩子一起阅读、聆听、涂色或玩耍的小惊喜。',
+  ja: '登録すると、週に1本のKidZcoopストーリーと、お子さんと一緒に読んだり、聴いたり、色を塗ったり、遊んだりできるお楽しみをお届けします。',
+  ko: '구독하면 매주 KidZcoop 이야기 한 편과 아이와 함께 읽고, 듣고, 색칠하고, 놀 수 있는 작은 즐거움을 받아볼 수 있어요.',
+  ar: 'اشترك لتصلك قصة أسبوعية من KidZcoop وبعض المفاجآت للقراءة أو الاستماع أو التلوين أو اللعب مع طفلك.',
+  hi: 'हर हफ़्ते KidZcoop की एक कहानी और अपने बच्चे के साथ पढ़ने, सुनने, रंग भरने या खेलने के लिए कुछ मज़ेदार सरप्राइज़ पाने हेतु साइन अप करें।',
+  ru: 'Подпишитесь, чтобы каждую неделю получать одну историю KidZcoop и небольшие сюрпризы, которые можно читать, слушать, раскрашивать или с которыми можно играть вместе с ребёнком.',
+};
+
 interface NewsletterSignupProps {
   language: string;
   variant?: 'panel' | 'inline' | 'compact';
 }
 
 export default function NewsletterSignup({ language, variant = 'panel' }: NewsletterSignupProps) {
-  const copy = useMemo(() => copyByLanguage[language] || copyByLanguage.en, [language]);
+  const copy = useMemo(() => {
+    const localizedCopy = copyByLanguage[language] || copyByLanguage.en;
+
+    return {
+      ...localizedCopy,
+      body: bodyByLanguage[language] || localizedCopy.body,
+    };
+  }, [language]);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
