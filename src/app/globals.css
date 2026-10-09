@@ -3,24 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 15, 23, 42;
+  --background-start-rgb: 251, 249, 255;
+  --background-end-rgb: 251, 249, 255;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  background: #0f172a;
+  background: #fbf9ff;
   overflow-x: hidden;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
 }
 
 body {
@@ -33,12 +25,25 @@ body {
     rgb(var(--background-start-rgb));
   overflow-x: hidden;
   min-height: 100vh;
+  min-height: 100dvh;
+}
+
+button, a, input { -webkit-tap-highlight-color: transparent; }
+
+:focus-visible { outline: 3px solid #c084fc; outline-offset: 3px; }
+
+@media (display-mode: standalone) {
+  body { padding-top: env(safe-area-inset-top); }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  .mobile-nav-item {
+    @apply flex min-h-12 flex-col items-center justify-center rounded-xl text-xs font-bold text-slate-700;
+  }
+  .mobile-nav-item > span { @apply text-lg; }
 }
 
 /* Custom Animations */

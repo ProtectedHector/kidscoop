@@ -37,6 +37,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     
     if (isSupportedLanguage(urlLanguage)) {
       setLanguageState(urlLanguage);
+      document.documentElement.lang = urlLanguage;
+      document.documentElement.dir = urlLanguage === 'ar' ? 'rtl' : 'ltr';
       persistLanguage(urlLanguage);
     } else {
       // If no valid language in URL, redirect to default

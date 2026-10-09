@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getArticlePath } from '../lib/articleRoutes';
-import { fetchArticlesWithContent } from '../lib/googleSheets';
+import { fetchArticles } from '../lib/content';
 import { AVAILABLE_LANGUAGES } from '../lib/languages';
 
 const languages = AVAILABLE_LANGUAGES.map((language) => language.code);
@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articlesByLanguage = await Promise.all(
     languages.map(async (lang) => {
       try {
-        return [lang, await fetchArticlesWithContent(lang)] as const;
+        return [lang, await fetchArticles(lang)] as const;
       } catch (error) {
         console.error(`Error fetching ${lang} articles for sitemap:`, error);
       }

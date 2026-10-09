@@ -1,9 +1,9 @@
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kidzcoop.vercel.app';
 
 export const SOCIAL_IMAGE = {
-  path: '/logo.png',
-  width: 1190,
-  height: 1277,
+  path: '/social-logo.png',
+  width: 1200,
+  height: 630,
   type: 'image/png',
   alt: 'KidZcoop logo',
 } as const;

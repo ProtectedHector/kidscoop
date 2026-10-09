@@ -7,14 +7,19 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "migrate:articles": "node scripts/migrate-google-sheets-to-convex.mjs",
+    "verify:articles": "node scripts/verify-convex-articles.mjs",
     "server": "node src/app/server.js"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.39.7",
+    "convex": "^1.46.0",
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "next": "^14.2.32",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",
