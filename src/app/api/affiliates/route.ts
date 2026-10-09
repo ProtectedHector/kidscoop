@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchAffiliateAds } from '@/lib/googleSheets';
+import { fetchContentAffiliateAds } from '@/lib/content';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const affiliates = await fetchAffiliateAds(articleId);
+    const affiliates = await fetchContentAffiliateAds(articleId);
     return NextResponse.json(affiliates);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       {
         error: 'Failed to fetch affiliate ads',
         message,
-        hint: 'Check GOOGLE_SHEETS_AFFILIATES_URL or make sure the Afiliados tab is public in the articles spreadsheet.',
+        hint: 'Check Convex configuration or GOOGLE_SHEETS_AFFILIATES_URL fallback.',
       },
       { status: 500 }
     );

@@ -1,239 +1,32 @@
 "use client";
-
-// components/Home.tsx
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import ArticleSnippet from './ArticleSnippet';
-import { useTranslation } from '../hooks/useTranslation';
+import { getArticlePath } from '../lib/articleRoutes';
+import { trackEvent } from '../lib/analytics';
+import { CATEGORY_DEFINITIONS, CATEGORY_SLUGS, getCategoryLabel, getCategoryPath, type CategorySlug } from '../lib/categories';
+interface Article { id: number; title: string; content_text: string; image_path: string; published_date?: string; category?: CategorySlug }
 
-interface Article {
-  id: number;
-  title: string;
-  content_text: string;
-  image_path: string;
-  published_date?: string;
-}
-
-const ARTICLES_PER_PAGE = 6;
-
-const paginationCopy: Record<string, {
-  previous: string;
-  next: string;
-  page: string;
-  showing: (start: number, end: number, total: number) => string;
-}> = {
-  es: {
-    previous: 'Anterior',
-    next: 'Siguiente',
-    page: 'Página',
-    showing: (start, end, total) => `${start}-${end} de ${total} historias`,
-  },
-  en: {
-    previous: 'Previous',
-    next: 'Next',
-    page: 'Page',
-    showing: (start, end, total) => `${start}-${end} of ${total} stories`,
-  },
-  fr: {
-    previous: 'Précédent',
-    next: 'Suivant',
-    page: 'Page',
-    showing: (start, end, total) => `${start}-${end} sur ${total} histoires`,
-  },
-  de: {
-    previous: 'Zurück',
-    next: 'Weiter',
-    page: 'Seite',
-    showing: (start, end, total) => `${start}-${end} von ${total} Geschichten`,
-  },
-  it: {
-    previous: 'Indietro',
-    next: 'Avanti',
-    page: 'Pagina',
-    showing: (start, end, total) => `${start}-${end} di ${total} storie`,
-  },
-  pt: {
-    previous: 'Anterior',
-    next: 'Seguinte',
-    page: 'Página',
-    showing: (start, end, total) => `${start}-${end} de ${total} histórias`,
-  },
-  zh: {
-    previous: '上一页',
-    next: '下一页',
-    page: '第',
-    showing: (start, end, total) => `${start}-${end} / ${total} 个故事`,
-  },
-  ja: {
-    previous: '前へ',
-    next: '次へ',
-    page: 'ページ',
-    showing: (start, end, total) => `${total}話中 ${start}-${end}`,
-  },
-  ko: {
-    previous: '이전',
-    next: '다음',
-    page: '페이지',
-    showing: (start, end, total) => `${total}개 이야기 중 ${start}-${end}`,
-  },
-  ar: {
-    previous: 'السابق',
-    next: 'التالي',
-    page: 'صفحة',
-    showing: (start, end, total) => `${start}-${end} من ${total} قصة`,
-  },
-  hi: {
-    previous: 'पिछला',
-    next: 'अगला',
-    page: 'पेज',
-    showing: (start, end, total) => `${total} कहानियों में से ${start}-${end}`,
-  },
-  ru: {
-    previous: 'Назад',
-    next: 'Далее',
-    page: 'Страница',
-    showing: (start, end, total) => `${start}-${end} из ${total} историй`,
-  },
-};
-
-const Home: React.FC = () => {
-  const params = useParams();
-  const language = params.language as string || 'en';
-  const { t } = useTranslation();
+export default function Home() {
+  const language = (useParams().language as string) || 'es';
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const copy = paginationCopy[language] || paginationCopy.en;
-
+  const [error, setError] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(13);
+  const spanish = language === 'es';
   useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/articles?lang=${language}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch articles');
-        }
-        const articlesData = await res.json();
-        setArticles(articlesData);
-        setCurrentPage(1);
-      } catch (err) {
-        // Silently handle the error and just show no articles
-        console.log('No articles available:', err);
-        setArticles([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (language) {
-      fetchArticles();
-    }
+    setLoading(true);
+    fetch(`/api/articles?lang=${language}`).then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { setArticles(Array.isArray(data) ? data : []); setVisibleCount(13); setError(false); }).catch(() => { setArticles([]); setError(true); }).finally(() => setLoading(false));
+    trackEvent('page_view', { page: 'home', language });
   }, [language]);
-
-  const totalPages = Math.ceil(articles.length / ARTICLES_PER_PAGE);
-  const pageStartIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
-  const visibleArticles = useMemo(
-    () => articles.slice(pageStartIndex, pageStartIndex + ARTICLES_PER_PAGE),
-    [articles, pageStartIndex]
-  );
-  const showingStart = articles.length === 0 ? 0 : pageStartIndex + 1;
-  const showingEnd = Math.min(pageStartIndex + ARTICLES_PER_PAGE, articles.length);
-  const pageNumbers = useMemo(() => {
-    if (totalPages <= 5) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
-    return Array.from({ length: 5 }, (_, index) => start + index);
-  }, [currentPage, totalPages]);
-
-  function goToPage(page: number) {
-    const nextPage = Math.min(Math.max(page, 1), totalPages);
-    setCurrentPage(nextPage);
-    window.requestAnimationFrame(() => {
-      document.getElementById('stories')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500/30 border-t-purple-500"></div>
-          <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-4 border-purple-500/20"></div>
-        </div>
-        <span className="ml-6 text-white/80 text-lg">{t('loading.stories')}</span>
-      </div>
-    );
-  }
-
-  if (articles.length === 0) {
-    return (
-      <div className="text-center py-20">
-        <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-12 max-w-lg mx-auto border border-white/20">
-          <div className="text-8xl mb-6">✨</div>
-          <h3 className="text-2xl font-bold text-white mb-4">
-            {t('empty.title')}
-          </h3>
-          <p className="text-white/70 text-lg">
-            {t('empty.message')}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6" id="stories">
-      {visibleArticles.map((article) => (
-        <div key={article.id}>
-          <ArticleSnippet article={article} />
-        </div>
-      ))}
-
-      {totalPages > 1 && (
-        <nav className="flex flex-col items-center justify-between gap-4 rounded-3xl border border-white/15 bg-white/10 px-4 py-4 backdrop-blur-md sm:flex-row sm:px-5" aria-label="Stories pagination">
-          <p className="text-sm font-semibold text-white/70">
-            {copy.showing(showingStart, showingEnd, articles.length)}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {copy.previous}
-            </button>
-            {pageNumbers.map((page) => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => goToPage(page)}
-                aria-current={page === currentPage ? 'page' : undefined}
-                aria-label={`${copy.page} ${page}`}
-                className={`h-10 w-10 rounded-full text-sm font-black transition ${
-                  page === currentPage
-                    ? 'bg-yellow-300 text-slate-950'
-                    : 'border border-white/20 text-white hover:bg-white/10'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {copy.next}
-            </button>
-          </div>
-        </nav>
-      )}
-    </div>
-  );
-};
-
-export default Home;
+  if (loading) return <div className="grid min-h-64 place-items-center" role="status"><div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-700"/><span className="sr-only">Cargando historias</span></div>;
+  if (error || !articles.length) return <div className="rounded-3xl border border-purple-100 bg-white p-10 text-center shadow-sm"><p className="text-5xl">✨</p><h2 className="mt-4 text-2xl font-black">{error ? 'No hemos podido cargar las historias' : 'Muy pronto habrá nuevas historias'}</h2><p className="mt-2 text-slate-600">{error ? 'Inténtalo de nuevo en unos minutos.' : 'Vuelve pronto para descubrirlas.'}</p></div>;
+  const featured = articles[0];
+  return <div className="space-y-14">
+    <section aria-labelledby="this-week-title"><p className="text-sm font-black uppercase tracking-[.18em] text-purple-700">{spanish ? 'Esta semana en KidZcoop' : 'This week at KidZcoop'}</p><h2 id="this-week-title" className="mb-5 mt-1 text-3xl font-black tracking-tight sm:text-4xl">{spanish ? 'Una historia para descubrir juntos' : 'A story to discover together'}</h2><Link href={getArticlePath(language, featured.id, featured.title)} className="group grid overflow-hidden rounded-[2rem] bg-[#581c87] shadow-xl shadow-purple-950/15 md:grid-cols-[1.1fr_.9fr]"><div className="relative aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[25rem]"><Image src={featured.image_path} alt={featured.title} fill priority sizes="(min-width:768px) 55vw, 100vw" className="object-cover transition duration-500 group-hover:scale-[1.02]" /></div><div className="flex flex-col justify-center p-6 text-white sm:p-9"><span className="w-fit rounded-full bg-white/15 px-3 py-1 text-sm font-bold">{spanish ? 'Historia destacada' : 'Featured story'}</span><h3 className="mt-5 text-3xl font-black leading-tight sm:text-4xl">{featured.title}</h3><p className="mt-4 line-clamp-3 text-base leading-relaxed text-purple-100">{featured.content_text}</p><span className="mt-6 font-black text-yellow-300">{spanish ? 'Leer en familia →' : 'Read together →'}</span></div></Link></section>
+    <section aria-labelledby="categories-title"><h2 id="categories-title" className="text-2xl font-black">{spanish ? 'Explora por curiosidad' : 'Explore by curiosity'}</h2><div className="mt-4 flex snap-x gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-4 sm:overflow-visible lg:grid-cols-8">{CATEGORY_SLUGS.map((slug) => <Link key={slug} href={getCategoryPath(language, slug)} onClick={() => trackEvent('category_view', { category: slug, language })} className="flex min-w-[8.5rem] snap-start flex-col items-center rounded-2xl border border-purple-100 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md"><span className="text-3xl">{CATEGORY_DEFINITIONS[slug].icon}</span><span className="mt-2 text-sm font-black">{getCategoryLabel(slug, language)}</span></Link>)}</div></section>
+    <section id="stories" className="scroll-mt-24" aria-labelledby="more-stories-title"><p className="text-sm font-black uppercase tracking-[.18em] text-purple-700">{spanish ? 'Descubre más' : 'Discover more'}</p><h2 id="more-stories-title" className="mt-1 text-3xl font-black tracking-tight">{spanish ? 'También te puede gustar' : 'You may also like'}</h2><div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{articles.slice(1, visibleCount).map((article) => <ArticleSnippet key={article.id} article={article} />)}</div>{visibleCount < articles.length && <div className="mt-8 text-center"><button type="button" onClick={() => setVisibleCount((count) => count + 12)} className="min-h-12 rounded-full border-2 border-purple-200 bg-white px-7 py-3 font-black text-purple-900 hover:bg-purple-50">{spanish ? 'Ver más historias' : 'Show more stories'}</button></div>}</section>
+  </div>;
+}

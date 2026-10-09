@@ -31,3 +31,9 @@ yarn-error.log*
 # logs
 /logs/
 *.log.DS_Store
+
+# local account/favorites store used by the app server
+/.kidzcoop-data/
+
+# clerk configuration (can include secrets)
+/.clerk/

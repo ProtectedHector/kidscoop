@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { isSupportedLanguage, type Language } from '../lib/languages';
+import { trackEvent } from '../lib/analytics';
 
 type ShareCopy = {
   share: string;
@@ -89,6 +90,7 @@ export default function ArticleShare({ language, title, path }: { language: stri
   };
 
   const copyLink = async () => {
+    trackEvent('share_story', { method: 'copy', language, title });
     try {
       await navigator.clipboard.writeText(url);
       setStatus(copy.copied);
@@ -100,6 +102,7 @@ export default function ArticleShare({ language, title, path }: { language: stri
   };
 
   const shareWithDevice = async () => {
+    trackEvent('share_story', { method: 'native', language, title });
     setSharing(true);
     setStatus('');
     try {
@@ -120,7 +123,7 @@ export default function ArticleShare({ language, title, path }: { language: stri
     { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
     { label: 'X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${title} — ${shareMessage}`)}&url=${encodedUrl}` },
   ];
-  const optionClass = 'flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-sm font-semibold text-white transition hover:bg-purple-600/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300';
+  const optionClass = 'flex min-h-11 items-center justify-center gap-2 rounded-xl border border-purple-100 bg-purple-50 px-3 py-3 text-sm font-semibold text-purple-950 transition hover:bg-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300';
 
   return (
     <div
@@ -139,13 +142,13 @@ export default function ArticleShare({ language, title, path }: { language: stri
         onClick={toggle}
         aria-expanded={open}
         aria-controls={panelId}
-        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
+        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-purple-100 bg-white px-5 py-2.5 text-sm font-black text-[#581c87] shadow-sm transition hover:bg-purple-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
       >
         <ShareIcon />
         {copy.share}
       </button>
       {open && (
-        <div id={panelId} role="region" aria-label={copy.share} className="absolute left-1/2 top-full z-30 mt-3 w-80 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-2xl border border-white/20 bg-slate-900 p-4 text-start shadow-2xl">
+        <div id={panelId} role="region" aria-label={copy.share} className="absolute left-1/2 top-full z-30 mt-3 w-80 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-2xl border border-purple-100 bg-white p-4 text-start shadow-2xl">
           <div className="grid grid-cols-2 gap-2">
             {options.map((option, index) => (
               <a
@@ -154,6 +157,7 @@ export default function ArticleShare({ language, title, path }: { language: stri
                 href={option.href}
                 target={option.href.startsWith('https:') ? '_blank' : undefined}
                 rel={option.href.startsWith('https:') ? 'noopener noreferrer' : undefined}
+                onClick={() => trackEvent('share_story', { method: option.label.toLowerCase(), language, title })}
                 className={optionClass}
               >
                 {option.label}
@@ -173,11 +177,11 @@ export default function ArticleShare({ language, title, path }: { language: stri
               </button>
             )}
           </div>
-          <label className="mt-4 block text-xs text-white/70">
+          <label className="mt-4 block text-xs text-slate-500">
             {copy.link}
-            <input ref={linkRef} type="text" readOnly value={url} dir="ltr" onFocus={(event) => event.currentTarget.select()} className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300" />
+            <input ref={linkRef} type="text" readOnly value={url} dir="ltr" onFocus={(event) => event.currentTarget.select()} className="mt-1 w-full rounded-lg border border-purple-100 bg-purple-50 px-3 py-2 text-sm text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300" />
           </label>
-          <p role="status" aria-live="polite" className="mt-2 text-sm text-purple-200">{status}</p>
+          <p role="status" aria-live="polite" className="mt-2 text-sm font-semibold text-[#581c87]">{status}</p>
         </div>
       )}
     </div>

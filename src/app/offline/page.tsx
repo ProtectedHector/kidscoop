@@ -1,0 +1,4 @@
+import Image from 'next/image';
+import Link from 'next/link';
+export const metadata = { title: 'Sin conexión | KidZcoop', robots: { index: false, follow: false } };
+export default function OfflinePage() { return <main className="grid min-h-screen place-items-center bg-[#fbf9ff] px-6 text-center"><div className="max-w-lg"><Image src="/logo.png" alt="KidZcoop" width={120} height={120} className="mx-auto h-28 w-28 object-contain" /><h1 className="mt-6 text-3xl font-black text-[#581c87]">Parece que te has quedado sin conexión.</h1><p className="mt-4 text-lg leading-relaxed text-slate-600">Pero tus historias visitadas siguen aquí. Vuelve a la página anterior o inténtalo de nuevo cuando recuperes la conexión.</p><Link href="/es" className="mt-7 inline-flex rounded-full bg-[#581c87] px-6 py-3 font-bold text-white">Volver a KidZcoop</Link></div></main>; }

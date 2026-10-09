@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchArticlesWithContent } from '@/lib/googleSheets';
+import { fetchArticle } from '@/lib/content';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,14 +16,12 @@ export async function GET(
   }
 
   try {
-    const articles = await fetchArticlesWithContent(language);
-    const article = articles.find((item) => item.id === articleId);
+    const article = await fetchArticle(language, articleId);
 
     if (article && article.title) {
       if ((!article.lyrics || article.lyrics.trim() === '') && language !== 'en') {
         try {
-          const enArticles = await fetchArticlesWithContent('en');
-          const enArticle = enArticles.find((item) => item.id === articleId);
+          const enArticle = await fetchArticle('en', articleId);
           if (enArticle?.lyrics && enArticle.lyrics.trim() !== '') {
             article.lyrics = enArticle.lyrics;
             article.lyrics_language = 'en';
@@ -47,7 +45,7 @@ export async function GET(
       {
         error: 'Failed to fetch article',
         message,
-        hint: 'Check that GOOGLE_SHEETS_ARTICLES_URL and GOOGLE_SHEETS_CONTENT_URL are set.',
+        hint: 'Check Convex configuration or the Google Sheets fallback URLs.',
       },
       { status: 500 }
     );

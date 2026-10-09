@@ -1,5 +1,7 @@
+import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { CLERK_ENABLED } from './lib/auth';
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from './lib/languages';
 
 const LANGUAGE_COOKIE = 'language';
@@ -24,7 +26,7 @@ function getBrowserLanguage(acceptLanguage: string | null) {
   return languages.find(({ code }) => isSupportedLanguage(code))?.code || DEFAULT_LANGUAGE;
 }
 
-export function middleware(request: NextRequest) {
+function languageRedirect(request: NextRequest) {
   const preferredLanguage = request.cookies.get(LANGUAGE_COOKIE)?.value;
   const language = isSupportedLanguage(preferredLanguage)
     ? preferredLanguage
@@ -33,6 +35,22 @@ export function middleware(request: NextRequest) {
   return NextResponse.redirect(new URL(`/${language}`, request.url));
 }
 
+const appMiddleware = CLERK_ENABLED ? clerkMiddleware((_auth, request: NextRequest) => {
+  if (request.nextUrl.pathname === '/') {
+    return languageRedirect(request);
+  }
+
+  return NextResponse.next();
+}) : function middlewareWithoutAuth(request: NextRequest) {
+  if (request.nextUrl.pathname === '/') {
+    return languageRedirect(request);
+  }
+
+  return NextResponse.next();
+};
+
+export default appMiddleware;
+
 export const config = {
-  matcher: '/',
+  matcher: ['/', '/((?!_next|.*\\..*).*)'],
 };

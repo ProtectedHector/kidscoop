@@ -1,4 +1,4 @@
-export const DEFAULT_LANGUAGE = 'en';
+export const DEFAULT_LANGUAGE = 'es';
 
 export const AVAILABLE_LANGUAGES = [
   { code: 'en', name: 'English', flag: '🇺🇸' },

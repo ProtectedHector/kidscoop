@@ -8,9 +8,13 @@ import LanguageSelector from './LanguageSelector';
 import ArticleColoringStudio from './ArticleColoringStudio';
 import ArticlePuzzle from './ArticlePuzzle';
 import ArticleShare from './ArticleShare';
+import FavoriteButton from './FavoriteButton';
 import { AffiliateSection, type AffiliateAd } from './AffiliateAds';
+import ArticleSnippet from './ArticleSnippet';
 import { getArticlePath } from '../lib/articleRoutes';
+import { getCategoryLabel } from '../lib/categories';
 import { useTranslation } from '../hooks/useTranslation';
+import { trackEvent } from '../lib/analytics';
 
 interface Article {
   id: number;
@@ -20,6 +24,7 @@ interface Article {
   published_date: string;
   lyrics?: string;
   lyrics_language?: string;
+  category?: string;
 }
 
 const storyNavCopy: Record<string, { previous: string; next: string }> = {
@@ -36,6 +41,17 @@ const storyNavCopy: Record<string, { previous: string; next: string }> = {
   hi: { previous: 'पिछली कहानी', next: 'अगली कहानी' },
   ru: { previous: 'Предыдущая история', next: 'Следующая история' },
 };
+
+const relatedCopy: Record<string, string> = {
+  es: 'También te puede gustar',
+  en: 'You may also like',
+};
+
+function getIntro(text: string) {
+  const firstParagraph = text.split('\n\n').find((paragraph) => paragraph.trim().length > 0) || text;
+  const sentence = firstParagraph.match(/^(.+?[.!?])\s/)?.[1] || firstParagraph;
+  return sentence.trim().slice(0, 180);
+}
 
 export default function ArticlePageClient() {
   const params = useParams();
@@ -106,6 +122,7 @@ export default function ArticlePageClient() {
 
         const articleData = await articleResponse.json();
         setArticle(articleData);
+        trackEvent('story_view', { story_id: articleData.id, language });
 
         if (articleListResponse.ok) {
           const articlesData = await articleListResponse.json();
@@ -277,6 +294,20 @@ export default function ArticlePageClient() {
       ? articleList[currentArticleIndex + 1]
       : null;
   const navCopy = storyNavCopy[language] || storyNavCopy.en;
+  const articlePath = getArticlePath(language, article.id, article.title);
+  const readMinutes = Math.max(1, Math.ceil(article.content_text.trim().split(/\s+/).length / 220));
+  const formattedDate = new Intl.DateTimeFormat(language, { dateStyle: 'long' }).format(new Date(article.published_date));
+  const intro = getIntro(article.content_text);
+  const relatedArticles = articleList
+    .filter((item) => String(item.id) !== String(article.id))
+    .sort((a, b) => {
+      const aSameCategory = a.category && article.category && a.category === article.category ? 1 : 0;
+      const bSameCategory = b.category && article.category && b.category === article.category ? 1 : 0;
+      return bSameCategory - aSameCategory;
+    })
+    .slice(0, 4);
+  const categoryLabel = getCategoryLabel(article.category, language);
+  const relatedTitle = relatedCopy[language] || relatedCopy.en;
 
   return (
     <>
@@ -286,234 +317,231 @@ export default function ArticlePageClient() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       )}
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Floating Logo */}
-      <div className="fixed top-8 left-8 z-50 scroll-stable">
-        <Link href={`/${language}`}>
-          <div className="relative">
-            <Image
-              src="/logo.png"
-              alt="KidZcoop Logo"
-              width={60}
-              height={60}
-              className="rounded-full shadow-2xl hover:scale-110 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 opacity-20 animate-pulse"></div>
-          </div>
-        </Link>
-      </div>
-
-      {/* Back Button and Language Selector */}
-      <div className="fixed top-8 right-8 z-50 flex items-center space-x-4">
-        <LanguageSelector />
-        <Link href={`/${language}`}>
-          <div className="bg-white/10 backdrop-blur-md rounded-full px-6 py-3 border border-white/20 hover:bg-white/20 transition-all duration-300">
-            <div className="flex items-center text-white/80 text-sm">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              {t('content.backToStories')}
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      {/* Main Content */}
-      <div className="pt-24 pb-12">
-        <div className="max-w-4xl mx-auto px-6">
-          {/* Article Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
-              {article.title}
-            </h1>
-            <ArticleShare
-              key={`${language}-${article.id}`}
-              language={language}
-              title={article.title}
-              path={getArticlePath(language, article.id, article.title)}
-            />
-          </div>
-
-          {/* Article Image */}
-          <div className="relative mb-8 px-2 sm:px-10 md:px-28">
-            <div
-              className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950/35 shadow-2xl cursor-zoom-in md:aspect-square"
-              onClick={() =>
-                setLightbox({
-                  src: article.image_path,
-                  alt: article.title,
-                })
-              }
-              >
-              <Image
-                src={article.image_path}
-                alt={article.title}
-                fill
-                sizes="(min-width: 768px) 640px, calc(100vw - 1rem)"
-                className="object-cover md:object-contain"
-                priority
-                loading="eager"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            </div>
-            {previousArticle && (
-              <Link
-                href={getArticlePath(language, previousArticle.id, previousArticle.title)}
-                className="absolute left-0 top-1/2 z-10 flex -translate-y-1/2 items-center gap-2 rounded-full border border-white/25 bg-slate-950/65 p-3 text-white shadow-2xl backdrop-blur-md transition hover:bg-purple-700/80 md:-left-10 md:px-4 md:py-3 lg:-left-16"
-                aria-label={navCopy.previous}
-                title={navCopy.previous}
-              >
-                <svg className="h-6 w-6 md:h-7 md:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span className="hidden text-sm font-black lg:inline">{navCopy.previous}</span>
+      <div className="min-h-screen bg-[#fbf9ff] pb-24 text-slate-950">
+        <header className="sticky top-0 z-40 border-b border-purple-100/80 bg-white/90 backdrop-blur-xl">
+          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+            <Link href={`/${language}`} className="flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600">
+              <Image src="/social-logo.png" alt="KidZcoop" width={44} height={44} className="h-11 w-11 rounded-xl object-contain" priority />
+              <span className="text-xl font-black tracking-tight text-[#581c87]">KidZcoop</span>
+            </Link>
+            <div className="flex items-center gap-2">
+              <LanguageSelector />
+              <Link href={`/${language}`} className="inline-flex min-h-10 items-center rounded-full border border-purple-100 bg-white px-4 text-sm font-black text-[#581c87] shadow-sm hover:bg-purple-50">
+                {t('content.backToStories')}
               </Link>
-            )}
-            {nextArticle && (
-              <Link
-                href={getArticlePath(language, nextArticle.id, nextArticle.title)}
-                className="absolute right-0 top-1/2 z-10 flex -translate-y-1/2 items-center gap-2 rounded-full border border-white/25 bg-slate-950/65 p-3 text-white shadow-2xl backdrop-blur-md transition hover:bg-purple-700/80 md:-right-10 md:px-4 md:py-3 lg:-right-16"
-                aria-label={navCopy.next}
-                title={navCopy.next}
-              >
-                <span className="hidden text-sm font-black lg:inline">{navCopy.next}</span>
-                <svg className="h-6 w-6 md:h-7 md:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            )}
-          </div>
-
-          {/* Article Content */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20">
-            <div className="prose prose-invert max-w-none">
-              <div className="text-white/90 leading-relaxed text-lg space-y-6">
-                {article.content_text.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="text-justify">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
             </div>
           </div>
-          <div className="mt-5 mb-8 flex flex-col items-center gap-3">
-            <button
-              type="button"
-              onClick={handleToggleSpeak}
-              disabled={!speechSupported}
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 text-white font-semibold shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-300"
-              aria-pressed={isSpeaking}
-            >
-              <span>{isSpeaking ? '⏹️' : '🔊'}</span>
-              <span>{isSpeaking ? t('content.stopListening') : t('content.listenArticle')}</span>
-            </button>
-            {!speechSupported && (
-              <p className="text-white/70 text-sm">{t('content.speechNotSupported')}</p>
-            )}
-          </div>
+        </header>
 
-          <ArticlePuzzle
-            imageId={article.id}
-            imageAlt={article.title}
-            labels={{
-              title: t('content.puzzleTitle'),
-              description: t('content.puzzleDescription'),
-              hint: t('content.puzzleHint'),
-              solved: t('content.puzzleSolved'),
-              solvedDescription: t('content.puzzleSolvedDescription'),
-              shuffle: t('content.puzzleShuffle'),
-              difficulty: t('content.puzzleDifficulty'),
-              status: t('content.puzzleStatus'),
-              moves: t('content.puzzleMoves'),
-              ready: t('content.puzzleReady'),
-              selected: t('content.puzzleSelected'),
-            }}
-          />
-
-          <div className="mt-8">
-            <AffiliateSection ads={affiliateAds} language={language} />
-          </div>
-
-          <ArticleColoringStudio
-            imageId={article.id}
-            imageAlt={article.title}
-            labels={{
-              title: t('content.coloringFun'),
-              description: t('content.coloringStudioDescription'),
-              hint: t('content.coloringStudioHint'),
-              undo: t('content.coloringUndo'),
-              redo: t('content.coloringRedo'),
-              reset: t('content.coloringReset'),
-              downloadArtwork: t('content.coloringDownloadArtwork'),
-              downloadPage: t('content.coloringDownloadPage'),
-              loading: t('content.coloringLoading'),
-            }}
-          />
-
-          {/* Audio Section - Only show if audio file exists */}
-          {hasAudio && (
-            <div className="mt-12 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">🎵 {t('content.storySong')}</h2>
-                <p className="text-white/70">{t('content.storySongDescription')}</p>
+        <main>
+          <article>
+            <section className="mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pb-14 sm:pt-10">
+              <div
+                className="relative aspect-[4/3] cursor-zoom-in overflow-hidden rounded-[2rem] bg-purple-50 shadow-xl shadow-purple-950/10 sm:aspect-[16/9]"
+                onClick={() =>
+                  setLightbox({
+                    src: article.image_path,
+                    alt: article.title,
+                  })
+                }
+              >
+                <Image
+                  src={article.image_path}
+                  alt={article.title}
+                  fill
+                  sizes="(min-width: 1280px) 1180px, calc(100vw - 2rem)"
+                  className="object-cover"
+                  priority
+                  loading="eager"
+                />
               </div>
-              
-              <div className="flex justify-center">
-                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 w-full max-w-md">
-                  <audio 
-                    controls 
-                    className="w-full h-12 bg-white/10 rounded-lg"
-                    style={{
-                      filter: 'invert(1) hue-rotate(180deg)',
-                    }}
+
+              <div className="mx-auto mt-8 max-w-3xl text-center">
+                <p className="text-sm font-black uppercase tracking-[.18em] text-[#581c87]">✨ {categoryLabel}</p>
+                <h1 className="mt-3 text-balance text-4xl font-black leading-tight tracking-tight text-slate-950 sm:text-5xl md:text-6xl">
+                  {article.title}
+                </h1>
+                <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+                  {intro}
+                </p>
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-slate-500">
+                  <span>{categoryLabel}</span>
+                  <span aria-hidden="true" className="text-purple-300">·</span>
+                  <span>{readMinutes} min</span>
+                  <span aria-hidden="true" className="text-purple-300">·</span>
+                  <time>{formattedDate}</time>
+                </div>
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  <ArticleShare key={`${language}-${article.id}`} language={language} title={article.title} path={articlePath} />
+                  <FavoriteButton story={{ id: article.id, title: article.title, image_path: article.image_path, language, path: articlePath }} />
+                </div>
+              </div>
+            </section>
+
+            <section className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+              <div className="min-w-0">
+                <div className="mx-auto max-w-3xl rounded-[2rem] border border-purple-100 bg-white p-6 shadow-sm sm:p-9">
+                  <div className="space-y-7 text-[1.08rem] leading-8 text-slate-800 sm:text-xl sm:leading-10">
+                    {article.content_text.split('\n\n').map((paragraph, index) => (
+                      <p key={index}>
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mx-auto mt-6 flex max-w-3xl flex-col items-start gap-3 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap gap-3">
+                    <ArticleShare language={language} title={article.title} path={articlePath} />
+                    <FavoriteButton story={{ id: article.id, title: article.title, image_path: article.image_path, language, path: articlePath }} />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleToggleSpeak}
+                    disabled={!speechSupported}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#581c87] px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-purple-950 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-pressed={isSpeaking}
                   >
-                    <source src={`/articles/${article.id}_${audioLanguage}.mp3`} type="audio/mpeg" />
-                    {t('content.audioNotSupported')}
-                  </audio>
-                  <div className="mt-4 text-center">
-                    <p className="text-white/60 text-sm">
+                    <span>{isSpeaking ? '⏹️' : '🔊'}</span>
+                    <span>{isSpeaking ? t('content.stopListening') : t('content.listenArticle')}</span>
+                  </button>
+                </div>
+                {!speechSupported && (
+                  <p className="mx-auto mt-2 max-w-3xl text-sm text-slate-500">{t('content.speechNotSupported')}</p>
+                )}
+
+                <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] bg-gradient-to-br from-purple-950 to-[#581c87] p-4 shadow-xl shadow-purple-950/15 sm:p-6">
+                  <ArticlePuzzle
+                    imageId={article.id}
+                    imageAlt={article.title}
+                    labels={{
+                      title: t('content.puzzleTitle'),
+                      description: t('content.puzzleDescription'),
+                      hint: t('content.puzzleHint'),
+                      solved: t('content.puzzleSolved'),
+                      solvedDescription: t('content.puzzleSolvedDescription'),
+                      shuffle: t('content.puzzleShuffle'),
+                      difficulty: t('content.puzzleDifficulty'),
+                      status: t('content.puzzleStatus'),
+                      moves: t('content.puzzleMoves'),
+                      ready: t('content.puzzleReady'),
+                      selected: t('content.puzzleSelected'),
+                    }}
+                  />
+                </div>
+
+                <div className="mx-auto mt-8 max-w-3xl rounded-[2rem] bg-gradient-to-br from-purple-950 to-[#581c87] p-4 shadow-xl shadow-purple-950/15 sm:p-6">
+                  <AffiliateSection ads={affiliateAds} language={language} tone="dark" layout="carousel" />
+                </div>
+
+                <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] bg-gradient-to-br from-purple-950 to-[#581c87] p-4 shadow-xl shadow-purple-950/15 sm:p-6">
+                  <ArticleColoringStudio
+                    imageId={article.id}
+                    imageAlt={article.title}
+                    labels={{
+                      title: t('content.coloringFun'),
+                      description: t('content.coloringStudioDescription'),
+                      hint: t('content.coloringStudioHint'),
+                      undo: t('content.coloringUndo'),
+                      redo: t('content.coloringRedo'),
+                      reset: t('content.coloringReset'),
+                      downloadArtwork: t('content.coloringDownloadArtwork'),
+                      downloadPage: t('content.coloringDownloadPage'),
+                      loading: t('content.coloringLoading'),
+                    }}
+                  />
+                </div>
+
+                {hasAudio && (
+                  <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] border border-purple-100 bg-white p-6 shadow-sm sm:p-8">
+                    <div className="mb-5">
+                      <h2 className="text-2xl font-black text-slate-950">🎵 {t('content.storySong')}</h2>
+                      <p className="mt-2 text-slate-600">{t('content.storySongDescription')}</p>
+                    </div>
+                    <audio controls className="h-12 w-full rounded-xl">
+                      <source src={`/articles/${article.id}_${audioLanguage}.mp3`} type="audio/mpeg" />
+                      {t('content.audioNotSupported')}
+                    </audio>
+                    <p className="mt-3 text-center text-sm text-slate-500">
                       🎶 {article.title} - Musical Version
                       {audioLanguage !== language && (
-                        <span className="ml-2 text-white/40 text-xs italic">
+                        <span className="ml-2 text-xs italic text-slate-400">
                           ({t('content.lyricsInLanguage') || `(${audioLanguage.toUpperCase()})`})
                         </span>
                       )}
                     </p>
                   </div>
-                </div>
-              </div>
-            </div>
-          )}
+                )}
 
-          {/* Lyrics Section - Show if lyrics exist (independent of audio) */}
-          {article.lyrics && article.lyrics.trim() !== '' && (
-            <div className={`mt-12 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20 ${hasAudio ? '' : ''}`}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-white">📝 {t('content.lyrics') || 'Lyrics'}</h2>
-                {lyricsLanguage && lyricsLanguage !== language && (
-                  <span className="text-white/50 text-xs italic">
-                    {t('content.lyricsInLanguage') || `(${lyricsLanguage.toUpperCase()})`}
-                  </span>
+                {article.lyrics && article.lyrics.trim() !== '' && (
+                  <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] border border-purple-100 bg-white p-6 shadow-sm sm:p-8">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <h2 className="text-2xl font-black text-slate-950">📝 {t('content.lyrics') || 'Lyrics'}</h2>
+                      {lyricsLanguage && lyricsLanguage !== language && (
+                        <span className="text-xs italic text-slate-400">
+                          {t('content.lyricsInLanguage') || `(${lyricsLanguage.toUpperCase()})`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="whitespace-pre-line rounded-2xl bg-purple-50 p-5 text-sm leading-7 text-slate-700">
+                      {article.lyrics}
+                    </div>
+                  </div>
                 )}
               </div>
-              <div className="text-white/90 leading-relaxed text-sm whitespace-pre-line bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                {article.lyrics}
-              </div>
-            </div>
-          )}
 
-          {/* Footer */}
-          <div className="mt-12 text-center">
-            <Link 
-              href={`/${language}`}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-2xl hover:shadow-purple-500/25 transform hover:scale-105 transition-all duration-300"
-            >
-              {t('content.readMoreStories')}
-            </Link>
-          </div>
-        </div>
+              <aside className="hidden lg:block lg:sticky lg:top-24">
+                <div className="rounded-[2rem] border border-purple-100 bg-white p-5 shadow-sm">
+                  <p className="text-xs font-black uppercase tracking-[.16em] text-[#581c87]">{categoryLabel}</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{intro}</p>
+                  <div className="mt-5 flex flex-col gap-3">
+                    {previousArticle && (
+                      <Link href={getArticlePath(language, previousArticle.id, previousArticle.title)} className="rounded-2xl bg-purple-50 px-4 py-3 text-sm font-black text-[#581c87] hover:bg-purple-100">
+                        ← {navCopy.previous}
+                      </Link>
+                    )}
+                    {nextArticle && (
+                      <Link href={getArticlePath(language, nextArticle.id, nextArticle.title)} className="rounded-2xl bg-purple-50 px-4 py-3 text-sm font-black text-[#581c87] hover:bg-purple-100">
+                        {navCopy.next} →
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </aside>
+            </section>
+
+            {relatedArticles.length > 0 && (
+              <section className="mx-auto mt-14 max-w-7xl px-4 sm:px-6">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-black uppercase tracking-[.18em] text-[#581c87]">KidZcoop</p>
+                    <h2 className="mt-1 text-3xl font-black tracking-tight text-slate-950">{relatedTitle}</h2>
+                  </div>
+                  <Link href={`/${language}#stories`} className="hidden rounded-full border border-purple-100 bg-white px-5 py-2.5 text-sm font-black text-[#581c87] shadow-sm hover:bg-purple-50 sm:inline-flex">
+                    {t('content.readMoreStories')}
+                  </Link>
+                </div>
+                <div className="mt-6 flex snap-x gap-5 overflow-x-auto pb-4 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4">
+                  {relatedArticles.map((related) => (
+                    <div key={related.id} className="min-w-[18rem] snap-start sm:min-w-0">
+                      <ArticleSnippet article={related} />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <div className="mt-12 text-center">
+              <Link
+                href={`/${language}`}
+                className="inline-flex min-h-12 items-center rounded-full bg-[#581c87] px-7 py-3 font-black text-white shadow-sm hover:bg-purple-950"
+              >
+                {t('content.readMoreStories')}
+              </Link>
+            </div>
+          </article>
+        </main>
       </div>
-    </div>
       {lightbox && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-6 py-10"
