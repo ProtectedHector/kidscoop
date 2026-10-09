@@ -30,6 +30,20 @@ export default defineSchema({
     .index("by_external_article_id", ["externalArticleId"])
     .index("by_category", ["category"]),
 
+  articleCategories: defineTable({
+    articleId: v.id("articles"),
+    externalArticleId: v.number(),
+    category,
+    position: v.number(),
+    source,
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_article_id", ["articleId"])
+    .index("by_external_article", ["externalArticleId"])
+    .index("by_category", ["category"])
+    .index("by_category_and_external_article", ["category", "externalArticleId"]),
+
   content: defineTable({
     articleId: v.id("articles"),
     externalArticleId: v.number(),

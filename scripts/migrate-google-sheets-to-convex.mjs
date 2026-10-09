@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -7,6 +7,9 @@ import { readFileSync } from 'node:fs';
 import xlsx from 'xlsx';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../convex/_generated/api.js';
+
+dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.local', override: false });
 
 const CATEGORY_SLUGS = ['historias', 'ciencia', 'mundo', 'arte', 'naturaleza', 'espacio', 'animales', 'curiosidades'];
 const DEFAULT_CATEGORY = 'curiosidades';
@@ -90,7 +93,7 @@ function normalizeCategory(value) {
   return CATEGORY_SLUGS.includes(normalized) ? normalized : '';
 }
 
-function classifyArticle(text) {
+function scoreCategories(text) {
   const normalized = String(text || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -105,8 +108,44 @@ function classifyArticle(text) {
     }
   }
 
-  const [bestCategory, bestScore] = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
-  return bestScore > 0 ? bestCategory : DEFAULT_CATEGORY;
+  return scores;
+}
+
+function fallbackPair(primary) {
+  if (primary === 'curiosidades') return 'historias';
+  if (primary === 'historias') return 'curiosidades';
+  return 'curiosidades';
+}
+
+function classifyArticleCategories(text, explicitCategory = '') {
+  const scores = scoreCategories(text);
+  const ranked = Object.entries(scores)
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([category]) => category);
+  const categories = [];
+
+  if (explicitCategory) {
+    categories.push(explicitCategory);
+  }
+
+  for (const category of ranked) {
+    if (!categories.includes(category)) {
+      categories.push(category);
+    }
+    if (categories.length >= 3) {
+      break;
+    }
+  }
+
+  if (!categories.length) {
+    categories.push(DEFAULT_CATEGORY);
+  }
+  if (categories.length < 2) {
+    categories.push(fallbackPair(categories[0]));
+  }
+
+  return categories.slice(0, 3);
 }
 
 function loadWorkbook(xlsxPath) {
@@ -123,11 +162,14 @@ function buildPayloads(workbook) {
   const newsletterTemplateRows = rowsFromSheet(workbook, 'Newsletter Template');
   const articlesById = new Map();
   const articlePayloads = [];
+  const textByArticle = new Map();
 
   for (const row of articleRows) {
     const id = numberField(row, 'id');
     const deleted = numberField(row, 'deleted');
     if (id > 0) {
+      const initialText = [row.name, row.post].filter(Boolean).join('\n');
+      textByArticle.set(id, initialText);
       articlePayloads.push({
         externalArticleId: id,
         name: row.name || '',
@@ -153,20 +195,22 @@ function buildPayloads(workbook) {
     return articleId > 0 && articlesById.has(articleId) && boolField(row, 'published') && (row.title || row.content_text);
   });
 
-  const textByArticle = new Map();
   for (const row of activeContentRows) {
     const articleId = numberField(row, 'article_id');
     const text = [row.title, row.content_text, row.lyrics].filter(Boolean).join('\n');
     textByArticle.set(articleId, `${textByArticle.get(articleId) || ''}\n${text}`);
   }
 
-  const categoryByArticle = new Map();
-  for (const [articleId, text] of textByArticle) {
+  const categoriesByArticle = new Map();
+  for (const payload of articlePayloads) {
+    const articleId = payload.externalArticleId;
     const rowCategory = normalizeCategory(activeContentRows.find((row) => numberField(row, 'article_id') === articleId)?.category);
-    categoryByArticle.set(articleId, rowCategory || classifyArticle(text));
+    categoriesByArticle.set(articleId, classifyArticleCategories(textByArticle.get(articleId) || payload.name, rowCategory));
+    payload.category = categoriesByArticle.get(articleId)[0];
   }
 
   const affiliatesByArticle = new Map();
+  const affiliatePayloads = [];
   for (const row of affiliateRows) {
     const externalArticleId = numberField(row, 'article_id');
     if (!externalArticleId || !boolField(row, 'active')) {
@@ -181,12 +225,14 @@ function buildPayloads(workbook) {
       position: numberField(row, 'position'),
       active: boolField(row, 'active'),
       imageUrl: row.image_url || '',
+      rawFields: row,
     };
 
     if (!ad.productName || !ad.affiliateUrl || !ad.imageUrl) {
       continue;
     }
 
+    affiliatePayloads.push(ad);
     const current = affiliatesByArticle.get(externalArticleId) || [];
     current.push(ad);
     affiliatesByArticle.set(externalArticleId, current);
@@ -197,6 +243,7 @@ function buildPayloads(workbook) {
   const payloads = [];
   const byLanguage = {};
   const byCategory = {};
+  const byAssignedCategory = {};
   let fallbackCategoryCount = 0;
 
   for (const row of activeContentRows) {
@@ -211,7 +258,8 @@ function buildPayloads(workbook) {
     }
     seen.add(key);
 
-    const category = categoryByArticle.get(externalArticleId) || DEFAULT_CATEGORY;
+    const categories = categoriesByArticle.get(externalArticleId) || [DEFAULT_CATEGORY, 'historias'];
+    const category = categories[0] || DEFAULT_CATEGORY;
     if (category === DEFAULT_CATEGORY) {
       fallbackCategoryCount += 1;
     }
@@ -247,6 +295,17 @@ function buildPayloads(workbook) {
     });
   }
 
+  const articleCategoryPayloads = articlePayloads.map((article) => {
+    const categories = categoriesByArticle.get(article.externalArticleId) || [article.category, fallbackPair(article.category)];
+    for (const category of categories) {
+      byAssignedCategory[category] = (byAssignedCategory[category] || 0) + 1;
+    }
+    return {
+      externalArticleId: article.externalArticleId,
+      categories,
+    };
+  });
+
   const newsletterPayloads = newsletterRows
     .filter((row) => row.email)
     .map((row) => ({
@@ -276,13 +335,16 @@ function buildPayloads(workbook) {
       newsletterTemplateRows: newsletterTemplateRows.length,
     },
     articlePayloads,
+    articleCategoryPayloads,
     payloads,
+    affiliatePayloads,
     newsletterPayloads,
     newsletterTemplatePayloads,
     duplicateRows,
     fallbackCategoryCount,
     byLanguage,
     byCategory,
+    byAssignedCategory,
   };
 }
 
@@ -295,8 +357,7 @@ async function migrate(prepared, batchSize) {
   }
 
   const client = new ConvexHttpClient(convexUrl);
-  const summary = { articles: null, contentCreated: 0, contentUpdated: 0, newsletter: null, newsletterTemplates: null, errors: [], verified: 0, verificationErrors: [] };
-  const affiliatesSent = new Set();
+  const summary = { articles: null, articleCategories: null, contentCreated: 0, contentUpdated: 0, affiliates: null, newsletter: null, newsletterTemplates: null, errors: [], verified: 0, verificationErrors: [] };
 
   summary.articles = await client.mutation(api.articles.importArticles, {
     token,
@@ -304,19 +365,23 @@ async function migrate(prepared, batchSize) {
     source: 'migration',
   });
 
+  summary.articleCategories = await client.mutation(api.articles.importArticleCategories, {
+    token,
+    rows: prepared.articleCategoryPayloads,
+    source: 'migration',
+  });
+
   for (let index = 0; index < prepared.payloads.length; index += batchSize) {
     const batch = prepared.payloads.slice(index, index + batchSize);
     for (const payload of batch) {
       try {
-        const shouldSendAffiliates = !affiliatesSent.has(payload.content.externalArticleId);
         const result = await client.mutation(api.articles.upsertContentFromMake, {
           token,
           article: payload.articleGroup,
           content: payload.content,
-          affiliates: shouldSendAffiliates ? payload.affiliates : [],
+          affiliates: [],
           source: 'migration',
         });
-        affiliatesSent.add(payload.content.externalArticleId);
         if (result.action === 'created') {
           summary.contentCreated += 1;
         } else {
@@ -331,6 +396,12 @@ async function migrate(prepared, batchSize) {
       }
     }
   }
+
+  summary.affiliates = await client.mutation(api.articles.importAffiliates, {
+    token,
+    rows: prepared.affiliatePayloads,
+    source: 'migration',
+  });
 
   summary.newsletter = await client.mutation(api.articles.importNewsletter, {
     token,
@@ -378,13 +449,17 @@ async function main() {
   const baseSummary = {
     source: prepared.source,
     articleRowsPrepared: prepared.articlePayloads.length,
+    articleCategoriesPrepared: prepared.articleCategoryPayloads.length,
+    assignedCategoryLinks: prepared.articleCategoryPayloads.reduce((total, row) => total + row.categories.length, 0),
     articlesPrepared: prepared.payloads.length,
+    affiliatesPrepared: prepared.affiliatePayloads.length,
     newsletterPrepared: prepared.newsletterPayloads.length,
     newsletterTemplatesPrepared: prepared.newsletterTemplatePayloads.length,
     duplicatesDetected: prepared.duplicateRows.length,
     duplicateSamples: prepared.duplicateRows.slice(0, 10),
     articlesWithoutStrongCategory: prepared.fallbackCategoryCount,
     classifiedByCategory: prepared.byCategory,
+    assignedByCategory: prepared.byAssignedCategory,
     byLanguage: prepared.byLanguage,
   };
 
