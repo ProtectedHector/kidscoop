@@ -20,8 +20,14 @@ const articleInput = v.object({
   deleted: v.optional(v.boolean()),
   post: v.optional(v.string()),
   category: v.optional(category),
+  categories: v.optional(v.array(category)),
   imagePath: v.optional(v.string()),
   rawFields: v.optional(v.any()),
+});
+
+const articleCategoryInput = v.object({
+  externalArticleId: v.number(),
+  categories: v.array(category),
 });
 
 const contentInput = v.object({
@@ -36,6 +42,7 @@ const contentInput = v.object({
   publishedDate: v.optional(v.string()),
   published: v.optional(v.boolean()),
   category: v.optional(category),
+  categories: v.optional(v.array(category)),
   rawFields: v.optional(v.any()),
 });
 
@@ -64,12 +71,15 @@ const newsletterTemplateInput = v.object({
   rawFields: v.optional(v.any()),
 });
 
+type Category = "historias" | "ciencia" | "mundo" | "arte" | "naturaleza" | "espacio" | "animales" | "curiosidades";
+
 type ArticleInput = {
   externalArticleId: number;
   name?: string;
   deleted?: boolean;
   post?: string;
-  category?: "historias" | "ciencia" | "mundo" | "arte" | "naturaleza" | "espacio" | "animales" | "curiosidades";
+  category?: Category;
+  categories?: Category[];
   imagePath?: string;
   rawFields?: unknown;
 };
@@ -100,6 +110,44 @@ function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
 }
 
+function fallbackCategory(primary: Category): Category {
+  if (primary === "curiosidades") return "historias";
+  if (primary === "historias") return "curiosidades";
+  return "curiosidades";
+}
+
+async function replaceArticleCategories(
+  ctx: any,
+  articleId: unknown,
+  externalArticleId: number,
+  categories: Category[],
+  rowSource: Source,
+) {
+  const now = Date.now();
+  const existing = await ctx.db
+    .query("articleCategories")
+    .withIndex("by_external_article", (q: any) => q.eq("externalArticleId", externalArticleId))
+    .collect();
+  for (const current of existing) {
+    await ctx.db.delete(current._id);
+  }
+
+  const uniqueCategories = Array.from(new Set(categories)).slice(0, 3);
+  for (let index = 0; index < uniqueCategories.length; index += 1) {
+    await ctx.db.insert("articleCategories", {
+      articleId,
+      externalArticleId,
+      category: uniqueCategories[index],
+      position: index,
+      source: rowSource,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  return { inserted: uniqueCategories.length, replaced: existing.length };
+}
+
 function presentContent(content: {
   _id: unknown;
   externalArticleId: number;
@@ -112,6 +160,7 @@ function presentContent(content: {
   publishedDate: string;
   category: string;
   slug: string;
+  categories?: string[];
 }) {
   return {
     convex_id: String(content._id),
@@ -125,6 +174,7 @@ function presentContent(content: {
     image_path: content.imagePath,
     published_date: content.publishedDate,
     category: content.category,
+    categories: content.categories ?? [content.category],
     slug: content.slug,
   };
 }
@@ -165,20 +215,37 @@ export const list = query({
   },
   handler: async (ctx, args) => {
     const language = normalizeLanguage(args.language);
-    const rows = args.category
-      ? await ctx.db
-          .query("content")
-          .withIndex("by_category_and_language", (q) => q.eq("category", args.category!).eq("language", language))
-          .collect()
-      : await ctx.db
-          .query("content")
-          .withIndex("by_language", (q) => q.eq("language", language))
-          .collect();
+    const rows = await ctx.db
+      .query("content")
+      .withIndex("by_language", (q) => q.eq("language", language))
+      .collect();
+    let allowedExternalArticleIds: Set<number> | null = null;
+
+    if (args.category) {
+      const categoryRows = await ctx.db
+        .query("articleCategories")
+        .withIndex("by_category", (q) => q.eq("category", args.category!))
+        .collect();
+      allowedExternalArticleIds = new Set(categoryRows.map((row) => row.externalArticleId));
+    }
+
+    const categoriesByArticle = new Map<number, string[]>();
+    const categoryRows = await ctx.db.query("articleCategories").collect();
+    for (const row of categoryRows) {
+      const current = categoriesByArticle.get(row.externalArticleId) || [];
+      current[row.position] = row.category;
+      categoriesByArticle.set(row.externalArticleId, current);
+    }
 
     return rows
-      .filter((row) => row.published)
+      .filter((row) => row.published && (!allowedExternalArticleIds || allowedExternalArticleIds.has(row.externalArticleId)))
       .sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())
-      .map(presentContent);
+      .map((row) =>
+        presentContent({
+          ...row,
+          categories: categoriesByArticle.get(row.externalArticleId)?.filter(Boolean) ?? [row.category],
+        }),
+      );
   },
 });
 
@@ -199,7 +266,15 @@ export const byExternalId = query({
       return null;
     }
 
-    return presentContent(content);
+    const categories = await ctx.db
+      .query("articleCategories")
+      .withIndex("by_external_article", (q) => q.eq("externalArticleId", args.externalArticleId))
+      .collect();
+
+    return presentContent({
+      ...content,
+      categories: categories.sort((a, b) => a.position - b.position).map((row) => row.category),
+    });
   },
 });
 
@@ -235,8 +310,9 @@ export const adminList = query({
   args: { token: v.string() },
   handler: async (ctx, args) => {
     authorize(args.token);
-    const [articles, content, affiliateAds, newsletter, newsletterTemplates] = await Promise.all([
+    const [articles, articleCategories, content, affiliateAds, newsletter, newsletterTemplates] = await Promise.all([
       ctx.db.query("articles").collect(),
+      ctx.db.query("articleCategories").collect(),
       ctx.db.query("content").collect(),
       ctx.db.query("affiliateAds").collect(),
       ctx.db.query("newsletter").collect(),
@@ -245,6 +321,7 @@ export const adminList = query({
 
     return {
       articles: articles.sort((a, b) => a.externalArticleId - b.externalArticleId),
+      articleCategories: articleCategories.sort((a, b) => a.externalArticleId - b.externalArticleId || a.position - b.position),
       content: content.sort((a, b) => a.externalArticleId - b.externalArticleId || a.language.localeCompare(b.language)),
       affiliateAds: affiliateAds.sort((a, b) => a.externalArticleId - b.externalArticleId || a.position - b.position),
       newsletter: newsletter.sort((a, b) => b.signedDate.localeCompare(a.signedDate)),
@@ -257,14 +334,16 @@ export const migrationSummary = query({
   args: { token: v.string() },
   handler: async (ctx, args) => {
     authorize(args.token);
-    const [articles, content, affiliates, newsletter, newsletterTemplates] = await Promise.all([
+    const [articles, articleCategories, content, affiliates, newsletter, newsletterTemplates] = await Promise.all([
       ctx.db.query("articles").collect(),
+      ctx.db.query("articleCategories").collect(),
       ctx.db.query("content").collect(),
       ctx.db.query("affiliateAds").collect(),
       ctx.db.query("newsletter").collect(),
       ctx.db.query("newsletterTemplates").collect(),
     ]);
     const byCategory: Record<string, number> = {};
+    const byAssignedCategory: Record<string, number> = {};
     const byLanguage: Record<string, number> = {};
 
     for (const row of content.filter((item) => item.published)) {
@@ -272,14 +351,20 @@ export const migrationSummary = query({
       byLanguage[row.language] = (byLanguage[row.language] || 0) + 1;
     }
 
+    for (const row of articleCategories) {
+      byAssignedCategory[row.category] = (byAssignedCategory[row.category] || 0) + 1;
+    }
+
     return {
       articles: articles.length,
+      articleCategories: articleCategories.length,
       content: content.length,
       publishedContent: content.filter((row) => row.published).length,
       affiliates: affiliates.length,
       newsletter: newsletter.length,
       newsletterTemplates: newsletterTemplates.length,
       byCategory,
+      byAssignedCategory,
       byLanguage,
     };
   },
@@ -310,6 +395,38 @@ export const importArticles = mutation({
     }
 
     return { created, updated };
+  },
+});
+
+export const importArticleCategories = mutation({
+  args: {
+    token: v.string(),
+    rows: v.array(articleCategoryInput),
+    source: v.optional(source),
+  },
+  handler: async (ctx, args) => {
+    authorize(args.token);
+    const now = Date.now();
+    let inserted = 0;
+    let replaced = 0;
+    let skipped = 0;
+
+    for (const row of args.rows) {
+      const article = await ctx.db
+        .query("articles")
+        .withIndex("by_external_article_id", (q) => q.eq("externalArticleId", row.externalArticleId))
+        .unique();
+      if (!article) {
+        skipped += 1;
+        continue;
+      }
+
+      const result = await replaceArticleCategories(ctx, article._id, row.externalArticleId, row.categories, args.source ?? "migration");
+      replaced += result.replaced;
+      inserted += result.inserted;
+    }
+
+    return { inserted, replaced, skipped };
   },
 });
 
@@ -367,6 +484,16 @@ export const upsertContentFromMake = mutation({
     } else {
       contentId = await ctx.db.insert("content", { ...contentData, createdAt: now });
       action = "created";
+    }
+
+    const existingCategories = await ctx.db
+      .query("articleCategories")
+      .withIndex("by_external_article", (q) => q.eq("externalArticleId", args.content.externalArticleId))
+      .collect();
+    const requestedCategories = args.content.categories ?? args.article.categories;
+    if (requestedCategories || existingCategories.length === 0) {
+      const categories = requestedCategories ?? [normalizedCategory, fallbackCategory(normalizedCategory)];
+      await replaceArticleCategories(ctx, articleId, args.content.externalArticleId, categories, rowSource);
     }
 
     let affiliatesUpserted = 0;
@@ -438,6 +565,62 @@ export const importNewsletter = mutation({
     }
 
     return { created, updated };
+  },
+});
+
+export const importAffiliates = mutation({
+  args: {
+    token: v.string(),
+    rows: v.array(affiliateInput),
+    source: v.optional(source),
+  },
+  handler: async (ctx, args) => {
+    authorize(args.token);
+    const now = Date.now();
+    let created = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    for (const row of args.rows) {
+      const article = await ctx.db
+        .query("articles")
+        .withIndex("by_external_article_id", (q) => q.eq("externalArticleId", row.externalArticleId))
+        .unique();
+      if (!article) {
+        skipped += 1;
+        continue;
+      }
+
+      const existing = await ctx.db
+        .query("affiliateAds")
+        .withIndex("by_external_article_and_asin", (q) =>
+          q.eq("externalArticleId", row.externalArticleId).eq("asin", row.asin),
+        )
+        .first();
+      const data = {
+        articleId: article._id,
+        externalArticleId: row.externalArticleId,
+        productName: row.productName,
+        asin: row.asin,
+        affiliateUrl: row.affiliateUrl,
+        position: row.position,
+        active: row.active,
+        imageUrl: row.imageUrl,
+        source: args.source ?? "migration",
+        rawFields: row.rawFields,
+        updatedAt: now,
+      };
+
+      if (existing) {
+        await ctx.db.patch(existing._id, data);
+        updated += 1;
+      } else {
+        await ctx.db.insert("affiliateAds", { ...data, createdAt: now });
+        created += 1;
+      }
+    }
+
+    return { created, updated, skipped };
   },
 });
 

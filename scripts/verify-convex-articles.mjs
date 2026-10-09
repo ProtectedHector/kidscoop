@@ -1,8 +1,11 @@
 #!/usr/bin/env node
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import process from 'node:process';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../convex/_generated/api.js';
+
+dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.local', override: false });
 
 async function main() {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL;
