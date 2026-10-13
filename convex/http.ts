@@ -55,4 +55,52 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/api/articles/create-strict",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: corsHeaders() })),
+});
+
+http.route({
+  path: "/api/articles/create-strict",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const token = getToken(request);
+      const payload = await request.json();
+      const incomingContent = payload.content || payload.article || payload;
+      const incomingArticle = payload.articleGroup || {
+        externalArticleId: incomingContent.externalArticleId,
+        name: incomingContent.articleGroupName || incomingContent.title,
+        category: incomingContent.category,
+        imagePath: incomingContent.imagePath,
+        deleted: false,
+      };
+      const result = await ctx.runMutation(api.articles.createContentFromMakeStrict, {
+        token,
+        article: incomingArticle,
+        content: incomingContent,
+        affiliates: payload.affiliates,
+        source: "make",
+      });
+
+      return new Response(JSON.stringify({ ok: true, result }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders() },
+      });
+    } catch (error) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        }),
+        {
+          status: 409,
+          headers: { "Content-Type": "application/json", ...corsHeaders() },
+        },
+      );
+    }
+  }),
+});
+
 export default http;

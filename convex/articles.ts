@@ -208,6 +208,25 @@ async function upsertArticleRow(ctx: any, article: ArticleInput, rowSource: Sour
   return ctx.db.insert("articles", { ...data, createdAt: now });
 }
 
+async function insertArticleRow(ctx: any, article: ArticleInput, rowSource: Source) {
+  const now = Date.now();
+  const normalizedCategory = article.category ?? "curiosidades";
+  const imagePath = article.imagePath || `/articles/${article.externalArticleId}.png`;
+
+  return ctx.db.insert("articles", {
+    externalArticleId: article.externalArticleId,
+    name: article.name || `Article ${article.externalArticleId}`,
+    deleted: article.deleted ?? false,
+    post: article.post,
+    category: normalizedCategory,
+    imagePath,
+    source: rowSource,
+    rawFields: article.rawFields,
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
 export const list = query({
   args: {
     language: v.string(),
@@ -527,6 +546,143 @@ export const upsertContentFromMake = mutation({
     }
 
     return { action, articleId, contentId, externalArticleId: args.content.externalArticleId, language: normalizedLanguage, affiliatesUpserted };
+  },
+});
+
+export const createContentFromMakeStrict = mutation({
+  args: {
+    token: v.string(),
+    article: articleInput,
+    content: contentInput,
+    affiliates: v.optional(v.array(affiliateInput)),
+    source: v.optional(source),
+  },
+  handler: async (ctx, args) => {
+    authorize(args.token);
+
+    if (args.article.externalArticleId !== args.content.externalArticleId) {
+      throw new Error("Article and content externalArticleId must match");
+    }
+
+    const now = Date.now();
+    const rowSource = args.source ?? "make";
+    const normalizedLanguage = normalizeLanguage(args.content.language);
+    const normalizedCategory = args.content.category ?? args.article.category ?? "curiosidades";
+    const imagePath = args.content.imagePath || args.article.imagePath || `/articles/${args.content.externalArticleId}.png`;
+    const slug = normalizeSlug(args.content.slug || args.content.title);
+    const externalContentId = args.content.externalContentId ?? args.content.externalArticleId;
+
+    const [existingArticle, existingContentByArticleAndLanguage, existingContentByExternalContentId] = await Promise.all([
+      ctx.db
+        .query("articles")
+        .withIndex("by_external_article_id", (q) => q.eq("externalArticleId", args.article.externalArticleId))
+        .unique(),
+      ctx.db
+        .query("content")
+        .withIndex("by_external_article_and_language", (q) =>
+          q.eq("externalArticleId", args.content.externalArticleId).eq("language", normalizedLanguage),
+        )
+        .unique(),
+      ctx.db
+        .query("content")
+        .withIndex("by_external_content_id", (q) => q.eq("externalContentId", externalContentId))
+        .unique(),
+    ]);
+
+    if (existingContentByArticleAndLanguage) {
+      throw new Error(
+        `Content already exists for externalArticleId ${args.content.externalArticleId} and language ${normalizedLanguage}`,
+      );
+    }
+
+    if (existingContentByExternalContentId) {
+      throw new Error(`Content already exists for externalContentId ${externalContentId}`);
+    }
+
+    const affiliates = args.affiliates || [];
+    if (!existingArticle && affiliates.length !== 3) {
+      throw new Error("New articles created from Make must include exactly 3 affiliates");
+    }
+
+    if (existingArticle && affiliates.length > 0) {
+      throw new Error("Do not send affiliates when adding another language to an existing article");
+    }
+
+    for (const ad of affiliates) {
+      if (ad.externalArticleId !== args.content.externalArticleId) {
+        throw new Error("Affiliate externalArticleId must match content externalArticleId");
+      }
+
+      const existingAd = await ctx.db
+        .query("affiliateAds")
+        .withIndex("by_external_article_and_asin", (q) =>
+          q.eq("externalArticleId", ad.externalArticleId).eq("asin", ad.asin),
+        )
+        .first();
+
+      if (existingAd) {
+        throw new Error(`Affiliate already exists for externalArticleId ${ad.externalArticleId} and ASIN ${ad.asin}`);
+      }
+    }
+
+    const articleId = existingArticle?._id ?? (await insertArticleRow(ctx, args.article, rowSource));
+    const contentData = {
+      articleId,
+      externalArticleId: args.content.externalArticleId,
+      externalContentId,
+      language: normalizedLanguage,
+      slug,
+      title: args.content.title,
+      contentText: args.content.contentText,
+      lyrics: args.content.lyrics,
+      imagePath,
+      publishedDate: args.content.publishedDate || new Date(now).toISOString(),
+      published: args.content.published ?? true,
+      category: normalizedCategory,
+      source: rowSource,
+      rawFields: args.content.rawFields,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const contentId = await ctx.db.insert("content", contentData);
+
+    let categoriesInserted = 0;
+    if (!existingArticle) {
+      const categories = args.content.categories ?? args.article.categories ?? [normalizedCategory, fallbackCategory(normalizedCategory)];
+      categoriesInserted = (await replaceArticleCategories(ctx, articleId, args.content.externalArticleId, categories, rowSource)).inserted;
+    }
+
+    let affiliatesInserted = 0;
+    for (const ad of affiliates) {
+      await ctx.db.insert("affiliateAds", {
+        articleId,
+        externalArticleId: ad.externalArticleId,
+        productName: ad.productName,
+        asin: ad.asin,
+        affiliateUrl: ad.affiliateUrl,
+        position: ad.position,
+        active: ad.active,
+        imageUrl: ad.imageUrl,
+        source: rowSource,
+        rawFields: ad.rawFields,
+        createdAt: now,
+        updatedAt: now,
+      });
+      affiliatesInserted += 1;
+    }
+
+    return {
+      action: "created",
+      articleAction: existingArticle ? "reused" : "created",
+      articleId,
+      contentId,
+      externalArticleId: args.content.externalArticleId,
+      externalContentId,
+      language: normalizedLanguage,
+      categoriesInserted,
+      affiliatesInserted,
+    };
   },
 });
 
