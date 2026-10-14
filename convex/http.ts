@@ -20,6 +20,20 @@ function getToken(request: Request) {
   return request.headers.get("x-kidzcoop-token") || "";
 }
 
+function safeErrorMessage(error: unknown, token: string) {
+  const message = error instanceof Error ? error.message : "Unknown error";
+  const withoutToken = token ? message.replaceAll(token, "[REDACTED]") : message;
+  return withoutToken.replace(/Bearer\s+\S+/gi, "Bearer [REDACTED]").slice(0, 2000);
+}
+
+function errorStatus(error: unknown, message: string) {
+  const errorName = error instanceof Error ? error.name : "";
+  if (/unauthorized/i.test(message)) return 401;
+  if (errorName === "ArgumentValidationError" || /ArgumentValidationError|argument validation/i.test(message)) return 400;
+  if (/already exists/i.test(message)) return 409;
+  return 500;
+}
+
 http.route({
   path: "/api/articles/publish",
   method: "OPTIONS",
@@ -65,8 +79,9 @@ http.route({
   path: "/api/articles/create-strict",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
+    let token = "";
     try {
-      const token = getToken(request);
+      token = getToken(request);
       const payload = await request.json();
       const incomingContent = payload.content || payload.article || payload;
       const incomingArticle = payload.articleGroup || {
@@ -89,13 +104,14 @@ http.route({
         headers: { "Content-Type": "application/json", ...corsHeaders() },
       });
     } catch (error) {
+      const message = safeErrorMessage(error, token);
       return new Response(
         JSON.stringify({
           ok: false,
-          error: error instanceof Error ? error.message : "Unknown error",
+          error: message,
         }),
         {
-          status: 409,
+          status: errorStatus(error, message),
           headers: { "Content-Type": "application/json", ...corsHeaders() },
         },
       );
