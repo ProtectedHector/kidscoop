@@ -9,6 +9,7 @@
  */
 
 import type * as articles from "../articles.js";
+import type * as contents from "../contents.js";
 import type * as http from "../http.js";
 
 import type {
@@ -19,6 +20,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   articles: typeof articles;
+  contents: typeof contents;
   http: typeof http;
 }>;
 
