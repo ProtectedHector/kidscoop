@@ -297,6 +297,45 @@ export const byExternalId = query({
   },
 });
 
+export const getByExternalId = query({
+  args: {
+    token: v.string(),
+    externalArticleId: v.number(),
+  },
+  handler: async (ctx, args) => {
+    authorize(args.token);
+
+    const [articles, content, categories, affiliates] = await Promise.all([
+      ctx.db
+        .query("articles")
+        .withIndex("by_external_article_id", (q) => q.eq("externalArticleId", args.externalArticleId))
+        .take(10),
+      ctx.db
+        .query("content")
+        .withIndex("by_external_article_and_language", (q) => q.eq("externalArticleId", args.externalArticleId))
+        .take(100),
+      ctx.db
+        .query("articleCategories")
+        .withIndex("by_external_article", (q) => q.eq("externalArticleId", args.externalArticleId))
+        .take(10),
+      ctx.db
+        .query("affiliateAds")
+        .withIndex("by_external_article", (q) => q.eq("externalArticleId", args.externalArticleId))
+        .take(100),
+    ]);
+
+    return {
+      externalArticleId: args.externalArticleId,
+      exists: articles.length > 0,
+      hasDeletedArticle: articles.some((article) => article.deleted),
+      articles,
+      content: content.sort((a, b) => a.language.localeCompare(b.language)),
+      categories: categories.sort((a, b) => a.position - b.position),
+      affiliates: affiliates.sort((a, b) => a.position - b.position),
+    };
+  },
+});
+
 export const listAffiliates = query({
   args: {
     externalArticleId: v.optional(v.number()),
