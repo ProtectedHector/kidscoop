@@ -1,5 +1,12 @@
 import { currentUser } from '@clerk/nextjs/server';
-import type { AccountIdentity } from '@/lib/server/account-store';
+
+export type AccountIdentity = {
+  id: string;
+  email?: string;
+  emailVerified: boolean;
+  displayName?: string;
+  imageUrl?: string;
+};
 
 type ClerkEmailAddress = {
   emailAddress?: string | null;
@@ -24,9 +31,13 @@ export async function getAuthenticatedIdentity(): Promise<AccountIdentity | null
   const email = primaryEmail?.emailAddress?.trim().toLowerCase();
   const emailVerified = Boolean(email && isValidEmail(email) && isVerifiedEmail(primaryEmail));
 
+  const displayName = user.fullName || user.firstName || undefined;
+
   return {
     id: user.id,
     ...(email && isValidEmail(email) ? { email } : {}),
     emailVerified,
+    ...(displayName ? { displayName } : {}),
+    ...(user.imageUrl ? { imageUrl: user.imageUrl } : {}),
   };
 }

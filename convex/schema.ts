@@ -105,4 +105,31 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_language", ["language"]),
+
+  users: defineTable({
+    clerkUserId: v.string(),
+    email: v.optional(v.string()),
+    emailVerified: v.boolean(),
+    displayName: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastSeenAt: v.number(),
+  })
+    .index("by_clerk_user_id", ["clerkUserId"])
+    .index("by_email", ["email"]),
+
+  favorites: defineTable({
+    userId: v.id("users"),
+    externalArticleId: v.number(),
+    language: v.string(),
+    title: v.string(),
+    imagePath: v.string(),
+    path: v.string(),
+    savedAt: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user_id_and_saved_at", ["userId", "savedAt"])
+    .index("by_user_id_and_external_article_id_and_language", ["userId", "externalArticleId", "language"]),
 });

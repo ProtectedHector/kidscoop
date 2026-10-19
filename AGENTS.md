@@ -14,7 +14,8 @@ app deployed on **Vercel**.
 
 - Next.js 16 (App Router, Turbopack) + React 19 + TypeScript + Tailwind CSS 3
 - Convex (`convex/`) — primary content database and HTTP endpoints for Make
-- Clerk — optional auth (enabled only when `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is set)
+- Clerk — optional auth (enabled only when `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is set),
+  integrated with Convex through the Clerk JWT template `convex` (`convex/auth.config.ts`)
 - Brevo — newsletter list; Cloudflare Web Analytics + optional GA4
 - Python scripts at the root (`generate_*.py`) — OpenAI image/translation helpers, run manually
 
@@ -49,12 +50,14 @@ src/lib/languages.ts        Supported languages (12) and DEFAULT_LANGUAGE = 'es'
 src/lib/categories.ts       Category slugs, labels per language, aliases
 src/lib/seo.ts, articleSeo.ts, articleRoutes.ts, site.ts   SEO, URLs, SITE_URL
 src/lib/admin.ts            Admin guard (single admin email) + Convex write client
-src/lib/server/             Server-only stores (account/favorites JSON store, newsletter)
+src/lib/server/             Server-only helpers (Clerk identity, Convex-as-user client, newsletter)
 src/components/             UI components (client components where interactive)
 src/translations/translations.json   UI strings for every language
 src/hooks/useTranslation.ts          Typed translation keys
 convex/schema.ts            Tables: articles, articleCategories, content, affiliateAds,
-                            newsletter, newsletterTemplates
+                            newsletter, newsletterTemplates, users, favorites
+convex/users.ts             Clerk user sync + identity helpers
+convex/favorites.ts         Per-user favorites (list / merge / replace), auth via Clerk JWT
 convex/articles.ts          Queries + import/upsert mutations
 convex/http.ts              HTTP actions for Make: /api/articles/publish, /api/articles/create-strict
 convex/contents.ts, newsletter.ts
@@ -70,7 +73,10 @@ public/articles/            {id}.png (colour) and {id}c.png (colouring page) ima
   `contentText`, `published`, `publishedDate`, `lyrics`).
 - `articleCategories` = many-to-many article ↔ category with `position`.
 - `affiliateAds` = Amazon affiliate products per article (`asin`, `position`, `active`).
-- `source` on every table: `"migration" | "make" | "manual"`.
+- `source` on every content table: `"migration" | "make" | "manual"`.
+- `users` = one row per Clerk user (`clerkUserId`), upserted by `/api/users/sync`.
+- `favorites` = user × article × language (`externalArticleId`, `language`, `path`, `savedAt`).
+  Anonymous visitors keep favorites in localStorage; on sign-in they are merged into the account.
 - Categories are a fixed union in `convex/schema.ts` **and** `src/lib/categories.ts`
   (`historias, ciencia, mundo, arte, naturaleza, espacio, animales, curiosidades`).
   Change both together.
@@ -93,6 +99,9 @@ Convex agent skills for common tasks can be installed by running
 
 Project-specific:
 
+- User-scoped functions (`favorites.*`) authenticate with the Clerk JWT: use
+  `getClerkUserId` / `ensureCurrentUser` from `convex/users.ts`, never a user id argument.
+  Next.js calls them through `getConvexForUser()` (`src/lib/server/convex-user.ts`).
 - Write mutations are protected by a shared secret: the `token` arg must equal the Convex
   env var `KIDZCOOP_CONVEX_WRITE_TOKEN`. Keep that check on any new write function.
   The Next app sends it from server code only (`src/lib/admin.ts`, `newsletter-store.ts`) —
@@ -136,12 +145,12 @@ directly from pages, so caching and data shaping stay in one place.
 ## Environment & secrets
 
 Config lives in `.env.local` (git-ignored). Key vars: `NEXT_PUBLIC_CONVEX_URL`,
-`CONVEX_DEPLOYMENT`, `KIDZCOOP_CONVEX_WRITE_TOKEN`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`,
+`CONVEX_DEPLOYMENT`, `KIDZCOOP_CONVEX_WRITE_TOKEN`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_JWT_ISSUER_DOMAIN` (Convex env),
 `BREVO_API_KEY`, `BREVO_LIST_ID`, `NEXT_PUBLIC_SITE_URL`, `OPENAI_API_KEY`.
 
 - Never print, commit or log secret values. Don't add new secrets to `.env` (it is tracked).
 - Ignore local artefacts: `dev-backup*`, `snapshot.zip`, `output/`, `tmp/`, `logs/`,
-  `.kidzcoop-data/`, `.next/` — they are backups/data exports, not source.
+  `.next/` — they are backups/data exports, not source.
 
 ## Git workflow
 

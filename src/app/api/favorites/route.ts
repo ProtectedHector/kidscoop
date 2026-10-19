@@ -1,33 +1,41 @@
 import { NextResponse } from 'next/server';
-import {
-  mergeAccountFavorites,
-  normalizeFavorites,
-  upsertAccount,
-} from '@/lib/server/account-store';
-import { getAuthenticatedIdentity } from '@/lib/server/clerk-user';
+import { api } from '../../../../convex/_generated/api';
+import { getConvexForUser } from '@/lib/server/convex-user';
+import { normalizeFavorites } from '@/lib/favorites';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const identity = await getAuthenticatedIdentity();
-  if (!identity) {
+  const session = await getConvexForUser();
+  if (!session) {
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   }
 
-  const account = await upsertAccount(identity);
-  return NextResponse.json({ favorites: account.favorites });
+  const favorites = await session.client.query(api.favorites.list, {});
+  return NextResponse.json({ favorites });
 }
 
+/**
+ * Body: { favorites, mode }.
+ * - mode "merge" (after sign-in): adds this device's favorites to the account.
+ * - mode "replace" (default, after a toggle): the account list becomes exactly `favorites`.
+ */
 export async function PUT(request: Request) {
-  const identity = await getAuthenticatedIdentity();
-  if (!identity) {
+  const session = await getConvexForUser();
+  if (!session) {
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   }
 
-  const body = await request.json().catch(() => null) as { favorites?: unknown } | null;
+  const body = await request.json().catch(() => null) as { favorites?: unknown; mode?: unknown } | null;
   const favorites = normalizeFavorites(body?.favorites);
-  const account = await mergeAccountFavorites(identity, favorites);
+  const mutation = body?.mode === 'merge' ? api.favorites.merge : api.favorites.replace;
 
-  return NextResponse.json({ favorites: account.favorites });
+  try {
+    const saved = await session.client.mutation(mutation, { favorites });
+    return NextResponse.json({ favorites: saved });
+  } catch (error) {
+    console.error('Could not save favorites in Convex', error);
+    return NextResponse.json({ error: 'Could not save favorites' }, { status: 500 });
+  }
 }

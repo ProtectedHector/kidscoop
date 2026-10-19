@@ -25,37 +25,37 @@ export function setFavorites(stories: FavoriteStory[]) {
   window.dispatchEvent(new CustomEvent('kidzcoop:favorites'));
 }
 
-export function mergeFavorites(...groups: FavoriteStory[][]): FavoriteStory[] {
-  const byKey = new Map<string, FavoriteStory>();
-
-  for (const stories of groups) {
-    for (const story of stories) {
-      if (!Number.isFinite(story.id) || !story.language || !story.path) continue;
-
-      const key = `${story.language}:${story.id}`;
-      const current = byKey.get(key);
-      if (!current || Date.parse(story.savedAt) > Date.parse(current.savedAt)) {
-        byKey.set(key, story);
-      }
-    }
-  }
-
-  return Array.from(byKey.values()).sort(
-    (a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt),
-  );
-}
-
 export function clearLocalFavorites() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(FAVORITES_KEY);
   window.dispatchEvent(new CustomEvent('kidzcoop:favorites'));
 }
 
-export async function saveAccountFavorites(stories: FavoriteStory[]) {
+export function normalizeFavorites(values: unknown): FavoriteStory[] {
+  if (!Array.isArray(values)) return [];
+
+  return values.flatMap((value) => {
+    if (!value || typeof value !== 'object') return [];
+    const item = value as Record<string, unknown>;
+    const id = Number(item.id);
+    const title = String(item.title || '').trim();
+    const image_path = String(item.image_path || '').trim();
+    const language = String(item.language || '').trim();
+    const path = String(item.path || '').trim();
+    const savedAtValue = String(item.savedAt || '').trim();
+    const savedAt = Number.isFinite(Date.parse(savedAtValue)) ? savedAtValue : new Date().toISOString();
+
+    if (!Number.isFinite(id) || !title || !image_path || !language || !path) return [];
+    return [{ id, title, image_path, language, path, savedAt }];
+  });
+}
+
+/** Stores `stories` as the account favorites ('replace') or adds them to it ('merge'). */
+export async function saveAccountFavorites(stories: FavoriteStory[], mode: 'replace' | 'merge' = 'replace') {
   const response = await fetch('/api/favorites', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ favorites: stories }),
+    body: JSON.stringify({ favorites: stories, mode }),
   });
 
   if (!response.ok) return null;
@@ -64,18 +64,11 @@ export async function saveAccountFavorites(stories: FavoriteStory[]) {
   return Array.isArray(data.favorites) ? data.favorites : null;
 }
 
+/** After sign-in: merge this device's favorites into the account and adopt the result. */
 export async function syncFavoritesWithAccount() {
-  const localFavorites = getFavorites();
-  const response = await fetch('/api/favorites', { cache: 'no-store' });
+  const saved = await saveAccountFavorites(getFavorites(), 'merge');
+  if (!saved) return null;
 
-  if (!response.ok) return null;
-
-  const data = (await response.json()) as { favorites?: FavoriteStory[] };
-  const accountFavorites = Array.isArray(data.favorites) ? data.favorites : [];
-  const merged = mergeFavorites(accountFavorites, localFavorites);
-  const saved = await saveAccountFavorites(merged);
-  const next = saved || merged;
-
-  setFavorites(next);
-  return next;
+  setFavorites(saved);
+  return saved;
 }
