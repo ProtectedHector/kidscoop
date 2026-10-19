@@ -82,12 +82,14 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const headerLanguage = headers().get(LANGUAGE_HEADER);
+export default async function RootLayout(
+  {
+    children,
+  }: Readonly<{
+    children: React.ReactNode;
+  }>
+) {
+  const headerLanguage = (await headers()).get(LANGUAGE_HEADER);
   const language = isSupportedLanguage(headerLanguage) ? headerLanguage : DEFAULT_LANGUAGE;
 
   const organizationSchema = {
@@ -124,7 +126,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {CLERK_ENABLED ? (
-          <ClerkProvider>
+          <ClerkProvider afterSignOutUrl="/">
             <PWAProvider>
               <LanguageProvider>{children}</LanguageProvider>
             </PWAProvider>

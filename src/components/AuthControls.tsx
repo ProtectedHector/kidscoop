@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/nextjs';
+import { Show, SignInButton, UserButton, useUser } from '@clerk/nextjs';
 import { trackEvent } from '@/lib/analytics';
 import { CLERK_ENABLED } from '@/lib/auth';
 
@@ -15,7 +15,7 @@ function ClerkAuthControls({ language }: { language: string }) {
 
   return (
     <div className="flex items-center gap-2">
-      <SignedOut>
+      <Show when="signed-out">
         <SignInButton mode="modal">
           <button
             type="button"
@@ -25,20 +25,19 @@ function ClerkAuthControls({ language }: { language: string }) {
             {spanish ? 'Iniciar sesión' : 'Sign in'}
           </button>
         </SignInButton>
-      </SignedOut>
-      <SignedIn>
+      </Show>
+      <Show when="signed-in">
         <div className="hidden max-w-[12rem] truncate text-sm font-semibold text-slate-600 xl:block">
           {email || (spanish ? 'Mi cuenta' : 'My account')}
         </div>
         <UserButton
-          afterSignOutUrl={`/${language}`}
           appearance={{
             elements: {
               avatarBox: 'h-10 w-10',
             },
           }}
         />
-      </SignedIn>
+      </Show>
     </div>
   );
 }

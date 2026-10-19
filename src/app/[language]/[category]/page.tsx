@@ -29,7 +29,8 @@ const titleTemplates: Record<string, (label: string) => string> = {
   pt: (label) => `${label} para crianças: histórias e curiosidades`,
 };
 
-export function generateMetadata({ params }: { params: Params }): Metadata {
+export async function generateMetadata(props: { params: Promise<Params> }): Promise<Metadata> {
+  const params = await props.params;
   if (!isSupportedLanguage(params.language) || !isCategorySlug(params.category)) {
     return {};
   }
@@ -51,7 +52,8 @@ export function generateStaticParams() {
   return CATEGORY_SLUGS.map((category) => ({ category }));
 }
 
-export default async function CategoryPage({ params }: { params: Params }) {
+export default async function CategoryPage(props: { params: Promise<Params> }) {
+  const params = await props.params;
   if (!isSupportedLanguage(params.language) || !isCategorySlug(params.category)) {
     notFound();
   }

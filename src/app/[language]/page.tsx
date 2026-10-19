@@ -9,7 +9,8 @@ import { getArticlePath } from '../../lib/articleRoutes';
 import { absoluteUrl } from '../../lib/site';
 import { jsonLd } from '../../lib/seo';
 
-export default async function Page({ params }: { params: { language: string } }) {
+export default async function Page(props: { params: Promise<{ language: string }> }) {
+  const params = await props.params;
   const language = params.language;
   const spanish = language === 'es';
   const articles = (await getArticleList(language)).map(toArticleSummary);

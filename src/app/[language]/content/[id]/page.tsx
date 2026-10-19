@@ -1,9 +1,10 @@
 import { permanentRedirect } from 'next/navigation';
 
-export default function LegacyContentPage({
-  params,
-}: {
-  params: { language: string; id: string };
-}) {
+export default async function LegacyContentPage(
+  props: {
+    params: Promise<{ language: string; id: string }>;
+  }
+) {
+  const params = await props.params;
   permanentRedirect(`/${params.language}/article/${params.id}`);
 }

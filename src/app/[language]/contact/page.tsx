@@ -6,7 +6,8 @@ import { buildAlternates, buildPageMetadata, cleanDescription } from '@/lib/seo'
 
 const TRANSLATED = ['es', 'en'];
 
-export function generateMetadata({ params }: { params: { language: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ language: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const copy = getStaticPageCopy(params.language, 'contact');
   return buildPageMetadata({
     language: params.language,
@@ -21,7 +22,8 @@ export function generateMetadata({ params }: { params: { language: string } }): 
   });
 }
 
-export default function ContactPage({ params }: { params: { language: string } }) {
+export default async function ContactPage(props: { params: Promise<{ language: string }> }) {
+  const params = await props.params;
   const copy = getStaticPageCopy(params.language, 'contact');
 
   return (

@@ -73,13 +73,13 @@ function handle(request: NextRequest) {
   return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
-const appMiddleware = CLERK_ENABLED
+const proxy = CLERK_ENABLED
   ? clerkMiddleware((_auth, request: NextRequest) => handle(request))
-  : function middlewareWithoutAuth(request: NextRequest) {
+  : function proxyWithoutAuth(request: NextRequest) {
       return handle(request);
     };
 
-export default appMiddleware;
+export default proxy;
 
 export const config = {
   matcher: ['/', '/((?!_next|.*\\..*).*)'],

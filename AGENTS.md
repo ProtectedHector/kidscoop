@@ -7,12 +7,12 @@ Guide for AI coding agents working in this repo. Read it before making changes.
 KidZcoop (kidzcoop.app) is a multilingual website of short educational stories for kids.
 Each story ("article") has a colour illustration, a colouring page, optional lyrics/audio,
 affiliate product links and per-language text. Content is generated upstream by a
-**Make** scenario and published into **Convex**; the site is a **Next.js 14 App Router**
+**Make** scenario and published into **Convex**; the site is a **Next.js 16 App Router**
 app deployed on **Vercel**.
 
 ## Stack
 
-- Next.js 14 (App Router) + React 18 + TypeScript + Tailwind CSS 3
+- Next.js 16 (App Router, Turbopack) + React 19 + TypeScript + Tailwind CSS 3
 - Convex (`convex/`) — primary content database and HTTP endpoints for Make
 - Clerk — optional auth (enabled only when `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is set)
 - Brevo — newsletter list; Cloudflare Web Analytics + optional GA4
@@ -24,7 +24,7 @@ app deployed on **Vercel**.
 npm install
 npm run dev            # Next dev server on :3000
 npx convex dev         # Convex dev deployment + regenerates convex/_generated
-npm run lint           # next lint (core-web-vitals)
+npm run lint           # eslint (flat config, next core-web-vitals)
 npm run build          # production build — run before declaring work done
 npm run verify:articles    # check Convex article data
 ```
@@ -42,7 +42,7 @@ src/app/[language]/...      Pages, all prefixed by language code
   favorites, admin, about, contact
 src/app/api/                Route handlers: articles, favorites, newsletter, affiliates, admin/content
 src/app/sitemap.ts, robots.ts
-src/middleware.ts           Language redirect for "/", canonical-host 301 in prod, Clerk wrapper
+src/proxy.ts                Language redirect for "/", canonical-host 301 in prod, Clerk wrapper
 src/lib/content.ts          ⭐ Content access layer (Convex)
 src/lib/types.ts            Article / AffiliateAd shapes returned to the UI
 src/lib/languages.ts        Supported languages (12) and DEFAULT_LANGUAGE = 'es'
