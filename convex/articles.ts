@@ -25,11 +25,6 @@ const articleInput = v.object({
   rawFields: v.optional(v.any()),
 });
 
-const articleCategoryInput = v.object({
-  externalArticleId: v.number(),
-  categories: v.array(category),
-});
-
 const contentInput = v.object({
   externalArticleId: v.number(),
   externalContentId: v.optional(v.number()),
@@ -54,20 +49,6 @@ const affiliateInput = v.object({
   position: v.number(),
   active: v.boolean(),
   imageUrl: v.string(),
-  rawFields: v.optional(v.any()),
-});
-
-const newsletterInput = v.object({
-  email: v.string(),
-  subscribed: v.boolean(),
-  signedDate: v.string(),
-  language: v.string(),
-  rawFields: v.optional(v.any()),
-});
-
-const newsletterTemplateInput = v.object({
-  language: v.string(),
-  template: v.string(),
   rawFields: v.optional(v.any()),
 });
 
@@ -104,10 +85,6 @@ function normalizeSlug(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 90) || "article";
-}
-
-function normalizeEmail(value: string) {
-  return value.trim().toLowerCase();
 }
 
 function fallbackCategory(primary: Category): Category {
