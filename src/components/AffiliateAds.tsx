@@ -1,6 +1,20 @@
 "use client";
 
+import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
+
+// Hosts allowed in next.config.mjs (images.remotePatterns). Anything else is
+// rendered unoptimized so an unexpected host never breaks the card.
+const OPTIMIZABLE_IMAGE_HOSTS = /(^|\.)(media-amazon\.com|ssl-images-amazon\.com)$/i;
+
+function isOptimizableImage(src: string) {
+  if (src.startsWith('/')) return true;
+  try {
+    return OPTIMIZABLE_IMAGE_HOSTS.test(new URL(src).hostname);
+  } catch {
+    return false;
+  }
+}
 
 export interface AffiliateAd {
   article_id: number;
@@ -98,10 +112,14 @@ export function AffiliateCard({
               : 'aspect-square overflow-hidden rounded-xl bg-white/95'
           }
         >
-          <img
+          <Image
             src={ad.image_url}
             alt={ad.product_name}
+            width={320}
+            height={320}
+            sizes={compact ? '80px' : '(min-width: 1024px) 240px, 45vw'}
             loading="lazy"
+            unoptimized={!isOptimizableImage(ad.image_url)}
             className="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-105"
           />
         </div>

@@ -1,27 +1,48 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { headers } from "next/headers";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { LanguageProvider } from "../contexts/LanguageContext";
-import { SOCIAL_IMAGE, SITE_URL, absoluteUrl } from "../lib/site";
+import { LANGUAGE_HEADER, SITE_NAME, SITE_URL, SOCIAL_IMAGE, SOCIAL_PROFILES, absoluteUrl } from "../lib/site";
+import { jsonLd } from "../lib/seo";
+import { DEFAULT_LANGUAGE, isSupportedLanguage } from "../lib/languages";
 import { PWAProvider } from "../components/PWAProvider";
 import { CLERK_ENABLED } from "../lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
-const siteUrl = SITE_URL;
-const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path, siteUrl);
+const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path);
+const defaultDescription = "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "KidZcoop - Amazing Stories for Kids",
-  description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
-  applicationName: "KidZcoop",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "KidZcoop - Amazing Stories for Kids",
+    template: "%s | KidZcoop",
+  },
+  description: defaultDescription,
+  applicationName: SITE_NAME,
   manifest: "/manifest.webmanifest",
+  formatDetection: { telephone: false, email: false, address: false },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "KidZcoop",
+    title: SITE_NAME,
   },
   icons: {
     icon: [
@@ -32,9 +53,9 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "KidZcoop - Amazing Stories for Kids",
-    description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
-    url: siteUrl,
-    siteName: "KidZcoop",
+    description: defaultDescription,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     images: [
       {
         url: socialImageUrl,
@@ -49,7 +70,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "KidZcoop - Amazing Stories for Kids",
-    description: "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.",
+    description: defaultDescription,
     images: [socialImageUrl],
   },
 };
@@ -66,45 +87,40 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const baseUrl = siteUrl;
-  
-  // Organization structured data
+  const headerLanguage = headers().get(LANGUAGE_HEADER);
+  const language = isSupportedLanguage(headerLanguage) ? headerLanguage : DEFAULT_LANGUAGE;
+
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "KidZcoop",
-    "url": baseUrl,
-    "logo": `${baseUrl}/logo.png`,
-    "description": "Amazing stories for kids - Where curiosity meets discovery",
+    "@id": `${SITE_URL}/#organization`,
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: absoluteUrl("/icons/icon-512.png"),
+      width: 512,
+      height: 512,
+    },
+    description: "Amazing stories for kids - Where curiosity meets discovery",
+    sameAs: SOCIAL_PROFILES,
   };
-  
-  // Website structured data
+
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "KidZcoop",
-    "url": baseUrl,
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `${baseUrl}/search?q={search_term_string}`
-      },
-      "query-input": "required name=search_term_string"
-    }
+    "@id": `${SITE_URL}/#website`,
+    name: SITE_NAME,
+    url: SITE_URL,
+    inLanguage: language,
+    publisher: { "@id": `${SITE_URL}/#organization` },
   };
 
   return (
-    <html lang="es">
+    <html lang={language} dir={language === "ar" ? "rtl" : "ltr"}>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(organizationSchema)} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(websiteSchema)} />
       </head>
       <body className={inter.className}>
         {CLERK_ENABLED ? (

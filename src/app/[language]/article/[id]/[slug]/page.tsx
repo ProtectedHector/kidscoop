@@ -1,12 +1,13 @@
 import { Metadata } from 'next';
-import { permanentRedirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import ArticlePageClient from '../../../../../components/ArticlePageClient';
 import { getArticlePath, slugifyTitle } from '../../../../../lib/articleRoutes';
 import {
-  fetchArticleForLanguage,
+  buildArticleJsonLd,
   generateArticleMetadata as generateArticleMetadataForRoute,
-  getRequestBaseUrl,
+  getArticle,
 } from '../../../../../lib/articleSeo';
+import { jsonLd } from '../../../../../lib/seo';
 
 export async function generateMetadata({
   params,
@@ -24,15 +25,23 @@ export default async function ArticleSlugPage({
 }: {
   params: { language: string; id: string; slug: string };
 }) {
-  const article = await fetchArticleForLanguage(
-    params.id,
-    params.language,
-    getRequestBaseUrl(),
-  );
+  const article = await getArticle(params.id, params.language);
 
-  if (article && params.slug !== slugifyTitle(article.title)) {
+  // Missing stories must answer with a real 404 so Google drops them (no soft 404s).
+  if (!article) {
+    notFound();
+  }
+
+  if (params.slug !== slugifyTitle(article.title)) {
     permanentRedirect(getArticlePath(params.language, params.id, article.title));
   }
 
-  return <ArticlePageClient />;
+  return (
+    <>
+      {buildArticleJsonLd(article, params.language).map((schema, index) => (
+        <script key={index} type="application/ld+json" dangerouslySetInnerHTML={jsonLd(schema)} />
+      ))}
+      <ArticlePageClient initialArticle={article} />
+    </>
+  );
 }

@@ -9,18 +9,20 @@ import { trackEvent } from '../lib/analytics';
 import { CATEGORY_DEFINITIONS, CATEGORY_SLUGS, getCategoryLabel, getCategoryPath, type CategorySlug } from '../lib/categories';
 interface Article { id: number; title: string; content_text: string; image_path: string; published_date?: string; category?: CategorySlug }
 
-export default function Home() {
+export default function Home({ initialArticles }: { initialArticles?: Article[] } = {}) {
   const language = (useParams().language as string) || 'es';
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
+  const [loading, setLoading] = useState(!initialArticles?.length);
   const [error, setError] = useState(false);
   const [visibleCount, setVisibleCount] = useState(13);
   const spanish = language === 'es';
   useEffect(() => {
+    trackEvent('page_view', { page: 'home', language });
+    // Stories are rendered on the server for SEO; only fetch if they weren't.
+    if (initialArticles?.length) return;
     setLoading(true);
     fetch(`/api/articles?lang=${language}`).then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { setArticles(Array.isArray(data) ? data : []); setVisibleCount(13); setError(false); }).catch(() => { setArticles([]); setError(true); }).finally(() => setLoading(false));
-    trackEvent('page_view', { page: 'home', language });
-  }, [language]);
+  }, [language, initialArticles]);
   if (loading) return <div className="grid min-h-64 place-items-center" role="status"><div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-200 border-t-purple-700"/><span className="sr-only">Cargando historias</span></div>;
   if (error || !articles.length) return <div className="rounded-3xl border border-purple-100 bg-white p-10 text-center shadow-sm"><p className="text-5xl">✨</p><h2 className="mt-4 text-2xl font-black">{error ? 'No hemos podido cargar las historias' : 'Muy pronto habrá nuevas historias'}</h2><p className="mt-2 text-slate-600">{error ? 'Inténtalo de nuevo en unos minutos.' : 'Vuelve pronto para descubrirlas.'}</p></div>;
   const featured = articles[0];

@@ -2,11 +2,15 @@ import { NextResponse } from 'next/server';
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from '@/lib/languages';
 import { getAuthenticatedIdentity } from '@/lib/server/clerk-user';
 import { markNewsletterSubscribed, upsertAccount } from '@/lib/server/account-store';
+import {
+  getNewsletterStatusFromConvex,
+  isConvexNewsletterConfigured,
+  subscribeNewsletterInConvex,
+} from '@/lib/server/newsletter-store';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const GOOGLE_SHEETS_NEWSLETTER_URL = process.env.GOOGLE_SHEETS_NEWSLETTER_URL || '';
 const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
 const BREVO_LIST_ID = Number(process.env.BREVO_LIST_ID || process.env.BREVO_KIDZCOOP_LIST_ID || 0);
 
@@ -60,25 +64,13 @@ async function subscribeWithBrevo(email: string) {
   return true;
 }
 
-async function subscribeWithGoogleSheets(email: string, language: string, signedDate: string) {
-  if (!GOOGLE_SHEETS_NEWSLETTER_URL) {
-    throw new Error('Newsletter integration is not configured');
-  }
-
-  const response = await fetch(GOOGLE_SHEETS_NEWSLETTER_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({
-      email,
-      subscribed: 'TRUE',
-      signed_date: signedDate,
-      language,
-    }),
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to save newsletter signup (${response.status})`);
+/** Best-effort update of the local account store; never blocks the subscription. */
+async function safeAccountUpdate<T>(action: () => Promise<T>): Promise<T | null> {
+  try {
+    return await action();
+  } catch (error) {
+    console.warn('Account store unavailable:', error instanceof Error ? error.message : error);
+    return null;
   }
 }
 
@@ -89,11 +81,21 @@ export async function GET() {
     return NextResponse.json({ authenticated: false, subscribed: false });
   }
 
-  const account = await upsertAccount(identity);
+  const account = await safeAccountUpdate(() => upsertAccount(identity));
+  let subscribed = Boolean(account?.newsletterSubscribedAt);
+
+  if (!subscribed && identity.email && isConvexNewsletterConfigured()) {
+    try {
+      subscribed = await getNewsletterStatusFromConvex(identity.email);
+    } catch (error) {
+      console.warn('Could not read newsletter status:', error instanceof Error ? error.message : error);
+    }
+  }
+
   return NextResponse.json({
     authenticated: true,
     emailAvailable: Boolean(identity.email && identity.emailVerified),
-    subscribed: Boolean(account.newsletterSubscribedAt),
+    subscribed,
   });
 }
 
@@ -109,25 +111,28 @@ export async function POST(request: Request) {
       normalizeLanguage(request.headers.get('x-kidzcoop-language')) ||
       getLanguageFromReferer(request) ||
       DEFAULT_LANGUAGE;
-    const signedDate = new Date().toISOString();
 
     if (!isValidEmail(email)) {
       return NextResponse.json({ success: false, error: 'Invalid email' }, { status: 400 });
     }
 
-    const brevoHandled = await subscribeWithBrevo(email);
-    if (!brevoHandled) {
-      await subscribeWithGoogleSheets(email, language, signedDate);
+    // Convex is the source of truth for subscribers; Brevo (if configured) is synced too.
+    await subscribeNewsletterInConvex(email, language);
+
+    try {
+      await subscribeWithBrevo(email);
+    } catch (error) {
+      console.warn('Brevo sync failed:', error instanceof Error ? error.message : error);
     }
 
     if (identity) {
-      await markNewsletterSubscribed(identity);
+      await safeAccountUpdate(() => markNewsletterSubscribed(identity));
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.warn('Error saving newsletter signup:', message);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Could not save subscription' }, { status: 500 });
   }
 }
