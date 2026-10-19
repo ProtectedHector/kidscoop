@@ -1,19 +1,17 @@
-import { permanentRedirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { getArticlePath } from '../../../../lib/articleRoutes';
-import { fetchArticleForLanguage, getRequestBaseUrl } from '../../../../lib/articleSeo';
+import { getArticle } from '../../../../lib/articleSeo';
 
 export default async function ArticleRedirectPage({
   params,
 }: {
   params: { language: string; id: string };
 }) {
-  const article = await fetchArticleForLanguage(
-    params.id,
-    params.language,
-    getRequestBaseUrl(),
-  );
+  const article = await getArticle(params.id, params.language);
 
-  permanentRedirect(
-    getArticlePath(params.language, params.id, article?.title || 'article'),
-  );
+  if (!article) {
+    notFound();
+  }
+
+  permanentRedirect(getArticlePath(params.language, params.id, article.title));
 }

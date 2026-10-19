@@ -1,6 +1,25 @@
 import SiteChrome from '@/components/SiteChrome';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import type { Metadata } from 'next';
 import { getStaticPageCopy } from '@/lib/staticPages';
+import { buildAlternates, buildPageMetadata, cleanDescription } from '@/lib/seo';
+
+const TRANSLATED = ['es', 'en'];
+
+export function generateMetadata({ params }: { params: { language: string } }): Metadata {
+  const copy = getStaticPageCopy(params.language, 'about');
+  return buildPageMetadata({
+    language: params.language,
+    title: copy.title,
+    description: cleanDescription(copy.intro),
+    path: `/${params.language}/about`,
+    // Only es/en have their own copy; other languages show English, so point them at /en.
+    alternates: buildAlternates(
+      TRANSLATED.includes(params.language) ? params.language : 'en',
+      (code) => (TRANSLATED.includes(code) ? `/${code}/about` : null),
+    ),
+  });
+}
 
 export default function AboutPage({ params }: { params: { language: string } }) {
   const copy = getStaticPageCopy(params.language, 'about');

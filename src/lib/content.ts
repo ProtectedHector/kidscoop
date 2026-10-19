@@ -9,7 +9,7 @@ import {
 import { normalizeCategory, type CategorySlug } from './categories';
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL || '';
-const CONTENT_SOURCE = (process.env.KIDZCOOP_CONTENT_SOURCE || 'sheets').toLowerCase();
+const CONTENT_SOURCE = (process.env.KIDZCOOP_CONTENT_SOURCE || 'auto').toLowerCase();
 
 type ConvexArticle = Article & {
   convex_id?: string;

@@ -1,7 +1,10 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import AdminPageClient from '../../../components/AdminPageClient';
 import { requireAdminIdentity } from '../../../lib/admin';
 import { isSupportedLanguage } from '../../../lib/languages';
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function AdminPage({ params }: { params: { language: string } }) {
   if (!isSupportedLanguage(params.language)) {

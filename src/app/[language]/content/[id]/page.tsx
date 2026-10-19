@@ -1,9 +1,9 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
 export default function LegacyContentPage({
   params,
 }: {
   params: { language: string; id: string };
 }) {
-  redirect(`/${params.language}/article/${params.id}`);
+  permanentRedirect(`/${params.language}/article/${params.id}`);
 }
