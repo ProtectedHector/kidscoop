@@ -117,6 +117,10 @@ Project-specific:
 
 ## Content access
 
+Content reads are cached for one week (`unstable_cache`, tag `content`). Make calls
+`POST /api/revalidate` (Bearer write token) after publishing to expire it; admin writes
+call `revalidateTag` too. Any new write path must invalidate the tag.
+
 All page/API code reads content through `src/lib/content.ts`, never by calling Convex
 directly from pages, so caching and data shaping stay in one place.
 
