@@ -14,7 +14,6 @@ app deployed on **Vercel**.
 
 - Next.js 14 (App Router) + React 18 + TypeScript + Tailwind CSS 3
 - Convex (`convex/`) — primary content database and HTTP endpoints for Make
-- Google Sheets — legacy CMS, still used as a **fallback** content source
 - Clerk — optional auth (enabled only when `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is set)
 - Brevo — newsletter list; Cloudflare Web Analytics + optional GA4
 - Python scripts at the root (`generate_*.py`) — OpenAI image/translation helpers, run manually
@@ -27,13 +26,10 @@ npm run dev            # Next dev server on :3000
 npx convex dev         # Convex dev deployment + regenerates convex/_generated
 npm run lint           # next lint (core-web-vitals)
 npm run build          # production build — run before declaring work done
-npm run migrate:articles   # one-off Sheets → Convex migration (needs write token)
 npm run verify:articles    # check Convex article data
 ```
 
 There is no test suite. Verify with `npm run lint`, `npx tsc --noEmit` and `npm run build`.
-`npm run server` (`src/app/server.js`, Express on :3001) is a legacy API server; the
-Next app no longer depends on it — don't extend it.
 
 ## Layout
 
@@ -47,8 +43,8 @@ src/app/[language]/...      Pages, all prefixed by language code
 src/app/api/                Route handlers: articles, favorites, newsletter, affiliates, admin/content
 src/app/sitemap.ts, robots.ts
 src/middleware.ts           Language redirect for "/", canonical-host 301 in prod, Clerk wrapper
-src/lib/content.ts          ⭐ Content access layer: Convex first, Google Sheets fallback
-src/lib/googleSheets.ts     Sheets CSV fetch/parsing (fallback)
+src/lib/content.ts          ⭐ Content access layer (Convex)
+src/lib/types.ts            Article / AffiliateAd shapes returned to the UI
 src/lib/languages.ts        Supported languages (12) and DEFAULT_LANGUAGE = 'es'
 src/lib/categories.ts       Category slugs, labels per language, aliases
 src/lib/seo.ts, articleSeo.ts, articleRoutes.ts, site.ts   SEO, URLs, SITE_URL
@@ -110,16 +106,10 @@ Project-specific:
 - Schema changes on existing tables must be backward compatible with stored data
   (add `v.optional` fields first, migrate, then tighten).
 
-## Content source switch
+## Content access
 
-`KIDZCOOP_CONTENT_SOURCE` controls `src/lib/content.ts`:
-
-- `auto` (default): Convex; if Convex fails or returns nothing, fall back to Google Sheets.
-- `convex`: Convex only, errors propagate.
-- `sheets`: Google Sheets only.
-
-All page/API code should read content through `src/lib/content.ts`, not call Convex or
-`googleSheets.ts` directly, so the fallback keeps working.
+All page/API code reads content through `src/lib/content.ts`, never by calling Convex
+directly from pages, so caching and data shaping stay in one place.
 
 ## Conventions
 
@@ -146,8 +136,7 @@ All page/API code should read content through `src/lib/content.ts`, not call Con
 ## Environment & secrets
 
 Config lives in `.env.local` (git-ignored). Key vars: `NEXT_PUBLIC_CONVEX_URL`,
-`CONVEX_DEPLOYMENT`, `KIDZCOOP_CONVEX_WRITE_TOKEN`, `KIDZCOOP_CONTENT_SOURCE`,
-`GOOGLE_SHEETS_*_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`,
+`CONVEX_DEPLOYMENT`, `KIDZCOOP_CONVEX_WRITE_TOKEN`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`,
 `BREVO_API_KEY`, `BREVO_LIST_ID`, `NEXT_PUBLIC_SITE_URL`, `OPENAI_API_KEY`.
 
 - Never print, commit or log secret values. Don't add new secrets to `.env` (it is tracked).

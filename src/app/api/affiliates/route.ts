@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       {
         error: 'Failed to fetch affiliate ads',
         message,
-        hint: 'Check Convex configuration or GOOGLE_SHEETS_AFFILIATES_URL fallback.',
+        hint: 'Check Convex configuration.',
       },
       { status: 500 }
     );
