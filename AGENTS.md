@@ -28,9 +28,13 @@ npx convex dev         # Convex dev deployment + regenerates convex/_generated
 npm run lint           # eslint (flat config, next core-web-vitals)
 npm run build          # production build — run before declaring work done
 npm run verify:articles    # check Convex article data
+npm test               # vitest + convex-test (convex/*.test.ts)
+npm run typecheck      # tsc --noEmit
 ```
 
-There is no test suite. Verify with `npm run lint`, `npx tsc --noEmit` and `npm run build`.
+Verify with `npm test`, `npm run lint`, `npm run typecheck` and `npm run build`.
+Convex tests live next to the functions (`convex/*.test.ts`, setup in `convex/test.setup.ts`);
+add tests for every new public Convex function, including the unauthorized cases.
 
 ## Layout
 
@@ -166,7 +170,7 @@ Config lives in `.env.local` (git-ignored). Key vars: `NEXT_PUBLIC_CONVEX_URL`,
 
 ## Before finishing a task
 
-1. `npm run lint` and `npm run build` pass.
+1. `npm test`, `npm run lint` and `npm run build` pass.
 2. Convex changes: `npx convex dev --once` (or `npx convex codegen`) succeeds.
 3. New UI text is translated in all languages.
 4. Routes/SEO changes reflected in `sitemap.ts` and metadata.
