@@ -37,3 +37,13 @@ yarn-error.log*
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# local backups / data exports (may contain personal data)
+/dev-backup*
+/snapshot.zip
+*.zip
+/output/
+/tmp/
+
+# build/IDE artefacts
+*.tsbuildinfo
