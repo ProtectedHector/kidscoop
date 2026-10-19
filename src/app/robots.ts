@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '../lib/site';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -6,9 +7,11 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/_next/'],
+        // Never block /_next/: Google needs the JS/CSS to render pages.
+        disallow: ['/api/', '/*/admin', '/*/favorites'],
       },
     ],
-    sitemap: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kidzcoop.com'}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

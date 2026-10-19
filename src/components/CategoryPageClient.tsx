@@ -6,13 +6,15 @@ import { trackEvent } from '../lib/analytics';
 
 interface Article { id: number; title: string; content_text: string; image_path: string; published_date?: string; category?: string }
 
-export default function CategoryPageClient({ language, category }: { language: string; category: CategorySlug }) {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function CategoryPageClient({ language, category, initialArticles }: { language: string; category: CategorySlug; initialArticles?: Article[] }) {
+  const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
+  const [loading, setLoading] = useState(!initialArticles);
   const [error, setError] = useState(false);
   const spanish = language === 'es';
 
   useEffect(() => {
+    trackEvent('category_view', { category, language });
+    if (initialArticles) return;
     setLoading(true);
     fetch(`/api/articles?lang=${language}&category=${category}`)
       .then((response) => response.ok ? response.json() : Promise.reject())
@@ -25,8 +27,7 @@ export default function CategoryPageClient({ language, category }: { language: s
         setError(true);
       })
       .finally(() => setLoading(false));
-    trackEvent('category_view', { category, language });
-  }, [category, language]);
+  }, [category, language, initialArticles]);
 
   return <main className="min-h-screen bg-[#fbf9ff] px-4 py-10 text-slate-950 sm:px-6">
     <div className="mx-auto max-w-7xl">

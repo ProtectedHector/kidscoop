@@ -53,15 +53,15 @@ function getIntro(text: string) {
   return sentence.trim().slice(0, 180);
 }
 
-export default function ArticlePageClient() {
+export default function ArticlePageClient({ initialArticle }: { initialArticle?: Article | null } = {}) {
   const params = useParams();
   const language = params.language as string;
   const articleId = params.id as string;
   const { t } = useTranslation();
   
-  const [article, setArticle] = useState<Article | null>(null);
+  const [article, setArticle] = useState<Article | null>(initialArticle ?? null);
   const [articleList, setArticleList] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialArticle);
   const [error, setError] = useState<string | null>(null);
   const [hasAudio, setHasAudio] = useState(false);
   const [audioLanguage, setAudioLanguage] = useState<string>(language);
@@ -107,20 +107,24 @@ export default function ArticlePageClient() {
 
   useEffect(() => {
     const fetchArticle = async () => {
-      setLoading(true);
+      // The server already rendered the story (good for SEO); only fetch extras.
+      const serverArticle = initialArticle && String(initialArticle.id) === String(articleId) ? initialArticle : null;
+      if (!serverArticle) {
+        setLoading(true);
+      }
       setError(null);
       setAffiliateAds([]);
       try {
         const [articleResponse, articleListResponse] = await Promise.all([
-          fetch(`/api/articles/${articleId}?lang=${language}`),
+          serverArticle ? Promise.resolve(null) : fetch(`/api/articles/${articleId}?lang=${language}`),
           fetch(`/api/articles?lang=${language}`),
         ]);
 
-        if (!articleResponse.ok) {
+        if (articleResponse && !articleResponse.ok) {
           throw new Error('Failed to fetch article');
         }
 
-        const articleData = await articleResponse.json();
+        const articleData: Article = serverArticle || await articleResponse!.json();
         setArticle(articleData);
         trackEvent('story_view', { story_id: articleData.id, language });
 
@@ -192,7 +196,7 @@ export default function ArticlePageClient() {
     if (articleId && language) {
       fetchArticle();
     }
-  }, [articleId, language]);
+  }, [articleId, language, initialArticle]);
 
   if (loading) {
     return (
@@ -223,33 +227,6 @@ export default function ArticlePageClient() {
       </div>
     );
   }
-
-  // Generate structured data for SEO
-  const structuredData = article ? {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": article.title,
-    "description": article.content_text.substring(0, 200),
-    "image": article.image_path,
-    "datePublished": article.published_date,
-    "author": {
-      "@type": "Organization",
-      "name": "KidZcoop"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "KidZcoop",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "/logo.png"
-      }
-    },
-    "inLanguage": language,
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": getArticlePath(language, article.id, article.title)
-    }
-  } : null;
 
   const handleToggleSpeak = () => {
     if (
@@ -296,7 +273,7 @@ export default function ArticlePageClient() {
   const navCopy = storyNavCopy[language] || storyNavCopy.en;
   const articlePath = getArticlePath(language, article.id, article.title);
   const readMinutes = Math.max(1, Math.ceil(article.content_text.trim().split(/\s+/).length / 220));
-  const formattedDate = new Intl.DateTimeFormat(language, { dateStyle: 'long' }).format(new Date(article.published_date));
+  const formattedDate = new Intl.DateTimeFormat(language, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(article.published_date));
   const intro = getIntro(article.content_text);
   const relatedArticles = articleList
     .filter((item) => String(item.id) !== String(article.id))
@@ -311,12 +288,6 @@ export default function ArticlePageClient() {
 
   return (
     <>
-      {structuredData && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
-      )}
       <div className="min-h-screen bg-[#fbf9ff] pb-24 text-slate-950">
         <header className="sticky top-0 z-40 border-b border-purple-100/80 bg-white/90 backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
@@ -369,7 +340,7 @@ export default function ArticlePageClient() {
                   <span aria-hidden="true" className="text-purple-300">·</span>
                   <span>{readMinutes} min</span>
                   <span aria-hidden="true" className="text-purple-300">·</span>
-                  <time>{formattedDate}</time>
+                  <time dateTime={article.published_date}>{formattedDate}</time>
                 </div>
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
                   <ArticleShare key={`${language}-${article.id}`} language={language} title={article.title} path={articlePath} />
