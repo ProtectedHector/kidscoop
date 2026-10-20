@@ -1,4 +1,20 @@
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://kidzcoop.app').replace(/\/+$/, '');
+const PRODUCTION_URL = 'https://kidzcoop.app';
+
+/**
+ * Canonical public URL. A *.vercel.app value (e.g. a stale NEXT_PUBLIC_SITE_URL
+ * in the Vercel dashboard) is ignored so sitemap/canonicals never point there.
+ */
+function resolveSiteUrl() {
+  const configured = (process.env.NEXT_PUBLIC_SITE_URL || '').trim().replace(/\/+$/, '');
+  if (!configured) return PRODUCTION_URL;
+  try {
+    return new URL(configured).hostname.endsWith('.vercel.app') ? PRODUCTION_URL : configured;
+  } catch {
+    return PRODUCTION_URL;
+  }
+}
+
+export const SITE_URL = resolveSiteUrl();
 
 export const SITE_NAME = 'KidZcoop';
 

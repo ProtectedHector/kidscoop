@@ -38,16 +38,17 @@ function languageRedirect(request: NextRequest) {
 }
 
 /**
- * In production, send every alternative host (www, *.vercel.app) to the
- * canonical domain with a 301 so Google only indexes one copy of the site.
+ * In production, send *.vercel.app hosts to the real domain with a 301 so Google
+ * only indexes one copy. apex/www is left to Vercel's domain settings, and we
+ * never redirect when the canonical host is itself a vercel.app host.
  */
 function canonicalHostRedirect(request: NextRequest) {
-  if (process.env.VERCEL_ENV !== 'production') {
+  if (process.env.VERCEL_ENV !== 'production' || CANONICAL_HOST.endsWith('.vercel.app')) {
     return null;
   }
 
-  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
-  if (!host || host === CANONICAL_HOST) {
+  const host = (request.headers.get('x-forwarded-host') || request.headers.get('host') || '').toLowerCase();
+  if (!host.endsWith('.vercel.app')) {
     return null;
   }
 
