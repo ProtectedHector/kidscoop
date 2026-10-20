@@ -6,7 +6,8 @@ import { isSupportedLanguage } from '../../../lib/languages';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
-export default async function AdminPage({ params }: { params: { language: string } }) {
+export default async function AdminPage(props: { params: Promise<{ language: string }> }) {
+  const params = await props.params;
   if (!isSupportedLanguage(params.language)) {
     notFound();
   }

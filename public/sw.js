@@ -1,4 +1,5 @@
-const VERSION = 'kidzcoop-v1';
+// The build id comes from the registration URL (/sw.js?v=<build>), see PWAProvider.
+const VERSION = `kidzcoop-${new URL(self.location.href).searchParams.get('v') || 'dev'}`;
 const SHELL = `${VERSION}-shell`;
 const PAGES = `${VERSION}-pages`;
 const ASSETS = `${VERSION}-assets`;

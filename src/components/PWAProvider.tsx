@@ -55,7 +55,7 @@ export function PWAProvider({ children }: { children: ReactNode }) {
     window.addEventListener('offline', onOffline);
 
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      navigator.serviceWorker.register('/sw.js').then((registration) => {
+      navigator.serviceWorker.register(`/sw.js?v=${process.env.NEXT_PUBLIC_BUILD_ID || 'dev'}`).then((registration) => {
         if (registration.waiting) setUpdateReady(registration.waiting);
         registration.addEventListener('updatefound', () => {
           const worker = registration.installing;

@@ -25,11 +25,6 @@ const articleInput = v.object({
   rawFields: v.optional(v.any()),
 });
 
-const articleCategoryInput = v.object({
-  externalArticleId: v.number(),
-  categories: v.array(category),
-});
-
 const contentInput = v.object({
   externalArticleId: v.number(),
   externalContentId: v.optional(v.number()),
@@ -54,20 +49,6 @@ const affiliateInput = v.object({
   position: v.number(),
   active: v.boolean(),
   imageUrl: v.string(),
-  rawFields: v.optional(v.any()),
-});
-
-const newsletterInput = v.object({
-  email: v.string(),
-  subscribed: v.boolean(),
-  signedDate: v.string(),
-  language: v.string(),
-  rawFields: v.optional(v.any()),
-});
-
-const newsletterTemplateInput = v.object({
-  language: v.string(),
-  template: v.string(),
   rawFields: v.optional(v.any()),
 });
 
@@ -104,10 +85,6 @@ function normalizeSlug(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 90) || "article";
-}
-
-function normalizeEmail(value: string) {
-  return value.trim().toLowerCase();
 }
 
 function fallbackCategory(primary: Category): Category {
@@ -428,66 +405,6 @@ export const migrationSummary = query({
   },
 });
 
-export const importArticles = mutation({
-  args: {
-    token: v.string(),
-    rows: v.array(articleInput),
-    source: v.optional(source),
-  },
-  handler: async (ctx, args) => {
-    authorize(args.token);
-    let created = 0;
-    let updated = 0;
-
-    for (const row of args.rows) {
-      const existing = await ctx.db
-        .query("articles")
-        .withIndex("by_external_article_id", (q) => q.eq("externalArticleId", row.externalArticleId))
-        .unique();
-      await upsertArticleRow(ctx, row, args.source ?? "migration");
-      if (existing) {
-        updated += 1;
-      } else {
-        created += 1;
-      }
-    }
-
-    return { created, updated };
-  },
-});
-
-export const importArticleCategories = mutation({
-  args: {
-    token: v.string(),
-    rows: v.array(articleCategoryInput),
-    source: v.optional(source),
-  },
-  handler: async (ctx, args) => {
-    authorize(args.token);
-    const now = Date.now();
-    let inserted = 0;
-    let replaced = 0;
-    let skipped = 0;
-
-    for (const row of args.rows) {
-      const article = await ctx.db
-        .query("articles")
-        .withIndex("by_external_article_id", (q) => q.eq("externalArticleId", row.externalArticleId))
-        .unique();
-      if (!article) {
-        skipped += 1;
-        continue;
-      }
-
-      const result = await replaceArticleCategories(ctx, article._id, row.externalArticleId, row.categories, args.source ?? "migration");
-      replaced += result.replaced;
-      inserted += result.inserted;
-    }
-
-    return { inserted, replaced, skipped };
-  },
-});
-
 export const upsertContentFromMake = mutation({
   args: {
     token: v.string(),
@@ -722,135 +639,6 @@ export const createContentFromMakeStrict = mutation({
       categoriesInserted,
       affiliatesInserted,
     };
-  },
-});
-
-export const importNewsletter = mutation({
-  args: {
-    token: v.string(),
-    rows: v.array(newsletterInput),
-    source: v.optional(source),
-  },
-  handler: async (ctx, args) => {
-    authorize(args.token);
-    const now = Date.now();
-    let created = 0;
-    let updated = 0;
-
-    for (const row of args.rows) {
-      const email = normalizeEmail(row.email);
-      if (!email) continue;
-      const existing = await ctx.db.query("newsletter").withIndex("by_email", (q) => q.eq("email", email)).unique();
-      const data = {
-        email,
-        subscribed: row.subscribed,
-        signedDate: row.signedDate,
-        language: normalizeLanguage(row.language),
-        source: args.source ?? "migration",
-        rawFields: row.rawFields,
-        updatedAt: now,
-      };
-      if (existing) {
-        await ctx.db.patch(existing._id, data);
-        updated += 1;
-      } else {
-        await ctx.db.insert("newsletter", { ...data, createdAt: now });
-        created += 1;
-      }
-    }
-
-    return { created, updated };
-  },
-});
-
-export const importAffiliates = mutation({
-  args: {
-    token: v.string(),
-    rows: v.array(affiliateInput),
-    source: v.optional(source),
-  },
-  handler: async (ctx, args) => {
-    authorize(args.token);
-    const now = Date.now();
-    let created = 0;
-    let updated = 0;
-    let skipped = 0;
-
-    for (const row of args.rows) {
-      const article = await ctx.db
-        .query("articles")
-        .withIndex("by_external_article_id", (q) => q.eq("externalArticleId", row.externalArticleId))
-        .unique();
-      if (!article) {
-        skipped += 1;
-        continue;
-      }
-
-      const existing = await ctx.db
-        .query("affiliateAds")
-        .withIndex("by_external_article_and_asin", (q) =>
-          q.eq("externalArticleId", row.externalArticleId).eq("asin", row.asin),
-        )
-        .first();
-      const data = {
-        articleId: article._id,
-        externalArticleId: row.externalArticleId,
-        productName: row.productName,
-        asin: row.asin,
-        affiliateUrl: row.affiliateUrl,
-        position: row.position,
-        active: row.active,
-        imageUrl: row.imageUrl,
-        source: args.source ?? "migration",
-        rawFields: row.rawFields,
-        updatedAt: now,
-      };
-
-      if (existing) {
-        await ctx.db.patch(existing._id, data);
-        updated += 1;
-      } else {
-        await ctx.db.insert("affiliateAds", { ...data, createdAt: now });
-        created += 1;
-      }
-    }
-
-    return { created, updated, skipped };
-  },
-});
-
-export const importNewsletterTemplates = mutation({
-  args: {
-    token: v.string(),
-    rows: v.array(newsletterTemplateInput),
-    source: v.optional(source),
-  },
-  handler: async (ctx, args) => {
-    authorize(args.token);
-    const now = Date.now();
-    let created = 0;
-    let updated = 0;
-
-    for (const row of args.rows) {
-      const language = normalizeLanguage(row.language);
-      const existing = await ctx.db.query("newsletterTemplates").withIndex("by_language", (q) => q.eq("language", language)).unique();
-      const data = {
-        language,
-        template: row.template,
-        source: args.source ?? "migration",
-        rawFields: row.rawFields,
-        updatedAt: now,
-      };
-      if (existing) {
-        await ctx.db.patch(existing._id, data);
-        updated += 1;
-      } else {
-        await ctx.db.insert("newsletterTemplates", { ...data, createdAt: now });
-        created += 1;
-      }
-    }
-
-    return { created, updated };
   },
 });
 

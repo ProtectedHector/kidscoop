@@ -7,7 +7,7 @@ import { absoluteUrl } from '../lib/site';
 
 const languages = AVAILABLE_LANGUAGES.map((language) => language.code);
 
-export const revalidate = 3600;
+export const revalidate = 604800; // 1 week; POST /api/revalidate refreshes it after publishing
 
 function toDate(value?: string) {
   const date = value ? new Date(value) : null;

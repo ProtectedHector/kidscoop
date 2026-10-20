@@ -3,10 +3,8 @@ import { fetchArticle } from '@/lib/content';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { searchParams } = new URL(request.url);
   const language = searchParams.get('lang') || searchParams.get('language') || 'en';
   const articleId = parseInt(params.id, 10);

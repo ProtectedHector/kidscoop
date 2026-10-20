@@ -42,7 +42,9 @@ function ClerkUserFavoritesSync() {
     if (syncedUsers.has(user.id)) return;
     syncedUsers.add(user.id);
 
-    void syncFavoritesWithAccount()
+    void fetch('/api/users/sync', { method: 'POST' })
+      .catch(() => null)
+      .then(() => syncFavoritesWithAccount())
       .then((favorites) => {
         if (favorites) {
           trackEvent('favorites_synced', { count: favorites.length });

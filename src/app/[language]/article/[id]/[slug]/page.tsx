@@ -9,22 +9,24 @@ import {
 } from '../../../../../lib/articleSeo';
 import { jsonLd } from '../../../../../lib/seo';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { language: string; id: string; slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ language: string; id: string; slug: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   return generateArticleMetadataForRoute({
     language: params.language,
     id: params.id,
   });
 }
 
-export default async function ArticleSlugPage({
-  params,
-}: {
-  params: { language: string; id: string; slug: string };
-}) {
+export default async function ArticleSlugPage(
+  props: {
+    params: Promise<{ language: string; id: string; slug: string }>;
+  }
+) {
+  const params = await props.params;
   const article = await getArticle(params.id, params.language);
 
   // Missing stories must answer with a real 404 so Google drops them (no soft 404s).

@@ -324,3 +324,16 @@ Keep stopOnHttpError=true.
 Only continue to GitHub image upload/commit if Convex returns HTTP 200 and ok=true.
 If Convex returns 409, ok=false, Unauthorized, or any HTTP error, stop the scenario and do not upload anything to GitHub.
 ```
+
+
+## Refrescar la caché de la web
+
+La web cachea el contenido de Convex durante 1 semana. Después de crear la historia
+(y de subir las imágenes a GitHub), añade en Make un módulo HTTP:
+
+- Método: `POST`
+- URL: `https://kidzcoop.app/api/revalidate`
+- Cabecera: `Authorization: Bearer <KIDZCOOP_CONVEX_WRITE_TOKEN>`
+
+Respuesta `200 {"revalidated": true}`; `401` si el token no coincide.
+Sin este paso, la historia nueva tarda hasta una semana en aparecer.

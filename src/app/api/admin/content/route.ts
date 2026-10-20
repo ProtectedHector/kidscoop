@@ -1,4 +1,6 @@
+import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
+import { CONTENT_CACHE_TAG } from '@/lib/content';
 import { api, getAdminConvexClient, requireAdminIdentity } from '@/lib/admin';
 
 export const runtime = 'nodejs';
@@ -48,6 +50,7 @@ export async function POST(request: Request) {
           imageUrl: String(body.affiliate?.imageUrl || '').trim(),
         },
       });
+      revalidateTag(CONTENT_CACHE_TAG, { expire: 0 });
       return NextResponse.json({ ok: true, result });
     }
 

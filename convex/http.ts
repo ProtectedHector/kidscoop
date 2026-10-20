@@ -29,7 +29,7 @@ function safeErrorMessage(error: unknown, token: string) {
 function errorStatus(error: unknown, message: string) {
   const errorName = error instanceof Error ? error.name : "";
   if (/unauthorized/i.test(message)) return 401;
-  if (errorName === "ArgumentValidationError" || /ArgumentValidationError|argument validation/i.test(message)) return 400;
+  if (errorName === "ArgumentValidationError" || /ArgumentValidationError|argument validation|validator error/i.test(message)) return 400;
   if (/already exists/i.test(message)) return 409;
   return 500;
 }

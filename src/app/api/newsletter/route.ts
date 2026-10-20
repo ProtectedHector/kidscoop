@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from '@/lib/languages';
 import { getAuthenticatedIdentity } from '@/lib/server/clerk-user';
-import { markNewsletterSubscribed, upsertAccount } from '@/lib/server/account-store';
 import {
   getNewsletterStatusFromConvex,
   isConvexNewsletterConfigured,
@@ -64,16 +63,6 @@ async function subscribeWithBrevo(email: string) {
   return true;
 }
 
-/** Best-effort update of the local account store; never blocks the subscription. */
-async function safeAccountUpdate<T>(action: () => Promise<T>): Promise<T | null> {
-  try {
-    return await action();
-  } catch (error) {
-    console.warn('Account store unavailable:', error instanceof Error ? error.message : error);
-    return null;
-  }
-}
-
 export async function GET() {
   const identity = await getAuthenticatedIdentity();
 
@@ -81,10 +70,9 @@ export async function GET() {
     return NextResponse.json({ authenticated: false, subscribed: false });
   }
 
-  const account = await safeAccountUpdate(() => upsertAccount(identity));
-  let subscribed = Boolean(account?.newsletterSubscribedAt);
+  let subscribed = false;
 
-  if (!subscribed && identity.email && isConvexNewsletterConfigured()) {
+  if (identity.email && isConvexNewsletterConfigured()) {
     try {
       subscribed = await getNewsletterStatusFromConvex(identity.email);
     } catch (error) {
@@ -123,10 +111,6 @@ export async function POST(request: Request) {
       await subscribeWithBrevo(email);
     } catch (error) {
       console.warn('Brevo sync failed:', error instanceof Error ? error.message : error);
-    }
-
-    if (identity) {
-      await safeAccountUpdate(() => markNewsletterSubscribed(identity));
     }
 
     return NextResponse.json({ success: true });

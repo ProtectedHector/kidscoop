@@ -1,35 +1,35 @@
 import { ConvexHttpClient } from 'convex/browser';
+import { unstable_cache } from 'next/cache';
 import { api } from '../../convex/_generated/api';
-import {
-  fetchAffiliateAds as fetchGoogleAffiliateAds,
-  fetchArticlesWithContent,
-  type AffiliateAd,
-  type Article,
-} from './googleSheets';
 import { normalizeCategory, type CategorySlug } from './categories';
+import type { AffiliateAd, Article } from './types';
+
+export type { AffiliateAd, Article } from './types';
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL || '';
-const CONTENT_SOURCE = (process.env.KIDZCOOP_CONTENT_SOURCE || 'auto').toLowerCase();
 
-type ConvexArticle = Article & {
+export type ConvexArticle = Article & {
   convex_id?: string;
   category?: CategorySlug;
   slug?: string;
 };
 
+/** Content changes only when Make publishes, so cache Convex reads for a week. */
+export const CONTENT_REVALIDATE_SECONDS = 60 * 60 * 24 * 7;
+/** Cache tag for every content read; invalidate it with POST /api/revalidate. */
+export const CONTENT_CACHE_TAG = 'content';
+
+const cacheOptions = { revalidate: CONTENT_REVALIDATE_SECONDS, tags: [CONTENT_CACHE_TAG] };
+
 let client: ConvexHttpClient | null = null;
 
 function getClient() {
-  if (!CONVEX_URL || CONTENT_SOURCE === 'sheets') {
-    return null;
+  if (!CONVEX_URL) {
+    throw new Error('NEXT_PUBLIC_CONVEX_URL is not configured');
   }
 
   client ||= new ConvexHttpClient(CONVEX_URL);
   return client;
-}
-
-function shouldRequireConvex() {
-  return CONTENT_SOURCE === 'convex';
 }
 
 function sortArticles<T extends { published_date?: string }>(articles: T[]): T[] {
@@ -40,89 +40,44 @@ function sortArticles<T extends { published_date?: string }>(articles: T[]): T[]
   });
 }
 
-function hasContent(article: Article | null | undefined): article is Article {
-  return Boolean(article && article.title && article.content_text);
-}
+const cachedArticles = unstable_cache(
+  async (language: string, category?: CategorySlug) =>
+    await getClient().query(api.articles.list, {
+      language,
+      ...(category ? { category } : {}),
+    }) as ConvexArticle[],
+  ['convex-articles-list'],
+  cacheOptions,
+);
+
+const cachedArticle = unstable_cache(
+  async (language: string, articleId: number) =>
+    await getClient().query(api.articles.byExternalId, {
+      externalArticleId: articleId,
+      language,
+    }) as ConvexArticle | null,
+  ['convex-article'],
+  cacheOptions,
+);
+
+const cachedAffiliates = unstable_cache(
+  async (articleId?: number) =>
+    await getClient().query(api.articles.listAffiliates, {
+      ...(articleId === undefined ? {} : { externalArticleId: articleId }),
+    }) as AffiliateAd[],
+  ['convex-affiliates'],
+  cacheOptions,
+);
 
 export async function fetchArticles(language: string, category?: string): Promise<ConvexArticle[]> {
   const normalizedCategory = category ? normalizeCategory(category) : undefined;
-  const convex = getClient();
-
-  if (convex) {
-    try {
-      const articles = await convex.query(api.articles.list, {
-        language,
-        ...(normalizedCategory ? { category: normalizedCategory } : {}),
-      }) as ConvexArticle[];
-
-      if (articles.length || shouldRequireConvex()) {
-        return sortArticles(articles);
-      }
-    } catch (error) {
-      if (shouldRequireConvex()) {
-        throw error;
-      }
-      console.warn('Convex articles unavailable, falling back to Google Sheets:', error);
-    }
-  }
-
-  const googleArticles = await fetchArticlesWithContent(language);
-  const categorized = googleArticles.map((article) => ({
-    ...article,
-    category: normalizeCategory((article as ConvexArticle).category),
-  }));
-
-  return sortArticles(
-    normalizedCategory
-      ? categorized.filter((article) => article.category === normalizedCategory)
-      : categorized,
-  );
+  return sortArticles(await cachedArticles(language, normalizedCategory));
 }
 
 export async function fetchArticle(language: string, articleId: number): Promise<ConvexArticle | null> {
-  const convex = getClient();
-
-  if (convex) {
-    try {
-      const article = await convex.query(api.articles.byExternalId, {
-        externalArticleId: articleId,
-        language,
-      }) as ConvexArticle | null;
-
-      if (hasContent(article) || shouldRequireConvex()) {
-        return article;
-      }
-    } catch (error) {
-      if (shouldRequireConvex()) {
-        throw error;
-      }
-      console.warn('Convex article unavailable, falling back to Google Sheets:', error);
-    }
-  }
-
-  const articles = await fetchArticlesWithContent(language);
-  return articles.find((item) => item.id === articleId) || null;
+  return await cachedArticle(language, articleId);
 }
 
 export async function fetchContentAffiliateAds(articleId?: number): Promise<AffiliateAd[]> {
-  const convex = getClient();
-
-  if (convex) {
-    try {
-      const affiliates = await convex.query(api.articles.listAffiliates, {
-        ...(articleId === undefined ? {} : { externalArticleId: articleId }),
-      }) as AffiliateAd[];
-
-      if (affiliates.length || shouldRequireConvex()) {
-        return affiliates;
-      }
-    } catch (error) {
-      if (shouldRequireConvex()) {
-        throw error;
-      }
-      console.warn('Convex affiliates unavailable, falling back to Google Sheets:', error);
-    }
-  }
-
-  return fetchGoogleAffiliateAds(articleId);
+  return await cachedAffiliates(articleId);
 }
