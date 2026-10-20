@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { SignInButton, SignedIn, SignedOut, useUser } from '@clerk/nextjs';
+import { Show, SignInButton, useUser } from '@clerk/nextjs';
 import { trackEvent } from '../lib/analytics';
 import { CLERK_ENABLED } from '@/lib/auth';
 
@@ -199,7 +199,7 @@ function AuthenticatedNewsletterSignup({ language, variant = 'panel' }: Newslett
   return (
     <section className={panelClass} aria-labelledby="newsletter-title">
       <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-yellow-200">{copy.eyebrow}</p>
-      <SignedIn>
+      <Show when="signed-in">
         {subscribed ? (
           <>
             <h2 id="newsletter-title" className={titleClass}>{copy.subscribed}</h2>
@@ -226,9 +226,9 @@ function AuthenticatedNewsletterSignup({ language, variant = 'panel' }: Newslett
         )}
         {status === 'success' && <p className="mt-4 text-sm font-semibold text-emerald-200">{copy.success}</p>}
         {status === 'error' && <p className="mt-4 text-sm font-semibold text-rose-200">{copy.error}</p>}
-      </SignedIn>
+      </Show>
 
-      <SignedOut>
+      <Show when="signed-out">
         <h2 id="newsletter-title" className={titleClass}>{copy.title}</h2>
         <p className={bodyClass}>{copy.body}</p>
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/10 p-4">
@@ -263,7 +263,7 @@ function AuthenticatedNewsletterSignup({ language, variant = 'panel' }: Newslett
         <p className="mt-3 text-sm text-white/55">{copy.privacy}</p>
         {status === 'success' && <p className="mt-4 text-sm font-semibold text-emerald-200">{copy.success}</p>}
         {status === 'error' && <p className="mt-4 text-sm font-semibold text-rose-200">{copy.error}</p>}
-      </SignedOut>
+      </Show>
     </section>
   );
 }
