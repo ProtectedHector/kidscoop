@@ -63,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   });
 
-  const staticPages: MetadataRoute.Sitemap = (['about', 'contact'] as const).flatMap((page) => {
+  const staticPages: MetadataRoute.Sitemap = (['about', 'contact', 'privacy'] as const).flatMap((page) => {
     const paths = { es: `/es/${page}`, en: `/en/${page}` };
     return Object.values(paths).map((path) => ({
       url: absoluteUrl(path),
