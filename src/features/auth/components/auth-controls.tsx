@@ -1,6 +1,7 @@
 "use client";
 
-import { ClerkFailed, Show, SignInButton, UserButton, useUser } from '@clerk/nextjs';
+import { ClerkFailed, ClerkLoading, Show, SignInButton, UserButton, useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 import { showLoginProblem } from '@/features/auth/model/login-problems';
 import { trackEvent } from '@/lib/analytics';
 import { clerkEnabled } from '@/lib/env.client';
@@ -32,6 +33,12 @@ function ClerkAuthControls({ language }: { language: string }) {
       <ClerkFailed>
         <UnavailableSignInButton language={language} />
       </ClerkFailed>
+      {/* Clerk is still loading: the button is there from the first paint and goes to the sign-in page. */}
+      <ClerkLoading>
+        <Link href={`/${language}/sign-in`} className={`inline-flex items-center ${buttonClass}`}>
+          {translate(language, 'auth.signIn')}
+        </Link>
+      </ClerkLoading>
       <Show when="signed-out">
         <SignInButton mode="modal">
           <button type="button" onClick={() => trackEvent('login_started', { source: 'header' })} className={buttonClass}>
