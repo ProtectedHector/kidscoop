@@ -555,7 +555,7 @@ export default function ArticleColoringStudio({
               type="button"
               onClick={undoArtwork}
               disabled={undoCount === 0}
-              className="rounded-full border border-purple-200 bg-white p-3 text-[#581c87] transition enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-full p-3 transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label={labels.undo}
               title={labels.undo}
             >
@@ -568,7 +568,7 @@ export default function ArticleColoringStudio({
               type="button"
               onClick={redoArtwork}
               disabled={redoCount === 0}
-              className="rounded-full border border-purple-200 bg-white p-3 text-[#581c87] transition enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-full p-3 transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label={labels.redo}
               title={labels.redo}
             >
@@ -581,7 +581,7 @@ export default function ArticleColoringStudio({
           <button
             type="button"
             onClick={resetArtwork}
-            className="min-h-12 rounded-full border border-purple-200 bg-white px-5 py-3 text-sm font-semibold text-[#581c87] transition hover:bg-purple-50"
+            className="min-h-12 rounded-full px-5 py-3 text-sm font-semibold transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50"
           >
             {labels.reset}
           </button>
@@ -595,7 +595,7 @@ export default function ArticleColoringStudio({
           <button
             type="button"
             onClick={downloadPage}
-            className="min-h-12 rounded-full border border-purple-200 bg-white px-5 py-3 text-sm font-semibold text-[#581c87] transition hover:bg-purple-50"
+            className="min-h-12 rounded-full px-5 py-3 text-sm font-semibold transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50"
           >
             {labels.downloadPage}
           </button>

@@ -162,7 +162,7 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
                     className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                       isActive
                         ? 'bg-gradient-to-r from-amber-400 to-pink-500 text-slate-950 shadow-lg shadow-pink-500/30'
-                        : 'border border-purple-200 bg-white text-[#581c87] hover:bg-purple-50'
+                        : 'border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50'
                     }`}
                   >
                     {option} x {option}
@@ -175,7 +175,7 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
           <button
             type="button"
             onClick={shuffleBoard}
-            className="rounded-full px-4 py-2 text-sm font-semibold transition border border-purple-200 bg-white text-[#581c87] hover:bg-purple-50"
+            className="rounded-full px-4 py-2 text-sm font-semibold transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50"
           >
             {labels.shuffle}
           </button>
@@ -273,7 +273,7 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
           </div>
         </div>
 
-        <div className="rounded-2xl border border-purple-100 bg-white p-5">
+        <div className="rounded-2xl p-5 border border-purple-300 bg-gradient-to-br from-white to-purple-50 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)]">
           <div className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{labels.status}</div>
           <div className="mt-4 space-y-4">
             <div>

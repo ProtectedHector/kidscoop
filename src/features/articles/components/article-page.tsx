@@ -187,7 +187,7 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
             </Link>
             <div className="flex items-center gap-2">
               <LanguageSelector />
-              <Link href={`/${language}`} className="inline-flex min-h-10 items-center rounded-full border border-purple-100 bg-white px-4 text-sm font-black text-[#581c87] shadow-sm hover:bg-purple-50">
+              <Link href={`/${language}`} className="inline-flex min-h-10 items-center rounded-full px-4 text-sm font-black border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50">
                 {t('content.backToStories')}
               </Link>
             </div>
@@ -241,7 +241,7 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
 
             <section className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
               <div className="min-w-0">
-                <div className="mx-auto max-w-3xl rounded-[2rem] border border-purple-100 bg-white p-6 shadow-sm sm:p-9">
+                <div className="mx-auto max-w-3xl rounded-[2rem] p-6 sm:p-9 border border-purple-300 bg-gradient-to-br from-white to-purple-50 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)]">
                   <div className="space-y-7 text-[1.08rem] leading-8 text-slate-800 sm:text-xl sm:leading-10">
                     {article.content_text.split('\n\n').map((paragraph, index) => (
                       <p key={index}>
@@ -251,7 +251,7 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
                   </div>
                 </div>
 
-                <div className="mx-auto mt-6 flex max-w-3xl flex-col items-start gap-3 rounded-2xl border border-purple-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="mx-auto mt-6 flex max-w-3xl flex-col items-start gap-3 rounded-2xl p-4 sm:flex-row border border-purple-300 bg-gradient-to-br from-white to-purple-50 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)] sm:items-center sm:justify-between">
                   <div className="flex flex-wrap gap-3">
                     <ArticleShare language={language} title={article.title} path={articlePath} />
                     <FavoriteButton story={{ id: article.id, title: article.title, image_path: article.image_path, language, path: articlePath }} />
@@ -314,7 +314,7 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
                 </div>
 
                 {hasAudio && (
-                  <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] border border-purple-100 bg-white p-6 shadow-sm sm:p-8">
+                  <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] p-6 sm:p-8 border border-purple-300 bg-gradient-to-br from-white to-purple-50 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)]">
                     <div className="mb-5">
                       <h2 className="text-2xl font-black text-slate-950">🎵 {t('content.storySong')}</h2>
                       <p className="mt-2 text-slate-600">{t('content.storySongDescription')}</p>
@@ -335,7 +335,7 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
                 )}
 
                 {article.lyrics && article.lyrics.trim() !== '' && (
-                  <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] border border-purple-100 bg-white p-6 shadow-sm sm:p-8">
+                  <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] p-6 sm:p-8 border border-purple-300 bg-gradient-to-br from-white to-purple-50 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)]">
                     <div className="mb-4 flex items-center justify-between gap-3">
                       <h2 className="text-2xl font-black text-slate-950">📝 {t('content.lyrics') || 'Lyrics'}</h2>
                       {lyricsLanguage && lyricsLanguage !== language && (
@@ -352,17 +352,17 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
               </div>
 
               <aside className="hidden lg:block lg:sticky lg:top-24">
-                <div className="rounded-[2rem] border border-purple-100 bg-white p-5 shadow-sm">
+                <div className="rounded-[2rem] p-5 border border-purple-300 bg-gradient-to-br from-white to-purple-50 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)]">
                   <p className="text-xs font-black uppercase tracking-[.16em] text-[#581c87]">{categoryLabel}</p>
                   <p className="mt-3 text-sm leading-6 text-slate-600">{intro}</p>
                   <div className="mt-5 flex flex-col gap-3">
                     {previousArticle && (
-                      <Link href={getArticlePath(language, previousArticle.id, previousArticle.title)} className="rounded-2xl bg-purple-50 px-4 py-3 text-sm font-black text-[#581c87] hover:bg-purple-100">
+                      <Link href={getArticlePath(language, previousArticle.id, previousArticle.title)} className="rounded-2xl px-4 py-3 text-sm font-black border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50">
                         ← {navCopy.previous}
                       </Link>
                     )}
                     {nextArticle && (
-                      <Link href={getArticlePath(language, nextArticle.id, nextArticle.title)} className="rounded-2xl bg-purple-50 px-4 py-3 text-sm font-black text-[#581c87] hover:bg-purple-100">
+                      <Link href={getArticlePath(language, nextArticle.id, nextArticle.title)} className="rounded-2xl px-4 py-3 text-sm font-black border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50">
                         {navCopy.next} →
                       </Link>
                     )}
@@ -378,7 +378,7 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
                     <p className="text-sm font-black uppercase tracking-[.18em] text-[#581c87]">KidZcoop</p>
                     <h2 className="mt-1 text-3xl font-black tracking-tight text-slate-950">{relatedTitle}</h2>
                   </div>
-                  <Link href={`/${language}#stories`} className="hidden rounded-full border border-purple-100 bg-white px-5 py-2.5 text-sm font-black text-[#581c87] shadow-sm hover:bg-purple-50 sm:inline-flex">
+                  <Link href={`/${language}#stories`} className="hidden rounded-full px-5 py-2.5 text-sm font-black border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50 sm:inline-flex">
                     {t('content.readMoreStories')}
                   </Link>
                 </div>

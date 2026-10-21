@@ -123,7 +123,7 @@ export default function ArticleShare({ language, title, path }: { language: stri
     { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
     { label: 'X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${title} — ${shareMessage}`)}&url=${encodedUrl}` },
   ];
-  const optionClass = 'flex min-h-11 items-center justify-center gap-2 rounded-xl border border-purple-100 bg-purple-50 px-3 py-3 text-sm font-semibold text-purple-950 transition hover:bg-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300';
+  const optionClass = 'flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300';
 
   return (
     <div
@@ -142,13 +142,13 @@ export default function ArticleShare({ language, title, path }: { language: stri
         onClick={toggle}
         aria-expanded={open}
         aria-controls={panelId}
-        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-purple-100 bg-white px-5 py-2.5 text-sm font-black text-[#581c87] shadow-sm transition hover:bg-purple-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
+        className="inline-flex min-h-11 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-black transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
       >
         <ShareIcon />
         {copy.share}
       </button>
       {open && (
-        <div id={panelId} role="region" aria-label={copy.share} className="absolute left-1/2 top-full z-30 mt-3 w-80 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-2xl border border-purple-100 bg-white p-4 text-start shadow-2xl">
+        <div id={panelId} role="region" aria-label={copy.share} className="absolute left-1/2 top-full z-30 mt-3 w-80 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-2xl border border-purple-300 bg-white p-4 text-start shadow-[0_12px_40px_-8px_rgba(88,28,135,0.4)]">
           <div className="grid grid-cols-2 gap-2">
             {options.map((option, index) => (
               <a
