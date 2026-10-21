@@ -45,6 +45,7 @@ export default function AdminPageClient({ language }: { language: string }) {
     }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: load once on mount; the save handler reloads explicitly.
   useEffect(() => {
     load();
   }, []);
@@ -128,7 +129,7 @@ export default function AdminPageClient({ language }: { language: string }) {
               ['position', 'Posición'],
             ].map(([key, label]) => <label key={key} className="mt-4 block text-sm font-bold text-slate-700">{label}<input value={(affiliate as any)[key]} onChange={(event) => setAffiliate((current) => ({ ...current, [key]: event.target.value }))} className="mt-1 w-full rounded-xl border border-purple-100 px-3 py-2 outline-none focus:border-purple-500" /></label>)}
             <label className="mt-4 flex items-center gap-2 text-sm font-bold"><input type="checkbox" checked={affiliate.active} onChange={(event) => setAffiliate((current) => ({ ...current, active: event.target.checked }))} /> Activo</label>
-            <button disabled={saving} className="mt-5 w-full rounded-full bg-[#581c87] px-5 py-3 font-black text-white disabled:opacity-60">{saving ? 'Guardando...' : 'Guardar afiliado'}</button>
+            <button type="submit" disabled={saving} className="mt-5 w-full rounded-full bg-[#581c87] px-5 py-3 font-black text-white disabled:opacity-60">{saving ? 'Guardando...' : 'Guardar afiliado'}</button>
           </form>
           <div className="overflow-hidden rounded-3xl border border-purple-100 bg-white shadow-sm">
             <div className="max-h-[34rem] overflow-auto">

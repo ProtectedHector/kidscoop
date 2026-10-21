@@ -1,0 +1,17 @@
+// ADR 0002: infra never imports a feature, not even through its entry files. `src/lib`,
+// `src/components` and `src/hooks` are what's left when every feature is deleted, and must still
+// build. A feature reaches the shell the other way round: a route or layout passes it into a slot
+// (see `src/app/[language]/(site)/layout.tsx`).
+or {
+    JsModuleSource() as $source,
+    `require($source)`,
+    `import($source)`
+} where {
+    $source <: r"[\"']@/(features/[^\"']+)[\"']"($target),
+    $filename <: r".*/src/((?:lib|components|hooks)/.*)"($importer),
+    register_diagnostic(
+        span = $source,
+        message = `Infra imports a feature: "src/$importer" imports "@/$target". src/lib, src/components and src/hooks never import from src/features/. Have a route or layout pass the feature in through a slot. See ADR 0002.`,
+        severity = "error"
+    )
+}

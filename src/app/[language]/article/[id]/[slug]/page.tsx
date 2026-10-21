@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
+import JsonLd from '@/components/json-ld';
 import { getArticleAffiliateAds } from '@/features/affiliates/public.server';
 import { ArticlePage, buildArticleJsonLd, findStoryNeighbours } from '@/features/articles/public';
 import { generateArticleMetadata, getArticle, getArticleSummaries } from '@/features/articles/public.server';
 import { getArticlePath, slugifyTitle } from '@/lib/article-routes';
-import { jsonLd } from '@/lib/seo';
 
 type Params = { language: string; id: string; slug: string };
 
@@ -34,7 +34,7 @@ export default async function ArticleSlugPage(props: { params: Promise<Params> }
   return (
     <>
       {buildArticleJsonLd(article, params.language).map((schema) => (
-        <script key={schema['@type']} type="application/ld+json" dangerouslySetInnerHTML={jsonLd(schema)} />
+        <JsonLd key={schema['@type']} data={schema} />
       ))}
       <ArticlePage article={article} neighbours={findStoryNeighbours(articles, article)} affiliateAds={affiliateAds} />
     </>

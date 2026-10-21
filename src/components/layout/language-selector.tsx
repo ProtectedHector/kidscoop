@@ -12,6 +12,7 @@ export default function LanguageSelector() {
   return (
     <div className="relative shrink-0">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="flex min-h-11 min-w-[5.5rem] items-center justify-center space-x-2 rounded-full border border-purple-100 bg-purple-50 px-3 py-2 transition-all duration-300 hover:bg-purple-100 sm:min-w-[6.5rem] sm:px-4"
         aria-expanded={isOpen}
@@ -20,6 +21,7 @@ export default function LanguageSelector() {
         <span className="text-xl">{currentLang?.flag || '🌐'}</span>
         <span className="text-sm font-bold text-purple-950">{currentLang?.code.toUpperCase() || 'ES'}</span>
         <svg
+          aria-hidden="true"
           className={`h-4 w-4 text-purple-700 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
@@ -39,6 +41,7 @@ export default function LanguageSelector() {
             <div className="max-h-[min(24rem,calc(100vh-8rem))] overflow-y-auto">
               {availableLanguages.map((lang) => (
                 <button
+                  type="button"
                   key={lang.code}
                   onClick={() => {
                     setLanguage(lang.code);
@@ -57,6 +60,7 @@ export default function LanguageSelector() {
                   </div>
                   {language === lang.code && (
                     <svg
+                      aria-hidden="true"
                       className="w-5 h-5 text-purple-400"
                       fill="currentColor"
                       viewBox="0 0 20 20"

@@ -60,6 +60,7 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
   const imageSrc = `/articles/${imageId}.png`;
   const totalPieces = gridSize * gridSize;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a new image must reshuffle the board.
   useEffect(() => {
     setPieces(createShuffledPieces(gridSize));
     setDraggedIndex(null);

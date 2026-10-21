@@ -1,0 +1,12 @@
+// ADR 0003: content caching goes through `unstable_cache` with the `content` tag
+// (`src/lib/server/convex.ts`), never `fetch`'s own `cache` or `next.revalidate` options, which
+// would bypass `POST /api/revalidate`. Browser code ("use client") may still opt out of the HTTP cache.
+`fetch($url, $options)` where {
+    not $program <: contains `"use client"`,
+    $options <: contains or { `cache: $_`, `next: $_` } as $option,
+    register_diagnostic(
+        span = $option,
+        message = "Never pass `cache` or `next` to `fetch()`. Cache Convex reads with unstable_cache and the content tag. See ADR 0003.",
+        severity = "error"
+    )
+}

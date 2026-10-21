@@ -6,7 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { LanguageProvider } from "@/components/layout/language-context";
 import { LANGUAGE_HEADER, SITE_NAME, SITE_URL, SOCIAL_IMAGE, SOCIAL_PROFILES, absoluteUrl } from "@/lib/site";
-import { jsonLd } from "@/lib/seo";
+import JsonLd from "@/components/json-ld";
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from "@/lib/languages";
 import { PWAProvider } from "@/components/layout/pwa-provider";
 import { clerkEnabled, clientEnv } from "@/lib/env.client";
@@ -122,8 +122,8 @@ export default async function RootLayout(
   return (
     <html lang={language} dir={language === "ar" ? "rtl" : "ltr"}>
       <head>
-        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(organizationSchema)} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(websiteSchema)} />
+        <JsonLd data={organizationSchema} />
+        <JsonLd data={websiteSchema} />
       </head>
       <body className={inter.className}>
         {clerkEnabled ? (

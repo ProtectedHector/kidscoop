@@ -1,11 +1,11 @@
 import Image from 'next/image';
+import JsonLd from '@/components/json-ld';
 import InstallAppButton from '@/components/layout/install-app-button';
 import { HomeAffiliateRail } from '@/features/affiliates/public';
 import { fetchAffiliateAds } from '@/features/affiliates/public.server';
 import { buildArticleItemList, HomeStories } from '@/features/articles/public';
 import { getArticleSummaries } from '@/features/articles/public.server';
 import { NewsletterSignup } from '@/features/newsletter/public';
-import { jsonLd } from '@/lib/seo';
 
 export default async function Page(props: { params: Promise<{ language: string }> }) {
   const params = await props.params;
@@ -17,7 +17,7 @@ export default async function Page(props: { params: Promise<{ language: string }
   ]);
   const itemList = { '@context': 'https://schema.org', ...buildArticleItemList(language, articles.slice(0, 20)) };
   return <>
-    {articles.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(itemList)} />}
+    {articles.length > 0 && <JsonLd data={itemList} />}
     <main>
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-950 via-[#581c87] to-fuchsia-900 px-5 py-14 text-white sm:py-20">
         <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-fuchsia-500/20 blur-3xl"/><div className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-blue-400/15 blur-3xl"/>

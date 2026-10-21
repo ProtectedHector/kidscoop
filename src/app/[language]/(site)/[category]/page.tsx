@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import JsonLd from '@/components/json-ld';
 import { buildArticleItemList, CategoryStories } from '@/features/articles/public';
 import { getArticleSummaries } from '@/features/articles/public.server';
 import { getCategoryLabel, getCategoryPath, isCategorySlug } from '@/lib/categories';
 import { isSupportedLanguage } from '@/lib/languages';
 import { absoluteUrl } from '@/lib/site';
-import { buildAlternates, buildPageMetadata, jsonLd } from '@/lib/seo';
+import { buildAlternates, buildPageMetadata } from '@/lib/seo';
 
 type Params = { language: string; category: string };
 
@@ -75,8 +76,8 @@ export default async function CategoryPage(props: { params: Promise<Params> }) {
 
   return (
     <>
-      {schema.map((item, index) => (
-        <script key={index} type="application/ld+json" dangerouslySetInnerHTML={jsonLd(item)} />
+      {schema.map((item) => (
+        <JsonLd key={item['@type']} data={item} />
       ))}
       <CategoryStories language={params.language} category={params.category} articles={articles} />
     </>

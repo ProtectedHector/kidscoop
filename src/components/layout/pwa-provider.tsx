@@ -105,7 +105,7 @@ export function PWAProvider({ children }: { children: ReactNode }) {
       {updateReady && (
         <div className="fixed inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[80] mx-auto flex max-w-xl items-center justify-between gap-3 rounded-2xl bg-slate-950 px-4 py-3 text-sm text-white shadow-2xl md:bottom-6">
           <span>Hay una nueva versión de KidZcoop disponible.</span>
-          <button className="rounded-full bg-purple-600 px-4 py-2 font-bold" onClick={() => updateReady.postMessage({ type: 'SKIP_WAITING' })}>Actualizar</button>
+          <button type="button" className="rounded-full bg-purple-600 px-4 py-2 font-bold" onClick={() => updateReady.postMessage({ type: 'SKIP_WAITING' })}>Actualizar</button>
         </div>
       )}
       {children}

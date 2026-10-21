@@ -368,6 +368,7 @@ export default function ArticleColoringStudio({
     drawImageData(nextImageData);
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reload only when the image changes; drawOutline is recreated every render.
   useEffect(() => {
     let isActive = true;
     setIsReady(false);

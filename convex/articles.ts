@@ -1,4 +1,5 @@
 import { mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 
 const category = v.union(
@@ -449,7 +450,7 @@ export const upsertContentFromMake = mutation({
       updatedAt: now,
     };
 
-    let contentId;
+    let contentId: Id<"content">;
     let action: "created" | "updated";
 
     if (existingContent) {

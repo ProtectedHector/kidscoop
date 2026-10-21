@@ -65,17 +65,17 @@ export default function ArticleShare({ language, title, path }: { language: stri
         setOpen(false);
       }
     };
-    const escape = (event: KeyboardEvent) => {
+    const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setOpen(false);
         triggerRef.current?.focus();
       }
     };
     document.addEventListener('pointerdown', dismiss);
-    document.addEventListener('keydown', escape);
+    document.addEventListener('keydown', handleEscape);
     return () => {
       document.removeEventListener('pointerdown', dismiss);
-      document.removeEventListener('keydown', escape);
+      document.removeEventListener('keydown', handleEscape);
     };
   }, [open]);
 
