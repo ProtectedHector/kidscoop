@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { isSupportedLanguage } from '../../lib/languages';
-import { generateMetadata as generateLanguageMetadata } from './metadata';
+import { isSupportedLanguage } from '@/lib/languages';
+import { generateMetadata as generateLanguageMetadata } from '@/app/[language]/metadata';
 
 export async function generateMetadata(
   props: {

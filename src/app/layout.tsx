@@ -4,12 +4,13 @@ import Script from "next/script";
 import { headers } from "next/headers";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import { LanguageProvider } from "../contexts/LanguageContext";
-import { LANGUAGE_HEADER, SITE_NAME, SITE_URL, SOCIAL_IMAGE, SOCIAL_PROFILES, absoluteUrl } from "../lib/site";
-import { jsonLd } from "../lib/seo";
-import { DEFAULT_LANGUAGE, isSupportedLanguage } from "../lib/languages";
-import { PWAProvider } from "../components/PWAProvider";
-import { clerkEnabled, clientEnv } from "../lib/env.client";
+import { LanguageProvider } from "@/components/layout/language-context";
+import { LANGUAGE_HEADER, SITE_NAME, SITE_URL, SOCIAL_IMAGE, SOCIAL_PROFILES, absoluteUrl } from "@/lib/site";
+import { jsonLd } from "@/lib/seo";
+import { DEFAULT_LANGUAGE, isSupportedLanguage } from "@/lib/languages";
+import { PWAProvider } from "@/components/layout/pwa-provider";
+import { clerkEnabled, clientEnv } from "@/lib/env.client";
+import { AccountSync } from "@/features/auth/public";
 
 const inter = Inter({ subsets: ["latin"] });
 const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path);
@@ -127,6 +128,7 @@ export default async function RootLayout(
       <body className={inter.className}>
         {clerkEnabled ? (
           <ClerkProvider afterSignOutUrl="/">
+            <AccountSync />
             <PWAProvider>
               <LanguageProvider>{children}</LanguageProvider>
             </PWAProvider>

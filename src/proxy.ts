@@ -1,10 +1,10 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { clerkEnabled } from './lib/env.client';
-import { isProductionDeployment } from './lib/env.server';
-import { DEFAULT_LANGUAGE, isSupportedLanguage } from './lib/languages';
-import { LANGUAGE_HEADER, SITE_URL } from './lib/site';
+import { clerkEnabled } from '@/lib/env.client';
+import { isProductionDeployment } from '@/lib/env.server';
+import { DEFAULT_LANGUAGE, isSupportedLanguage } from '@/lib/languages';
+import { LANGUAGE_HEADER, SITE_URL } from '@/lib/site';
 
 const LANGUAGE_COOKIE = 'language';
 const CANONICAL_HOST = new URL(SITE_URL).host;

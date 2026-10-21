@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchContentAffiliateAds } from '@/lib/content';
+import { fetchAffiliateAds } from '@/features/affiliates/public.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const affiliates = await fetchContentAffiliateAds(articleId);
+    const affiliates = await fetchAffiliateAds(articleId);
     return NextResponse.json(affiliates);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';

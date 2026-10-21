@@ -1,32 +1,19 @@
 import { NextResponse } from 'next/server';
-import { api } from '../../../../../convex/_generated/api';
-import { getAuthenticatedIdentity } from '@/lib/server/clerk-user';
-import { getConvexWriter } from '@/lib/server/convex';
+import { syncCurrentUser } from '@/features/auth/public.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-/** Upserts the signed-in Clerk user in Convex (called once per session by UserFavoritesSync). */
+/** Upserts the signed-in Clerk user in Convex (called once per session by AccountSync). */
 export async function POST() {
-  const identity = await getAuthenticatedIdentity();
-  if (!identity) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-  }
-
-  const writer = getConvexWriter();
-  if (!writer) {
-    return NextResponse.json({ error: 'Storage not configured' }, { status: 503 });
-  }
-
   try {
-    await writer.client.mutation(api.users.syncUser, {
-      token: writer.token,
-      clerkUserId: identity.id,
-      emailVerified: identity.emailVerified,
-      ...(identity.email ? { email: identity.email } : {}),
-      ...(identity.displayName ? { displayName: identity.displayName } : {}),
-      ...(identity.imageUrl ? { imageUrl: identity.imageUrl } : {}),
-    });
+    const result = await syncCurrentUser();
+    if (result === 'signed-out') {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+    if (result === 'not-configured') {
+      return NextResponse.json({ error: 'Storage not configured' }, { status: 503 });
+    }
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Could not sync Clerk user with Convex', error);

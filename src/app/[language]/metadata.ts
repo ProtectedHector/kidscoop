@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import { buildAlternates, buildPageMetadata } from '../../lib/seo';
-import { getMetadataTranslations } from '../../translations/metadata';
+import { buildAlternates, buildPageMetadata } from '@/lib/seo';
+import { getMetadataTranslations } from '@/translations/metadata';
 
 export async function generateMetadata({
   params,

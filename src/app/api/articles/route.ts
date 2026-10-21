@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchArticles } from '@/lib/content';
+import { fetchArticles } from '@/features/articles/public.server';
 
 export const dynamic = 'force-dynamic';
 
