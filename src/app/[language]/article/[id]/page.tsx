@@ -1,12 +1,8 @@
 import { notFound, permanentRedirect } from 'next/navigation';
-import { getArticlePath } from '../../../../lib/articleRoutes';
-import { getArticle } from '../../../../lib/articleSeo';
+import { getArticle } from '@/features/articles/public.server';
+import { getArticlePath } from '@/lib/article-routes';
 
-export default async function ArticleRedirectPage(
-  props: {
-    params: Promise<{ language: string; id: string }>;
-  }
-) {
+export default async function ArticleRedirectPage(props: { params: Promise<{ language: string; id: string }> }) {
   const params = await props.params;
   const article = await getArticle(params.id, params.language);
 

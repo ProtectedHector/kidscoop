@@ -1,0 +1,154 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.8/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!node_modules",
+      "!.next",
+      "!convex/_generated",
+      "!public",
+      "!biome-plugins",
+      "!src/translations/*.json",
+      "!next-env.d.ts"
+    ]
+  },
+  "formatter": {
+    "enabled": false
+  },
+  "assist": {
+    "enabled": false
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "next": "recommended",
+      "react": "recommended"
+    },
+    "rules": {
+      "preset": "recommended",
+      "correctness": {
+        "noUnusedImports": {
+          "level": "warn",
+          "fix": "safe"
+        }
+      },
+      "style": {
+        "noProcessEnv": "error"
+      },
+      "performance": {
+        "noBarrelFile": "error"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "warn"
+      },
+      "a11y": {
+        "useKeyWithClickEvents": "warn",
+        "noStaticElementInteractions": "warn",
+        "useSemanticElements": "warn",
+        "useMediaCaption": "warn"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "convex/**"
+      ],
+      "javascript": {
+        "formatter": {
+          "quoteStyle": "double"
+        }
+      },
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/lib/env.schema.ts",
+        "src/lib/env.server.ts",
+        "src/lib/env.client.ts",
+        "next.config.mjs",
+        "scripts/**",
+        "vitest.config.mts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/features/**/public.ts",
+        "src/features/**/public.server.ts"
+      ],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "**/tsconfig*.json"
+      ],
+      "json": {
+        "parser": {
+          "allowComments": true,
+          "allowTrailingCommas": true
+        }
+      }
+    },
+    {
+      "includes": [
+        "**/*.css"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noUnknownAtRules": "off"
+          }
+        }
+      }
+    }
+  ],
+  "plugins": [
+    "./biome-plugins/no-server-only-import-in-client.grit",
+    "./biome-plugins/no-fetch-cache-options.grit",
+    "./biome-plugins/no-session-outside-session-file.grit",
+    "./biome-plugins/entry-file-content.grit",
+    "./biome-plugins/module-boundary.grit",
+    "./biome-plugins/no-infra-feature-import.grit",
+    {
+      "path": "./biome-plugins/no-relative-import.grit",
+      "includes": [
+        "**/src/**"
+      ]
+    }
+  ]
+}

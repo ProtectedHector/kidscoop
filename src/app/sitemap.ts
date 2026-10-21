@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next';
-import { getArticlePath } from '../lib/articleRoutes';
-import { fetchArticles } from '../lib/content';
-import { CATEGORY_SLUGS, getCategoryPath } from '../lib/categories';
-import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from '../lib/languages';
-import { absoluteUrl } from '../lib/site';
+import { getArticlePath } from '@/lib/article-routes';
+import { fetchArticles } from '@/features/articles/public.server';
+import { CATEGORY_SLUGS, getCategoryPath } from '@/lib/categories';
+import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from '@/lib/languages';
+import { absoluteUrl } from '@/lib/site';
 
 const languages = AVAILABLE_LANGUAGES.map((language) => language.code);
 

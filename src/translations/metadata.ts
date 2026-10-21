@@ -1,4 +1,4 @@
-import translations from './translations.json';
+import translations from '@/translations/translations.json';
 
 type Language = 'en' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'zh' | 'ja' | 'ko' | 'ar' | 'hi' | 'ru';
 

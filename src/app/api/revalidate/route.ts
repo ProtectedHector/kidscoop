@@ -1,13 +1,14 @@
 import { timingSafeEqual } from 'crypto';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
-import { CONTENT_CACHE_TAG } from '@/lib/content';
+import { env } from '@/lib/env.server';
+import { CONTENT_CACHE_TAG } from '@/lib/server/convex';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 function isAuthorized(request: Request) {
-  const expected = process.env.KIDZCOOP_CONVEX_WRITE_TOKEN || '';
+  const expected = env.KIDZCOOP_CONVEX_WRITE_TOKEN || '';
   const header = request.headers.get('authorization') || '';
   const provided = header.startsWith('Bearer ') ? header.slice(7) : '';
   if (!expected || provided.length !== expected.length) return false;

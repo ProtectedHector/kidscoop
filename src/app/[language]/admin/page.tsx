@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import AdminPageClient from '../../../components/AdminPageClient';
-import { requireAdminIdentity } from '../../../lib/admin';
-import { isSupportedLanguage } from '../../../lib/languages';
+import { AdminPage as AdminPageClient } from '@/features/admin/public';
+import { requireAdminIdentity } from '@/features/admin/public.server';
+import { isSupportedLanguage } from '@/lib/languages';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 

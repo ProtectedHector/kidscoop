@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchArticles } from '@/lib/content';
+import { fetchArticles } from '@/features/articles/public.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       {
         error: 'Failed to fetch articles',
         message,
-        hint: 'Check Convex configuration or the Google Sheets fallback URLs.',
+        hint: 'Check NEXT_PUBLIC_CONVEX_URL and the Convex deployment.',
       },
       { status: 500 }
     );

@@ -1,0 +1,15 @@
+// ADR 0002: no relative imports under `src/`. The boundary plugins read `@/…` specifiers, so
+// `../other-feature/data/queries` would get past every one of them. Scoped to `src/**` in biome.json.
+or {
+    JsModuleSource() as $source,
+    `require($source)`,
+    `import($source)`
+} where {
+    $source <: r"[\"']\.\.?(?:/[^\"']*)?[\"']",
+    not $source <: r"[\"']\./globals\.css[\"']",
+    register_diagnostic(
+        span = $source,
+        message = `Relative import $source. Under src/, import through the @/ alias (or @convex/ for Convex), like "@/features/articles/public", so the boundary rules can see the path. See ADR 0002.`,
+        severity = "error"
+    )
+}

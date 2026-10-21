@@ -1,0 +1,30 @@
+// ADR 0002: code outside a feature imports only its entry files, `public.ts` and `public.server.ts`.
+// A module is a feature, or any directory under one that isn't a segment (`data`, `model`,
+// `components`). Infra importers (src/lib, src/components, src/hooks) are left to
+// `no-infra-feature-import.grit`, so one mistake gets one diagnostic.
+//
+// Specifiers use the `@/` alias (`@/features/articles/public`); the captured target drops the `@/`
+// so it can be compared with the importer's path (`.../src/features/articles/...`).
+or {
+    JsModuleSource() as $source,
+    `require($source)`,
+    `import($source)`
+} where {
+    $source <: r"[\"']@/(features/[^\"']+)[\"']"($target),
+    $filename <: r".*/src/(.*)"($importer),
+    not $importer <: r"(?:lib|components|hooks)/.*",
+    $target <: r"(features/[^/]+/(?:[^/]+/)*?)(?:(?:data|model|components)/)?[^/]+"($targetModule),
+    not $filename <: includes $targetModule,
+    not and {
+        $target <: r"(features/(?:[^/]+/)*)[^/]+/public(?:\.server)?"($parentModule),
+        or {
+            $parentModule <: r"features/",
+            $filename <: includes $parentModule
+        }
+    },
+    register_diagnostic(
+        span = $source,
+        message = `Module boundary: "src/$importer" imports "@/$target", which is private to its feature. Import the feature's "public" or "public.server" entry file instead, and export what you need from there. See ADR 0002.`,
+        severity = "error"
+    )
+}

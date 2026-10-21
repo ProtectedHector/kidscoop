@@ -54,11 +54,26 @@
       "puzzleStatus": "Status",
       "puzzleMoves": "Moves",
       "puzzleReady": "Ready to play",
-      "puzzleSelected": "Piece selected"
+      "puzzleSelected": "Piece selected",
+      "coloringFullscreen": "Color in full screen",
+      "coloringBackToStory": "Back to the story"
     },
     "metadata": {
       "title": "KidZcoop - Amazing Stories for Kids",
       "description": "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds."
+    },
+    "auth": {
+      "signIn": "Sign in",
+      "signInTitle": "Sign in to KidZcoop",
+      "signInIntro": "Sign in with Google to keep your favourite stories on every device.",
+      "signUpTitle": "Create your KidZcoop account",
+      "unavailableTitle": "Sign-in isn't available right now",
+      "unavailableBody": "You can keep reading, colouring and saving favourites on this device. Please try again later.",
+      "oauthFailedTitle": "Signing in with Google didn't work",
+      "oauthFailedBody": "Please try again in a few minutes. Your favourites are still saved on this device.",
+      "syncFailedTitle": "We couldn't save your account",
+      "syncFailedBody": "Your favourites stay on this device for now. We'll try again on your next visit.",
+      "dismiss": "Close"
     }
   },
   "es": {
@@ -116,11 +131,26 @@
       "puzzleStatus": "Estado",
       "puzzleMoves": "Movimientos",
       "puzzleReady": "Listo para jugar",
-      "puzzleSelected": "Pieza seleccionada"
+      "puzzleSelected": "Pieza seleccionada",
+      "coloringFullscreen": "Colorear en pantalla completa",
+      "coloringBackToStory": "Volver a la historia"
     },
     "metadata": {
       "title": "KidZcoop - Historias Increíbles para Niños",
       "description": "Donde la curiosidad se encuentra con el descubrimiento. Sumérgete en un mundo de historias increíbles, datos fascinantes y aventuras sin fin diseñadas para mentes jóvenes."
+    },
+    "auth": {
+      "signIn": "Iniciar sesión",
+      "signInTitle": "Inicia sesión en KidZcoop",
+      "signInIntro": "Inicia sesión con Google para tener tus historias favoritas en todos tus dispositivos.",
+      "signUpTitle": "Crea tu cuenta de KidZcoop",
+      "unavailableTitle": "El inicio de sesión no está disponible ahora mismo",
+      "unavailableBody": "Puedes seguir leyendo, coloreando y guardando favoritas en este dispositivo. Inténtalo de nuevo más tarde.",
+      "oauthFailedTitle": "No hemos podido iniciar sesión con Google",
+      "oauthFailedBody": "Inténtalo de nuevo en unos minutos. Tus favoritas siguen guardadas en este dispositivo.",
+      "syncFailedTitle": "No hemos podido guardar tu cuenta",
+      "syncFailedBody": "Por ahora tus favoritas se quedan en este dispositivo. Lo intentaremos de nuevo en tu próxima visita.",
+      "dismiss": "Cerrar"
     }
   },
   "fr": {
@@ -178,11 +208,26 @@
       "puzzleStatus": "Statut",
       "puzzleMoves": "Déplacements",
       "puzzleReady": "Prêt à jouer",
-      "puzzleSelected": "Pièce sélectionnée"
+      "puzzleSelected": "Pièce sélectionnée",
+      "coloringFullscreen": "Colorier en plein écran",
+      "coloringBackToStory": "Retour à l'histoire"
     },
     "metadata": {
       "title": "KidZcoop - Histoires Incroyables pour Enfants",
       "description": "Où la curiosité rencontre la découverte. Plongez dans un monde d'histoires incroyables, de faits fascinants et d'aventures sans fin conçues pour les jeunes esprits."
+    },
+    "auth": {
+      "signIn": "Se connecter",
+      "signInTitle": "Connecte-toi à KidZcoop",
+      "signInIntro": "Connecte-toi avec Google pour retrouver tes histoires préférées sur tous tes appareils.",
+      "signUpTitle": "Crée ton compte KidZcoop",
+      "unavailableTitle": "La connexion n'est pas disponible pour le moment",
+      "unavailableBody": "Tu peux continuer à lire, colorier et enregistrer tes favoris sur cet appareil. Réessaie plus tard.",
+      "oauthFailedTitle": "La connexion avec Google n'a pas fonctionné",
+      "oauthFailedBody": "Réessaie dans quelques minutes. Tes favoris sont toujours enregistrés sur cet appareil.",
+      "syncFailedTitle": "Nous n'avons pas pu enregistrer ton compte",
+      "syncFailedBody": "Pour l'instant, tes favoris restent sur cet appareil. Nous réessaierons lors de ta prochaine visite.",
+      "dismiss": "Fermer"
     }
   },
   "de": {
@@ -240,11 +285,26 @@
       "puzzleStatus": "Status",
       "puzzleMoves": "Züge",
       "puzzleReady": "Bereit zum Spielen",
-      "puzzleSelected": "Teil ausgewählt"
+      "puzzleSelected": "Teil ausgewählt",
+      "coloringFullscreen": "Im Vollbild ausmalen",
+      "coloringBackToStory": "Zurück zur Geschichte"
     },
     "metadata": {
       "title": "KidZcoop - Erstaunliche Geschichten für Kinder",
       "description": "Wo Neugier auf Entdeckung trifft. Tauche ein in eine Welt voller erstaunlicher Geschichten, faszinierender Fakten und endloser Abenteuer, die für junge Köpfe gemacht sind."
+    },
+    "auth": {
+      "signIn": "Anmelden",
+      "signInTitle": "Bei KidZcoop anmelden",
+      "signInIntro": "Melde dich mit Google an, um deine Lieblingsgeschichten auf allen Geräten zu haben.",
+      "signUpTitle": "Erstelle dein KidZcoop-Konto",
+      "unavailableTitle": "Die Anmeldung ist gerade nicht verfügbar",
+      "unavailableBody": "Du kannst auf diesem Gerät weiter lesen, ausmalen und Favoriten speichern. Bitte versuche es später noch einmal.",
+      "oauthFailedTitle": "Die Anmeldung mit Google hat nicht geklappt",
+      "oauthFailedBody": "Bitte versuche es in ein paar Minuten noch einmal. Deine Favoriten sind weiterhin auf diesem Gerät gespeichert.",
+      "syncFailedTitle": "Wir konnten dein Konto nicht speichern",
+      "syncFailedBody": "Deine Favoriten bleiben vorerst auf diesem Gerät. Beim nächsten Besuch versuchen wir es erneut.",
+      "dismiss": "Schließen"
     }
   },
   "it": {
@@ -302,11 +362,26 @@
       "puzzleStatus": "Stato",
       "puzzleMoves": "Mosse",
       "puzzleReady": "Pronto a giocare",
-      "puzzleSelected": "Pezzo selezionato"
+      "puzzleSelected": "Pezzo selezionato",
+      "coloringFullscreen": "Colora a schermo intero",
+      "coloringBackToStory": "Torna alla storia"
     },
     "metadata": {
       "title": "KidZcoop - Storie Incredibili per Bambini",
       "description": "Dove la curiosità incontra la scoperta. Immergiti in un mondo di storie incredibili, fatti affascinanti e avventure infinite progettate per le giovani menti."
+    },
+    "auth": {
+      "signIn": "Accedi",
+      "signInTitle": "Accedi a KidZcoop",
+      "signInIntro": "Accedi con Google per avere le tue storie preferite su tutti i tuoi dispositivi.",
+      "signUpTitle": "Crea il tuo account KidZcoop",
+      "unavailableTitle": "L'accesso non è disponibile in questo momento",
+      "unavailableBody": "Puoi continuare a leggere, colorare e salvare i preferiti su questo dispositivo. Riprova più tardi.",
+      "oauthFailedTitle": "L'accesso con Google non ha funzionato",
+      "oauthFailedBody": "Riprova tra qualche minuto. I tuoi preferiti sono ancora salvati su questo dispositivo.",
+      "syncFailedTitle": "Non siamo riusciti a salvare il tuo account",
+      "syncFailedBody": "Per ora i tuoi preferiti restano su questo dispositivo. Riproveremo alla tua prossima visita.",
+      "dismiss": "Chiudi"
     }
   },
   "pt": {
@@ -364,11 +439,26 @@
       "puzzleStatus": "Status",
       "puzzleMoves": "Movimentos",
       "puzzleReady": "Pronto para jogar",
-      "puzzleSelected": "Peça selecionada"
+      "puzzleSelected": "Peça selecionada",
+      "coloringFullscreen": "Colorir em ecrã inteiro",
+      "coloringBackToStory": "Voltar à história"
     },
     "metadata": {
       "title": "KidZcoop - Histórias Incríveis para Crianças",
       "description": "Onde a curiosidade encontra a descoberta. Mergulhe em um mundo de histórias incríveis, fatos fascinantes e aventuras sem fim projetadas para mentes jovens."
+    },
+    "auth": {
+      "signIn": "Entrar",
+      "signInTitle": "Entra na KidZcoop",
+      "signInIntro": "Entra com o Google para teres as tuas histórias favoritas em todos os teus dispositivos.",
+      "signUpTitle": "Cria a tua conta KidZcoop",
+      "unavailableTitle": "O início de sessão não está disponível neste momento",
+      "unavailableBody": "Podes continuar a ler, colorir e guardar favoritos neste dispositivo. Tenta novamente mais tarde.",
+      "oauthFailedTitle": "Não foi possível entrar com o Google",
+      "oauthFailedBody": "Tenta novamente daqui a alguns minutos. Os teus favoritos continuam guardados neste dispositivo.",
+      "syncFailedTitle": "Não conseguimos guardar a tua conta",
+      "syncFailedBody": "Por agora, os teus favoritos ficam neste dispositivo. Tentaremos de novo na tua próxima visita.",
+      "dismiss": "Fechar"
     }
   },
   "zh": {
@@ -426,11 +516,26 @@
       "puzzleStatus": "状态",
       "puzzleMoves": "移动次数",
       "puzzleReady": "准备开始",
-      "puzzleSelected": "已选拼图块"
+      "puzzleSelected": "已选拼图块",
+      "coloringFullscreen": "全屏涂色",
+      "coloringBackToStory": "返回故事"
     },
     "metadata": {
       "title": "KidZcoop - 孩子们的精彩故事",
       "description": "好奇心与发现相遇的地方。潜入一个充满精彩故事、迷人事实和专为年轻心灵设计的无尽冒险的世界。"
+    },
+    "auth": {
+      "signIn": "登录",
+      "signInTitle": "登录 KidZcoop",
+      "signInIntro": "使用 Google 登录，在所有设备上保存你喜欢的故事。",
+      "signUpTitle": "创建你的 KidZcoop 账户",
+      "unavailableTitle": "暂时无法登录",
+      "unavailableBody": "你仍然可以在这台设备上阅读、涂色和收藏故事。请稍后再试。",
+      "oauthFailedTitle": "Google 登录没有成功",
+      "oauthFailedBody": "请过几分钟再试。你的收藏仍然保存在这台设备上。",
+      "syncFailedTitle": "我们没能保存你的账户",
+      "syncFailedBody": "你的收藏暂时保存在这台设备上。下次访问时我们会再试一次。",
+      "dismiss": "关闭"
     }
   },
   "ja": {
@@ -488,11 +593,26 @@
       "puzzleStatus": "ステータス",
       "puzzleMoves": "手数",
       "puzzleReady": "プレイする準備完了",
-      "puzzleSelected": "選択中のピース"
+      "puzzleSelected": "選択中のピース",
+      "coloringFullscreen": "全画面でぬりえ",
+      "coloringBackToStory": "ストーリーにもどる"
     },
     "metadata": {
       "title": "KidZcoop - 子供のための素晴らしい物語",
       "description": "好奇心と発見が出会う場所。若い心のために設計された素晴らしい物語、魅力的な事実、そして無限の冒険の世界に飛び込みましょう。"
+    },
+    "auth": {
+      "signIn": "ログイン",
+      "signInTitle": "KidZcoop にログイン",
+      "signInIntro": "Google でログインすると、お気に入りのおはなしをすべての端末で見られます。",
+      "signUpTitle": "KidZcoop のアカウントを作成",
+      "unavailableTitle": "現在ログインできません",
+      "unavailableBody": "この端末では、読んだり、ぬりえをしたり、お気に入りに保存したりできます。しばらくしてからもう一度お試しください。",
+      "oauthFailedTitle": "Google でのログインがうまくいきませんでした",
+      "oauthFailedBody": "数分後にもう一度お試しください。お気に入りはこの端末に保存されたままです。",
+      "syncFailedTitle": "アカウントを保存できませんでした",
+      "syncFailedBody": "お気に入りは今のところこの端末に残ります。次回の訪問時にもう一度試します。",
+      "dismiss": "閉じる"
     }
   },
   "ko": {
@@ -550,11 +670,26 @@
       "puzzleStatus": "상태",
       "puzzleMoves": "이동 횟수",
       "puzzleReady": "플레이할 준비 완료",
-      "puzzleSelected": "선택된 조각"
+      "puzzleSelected": "선택된 조각",
+      "coloringFullscreen": "전체 화면으로 색칠하기",
+      "coloringBackToStory": "이야기로 돌아가기"
     },
     "metadata": {
       "title": "KidZcoop - 어린이를 위한 놀라운 이야기",
       "description": "호기심과 발견이 만나는 곳. 젊은 마음을 위해 설계된 놀라운 이야기, 매혹적인 사실, 끝없는 모험의 세계로 뛰어드세요."
+    },
+    "auth": {
+      "signIn": "로그인",
+      "signInTitle": "KidZcoop에 로그인",
+      "signInIntro": "Google로 로그인하면 좋아하는 이야기를 모든 기기에서 볼 수 있어요.",
+      "signUpTitle": "KidZcoop 계정 만들기",
+      "unavailableTitle": "지금은 로그인할 수 없어요",
+      "unavailableBody": "이 기기에서 계속 읽고, 색칠하고, 즐겨찾기를 저장할 수 있어요. 나중에 다시 시도해 주세요.",
+      "oauthFailedTitle": "Google 로그인이 되지 않았어요",
+      "oauthFailedBody": "몇 분 후에 다시 시도해 주세요. 즐겨찾기는 이 기기에 그대로 저장되어 있어요.",
+      "syncFailedTitle": "계정을 저장하지 못했어요",
+      "syncFailedBody": "즐겨찾기는 당분간 이 기기에 남아 있어요. 다음 방문 때 다시 시도할게요.",
+      "dismiss": "닫기"
     }
   },
   "ar": {
@@ -612,11 +747,26 @@
       "puzzleStatus": "الحالة",
       "puzzleMoves": "عدد الحركات",
       "puzzleReady": "جاهز للعب",
-      "puzzleSelected": "القطعة المحددة"
+      "puzzleSelected": "القطعة المحددة",
+      "coloringFullscreen": "التلوين بملء الشاشة",
+      "coloringBackToStory": "العودة إلى القصة"
     },
     "metadata": {
       "title": "KidZcoop - قصص مذهلة للأطفال",
       "description": "حيث تلتقي الفضول بالاكتشاف. انغمس في عالم من القصص المذهلة والحقائق الرائعة والمغامرات التي لا تنتهي المصممة للعقول الشابة."
+    },
+    "auth": {
+      "signIn": "تسجيل الدخول",
+      "signInTitle": "سجّل الدخول إلى KidZcoop",
+      "signInIntro": "سجّل الدخول باستخدام Google لتحتفظ بقصصك المفضلة على كل أجهزتك.",
+      "signUpTitle": "أنشئ حسابك في KidZcoop",
+      "unavailableTitle": "تسجيل الدخول غير متاح الآن",
+      "unavailableBody": "يمكنك متابعة القراءة والتلوين وحفظ المفضلة على هذا الجهاز. حاول مرة أخرى لاحقًا.",
+      "oauthFailedTitle": "لم ينجح تسجيل الدخول باستخدام Google",
+      "oauthFailedBody": "حاول مرة أخرى بعد بضع دقائق. ما زالت مفضلاتك محفوظة على هذا الجهاز.",
+      "syncFailedTitle": "لم نتمكن من حفظ حسابك",
+      "syncFailedBody": "ستبقى مفضلاتك على هذا الجهاز في الوقت الحالي. سنحاول مرة أخرى في زيارتك القادمة.",
+      "dismiss": "إغلاق"
     }
   },
   "hi": {
@@ -674,11 +824,26 @@
       "puzzleStatus": "स्थिति",
       "puzzleMoves": "चालें",
       "puzzleReady": "खेलने के लिए तैयार",
-      "puzzleSelected": "चुना गया टुकड़ा"
+      "puzzleSelected": "चुना गया टुकड़ा",
+      "coloringFullscreen": "पूरी स्क्रीन पर रंग भरें",
+      "coloringBackToStory": "कहानी पर वापस जाएँ"
     },
     "metadata": {
       "title": "KidZcoop - बच्चों के लिए अद्भुत कहानियाँ",
       "description": "जहाँ जिज्ञासा खोज से मिलती है। अद्भुत कहानियों, आकर्षक तथ्यों और युवा दिमागों के लिए डिज़ाइन किए गए अंतहीन रोमांच की दुनिया में गोता लगाएँ।"
+    },
+    "auth": {
+      "signIn": "साइन इन करें",
+      "signInTitle": "KidZcoop में साइन इन करें",
+      "signInIntro": "Google से साइन इन करें और अपनी पसंदीदा कहानियाँ हर डिवाइस पर रखें।",
+      "signUpTitle": "अपना KidZcoop खाता बनाएँ",
+      "unavailableTitle": "अभी साइन इन उपलब्ध नहीं है",
+      "unavailableBody": "आप इस डिवाइस पर पढ़ना, रंग भरना और पसंदीदा सहेजना जारी रख सकते हैं। कृपया बाद में फिर कोशिश करें।",
+      "oauthFailedTitle": "Google से साइन इन नहीं हो पाया",
+      "oauthFailedBody": "कृपया कुछ मिनट बाद फिर कोशिश करें। आपकी पसंदीदा कहानियाँ अब भी इस डिवाइस पर सहेजी हुई हैं।",
+      "syncFailedTitle": "हम आपका खाता सहेज नहीं पाए",
+      "syncFailedBody": "फ़िलहाल आपकी पसंदीदा कहानियाँ इसी डिवाइस पर रहेंगी। अगली बार आने पर हम फिर कोशिश करेंगे।",
+      "dismiss": "बंद करें"
     }
   },
   "ru": {
@@ -736,11 +901,26 @@
       "puzzleStatus": "Статус",
       "puzzleMoves": "Ходы",
       "puzzleReady": "Готово к игре",
-      "puzzleSelected": "Часть выбрана"
+      "puzzleSelected": "Часть выбрана",
+      "coloringFullscreen": "Раскрашивать на весь экран",
+      "coloringBackToStory": "Вернуться к истории"
     },
     "metadata": {
       "title": "KidZcoop - Удивительные Истории для Детей",
       "description": "Где любопытство встречается с открытием. Погрузитесь в мир удивительных историй, захватывающих фактов и бесконечных приключений, созданных для юных умов."
+    },
+    "auth": {
+      "signIn": "Войти",
+      "signInTitle": "Вход в KidZcoop",
+      "signInIntro": "Войдите через Google, чтобы любимые истории были на всех ваших устройствах.",
+      "signUpTitle": "Создайте аккаунт KidZcoop",
+      "unavailableTitle": "Вход сейчас недоступен",
+      "unavailableBody": "Вы можете продолжать читать, раскрашивать и сохранять избранное на этом устройстве. Попробуйте позже.",
+      "oauthFailedTitle": "Не удалось войти через Google",
+      "oauthFailedBody": "Попробуйте ещё раз через несколько минут. Ваше избранное по-прежнему сохранено на этом устройстве.",
+      "syncFailedTitle": "Не удалось сохранить ваш аккаунт",
+      "syncFailedBody": "Пока что избранное останется на этом устройстве. Мы попробуем снова при следующем визите.",
+      "dismiss": "Закрыть"
     }
   }
 }

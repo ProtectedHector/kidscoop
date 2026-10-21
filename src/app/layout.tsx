@@ -4,14 +4,20 @@ import Script from "next/script";
 import { headers } from "next/headers";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import { LanguageProvider } from "../contexts/LanguageContext";
-import { LANGUAGE_HEADER, SITE_NAME, SITE_URL, SOCIAL_IMAGE, SOCIAL_PROFILES, absoluteUrl } from "../lib/site";
-import { jsonLd } from "../lib/seo";
-import { DEFAULT_LANGUAGE, isSupportedLanguage } from "../lib/languages";
-import { PWAProvider } from "../components/PWAProvider";
-import { CLERK_ENABLED } from "../lib/auth";
+import { LanguageProvider } from "@/components/layout/language-context";
+import { LANGUAGE_HEADER, SITE_NAME, SITE_URL, SOCIAL_IMAGE, SOCIAL_PROFILES, absoluteUrl } from "@/lib/site";
+import JsonLd from "@/components/json-ld";
+import { DEFAULT_LANGUAGE, isSupportedLanguage } from "@/lib/languages";
+import { PWAProvider } from "@/components/layout/pwa-provider";
+import { clerkEnabled, clientEnv } from "@/lib/env.client";
+import { AccountSync, ClerkHealth, LoginProblemNotice } from "@/features/auth/public";
 
 const inter = Inter({ subsets: ["latin"] });
+
+/** Clerk's sign-in modal and pages in KidZcoop purple. */
+const CLERK_APPEARANCE = {
+  variables: { colorPrimary: "#581c87", borderRadius: "1rem", fontFamily: "inherit" },
+};
 const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path);
 const defaultDescription = "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.";
 
@@ -36,8 +42,8 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+  ...(clientEnv.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: clientEnv.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
     : {}),
   appleWebApp: {
     capable: true,
@@ -121,12 +127,19 @@ export default async function RootLayout(
   return (
     <html lang={language} dir={language === "ar" ? "rtl" : "ltr"}>
       <head>
-        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(organizationSchema)} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(websiteSchema)} />
+        <JsonLd data={organizationSchema} />
+        <JsonLd data={websiteSchema} />
       </head>
       <body className={inter.className}>
-        {CLERK_ENABLED ? (
-          <ClerkProvider afterSignOutUrl="/">
+        {clerkEnabled ? (
+          <ClerkProvider
+            afterSignOutUrl={`/${language}`}
+            signInUrl={`/${language}/sign-in`}
+            signUpUrl={`/${language}/sign-up`}
+            appearance={CLERK_APPEARANCE}
+          >
+            <ClerkHealth />
+            <AccountSync />
             <PWAProvider>
               <LanguageProvider>{children}</LanguageProvider>
             </PWAProvider>
@@ -136,10 +149,11 @@ export default async function RootLayout(
             <LanguageProvider>{children}</LanguageProvider>
           </PWAProvider>
         )}
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+        <LoginProblemNotice language={language} />
+        {clientEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
-            <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}',{send_page_view:false});`}</Script>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${clientEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
+            <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${clientEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID}',{send_page_view:false});`}</Script>
           </>
         )}
         <Script

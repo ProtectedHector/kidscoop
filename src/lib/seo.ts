@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from './languages';
-import { SITE_NAME, SITE_URL, SOCIAL_IMAGE, absoluteUrl } from './site';
+import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from '@/lib/languages';
+import { SITE_NAME, SITE_URL, SOCIAL_IMAGE, absoluteUrl } from '@/lib/site';
 
 const OG_LOCALES: Record<string, string> = {
   en: 'en_US',

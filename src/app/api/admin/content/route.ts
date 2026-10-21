@@ -1,7 +1,7 @@
 import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
-import { CONTENT_CACHE_TAG } from '@/lib/content';
-import { api, getAdminConvexClient, requireAdminIdentity } from '@/lib/admin';
+import { CONTENT_CACHE_TAG } from '@/lib/server/convex';
+import { getAdminContent, requireAdminIdentity, upsertAffiliate } from '@/features/admin/public.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,8 +20,7 @@ export async function GET() {
   if (forbidden) return forbidden;
 
   try {
-    const { client, token } = getAdminConvexClient();
-    const data = await client.query(api.articles.adminList, { token });
+    const data = await getAdminContent();
     return NextResponse.json(data);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
@@ -35,20 +34,15 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { client, token } = getAdminConvexClient();
-
     if (body.action === 'upsertAffiliate') {
-      const result = await client.mutation(api.articles.adminUpsertAffiliate, {
-        token,
-        affiliate: {
-          externalArticleId: Number(body.affiliate?.externalArticleId || 0),
-          productName: String(body.affiliate?.productName || '').trim(),
-          asin: String(body.affiliate?.asin || '').trim(),
-          affiliateUrl: String(body.affiliate?.affiliateUrl || '').trim(),
-          position: Number(body.affiliate?.position || 0),
-          active: Boolean(body.affiliate?.active),
-          imageUrl: String(body.affiliate?.imageUrl || '').trim(),
-        },
+      const result = await upsertAffiliate({
+        externalArticleId: Number(body.affiliate?.externalArticleId || 0),
+        productName: String(body.affiliate?.productName || '').trim(),
+        asin: String(body.affiliate?.asin || '').trim(),
+        affiliateUrl: String(body.affiliate?.affiliateUrl || '').trim(),
+        position: Number(body.affiliate?.position || 0),
+        active: Boolean(body.affiliate?.active),
+        imageUrl: String(body.affiliate?.imageUrl || '').trim(),
       });
       revalidateTag(CONTENT_CACHE_TAG, { expire: 0 });
       return NextResponse.json({ ok: true, result });

@@ -1,0 +1,13 @@
+// ADR 0004: `src/lib/session.ts` is the one door onto the Clerk session (`currentUser()`, `auth()`),
+// so "is Clerk enabled?" and the identity shape are decided once. `src/proxy.ts` may import
+// `clerkMiddleware`. Everything else calls `getSession()` / `getConvexForUser()`.
+JsModuleSource() as $source where {
+    $source <: r"[\"']@clerk/nextjs/server[\"']",
+    not $filename <: r".*/src/lib/session\.ts$",
+    not $filename <: r".*/src/proxy\.ts$",
+    register_diagnostic(
+        span = $source,
+        message = "Only src/lib/session.ts (and the proxy) import @clerk/nextjs/server. Use getSession() or getConvexForUser(). See ADR 0004.",
+        severity = "error"
+    )
+}

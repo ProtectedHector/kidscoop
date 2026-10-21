@@ -1,3 +1,5 @@
+import { clientEnv } from '@/lib/env.client';
+
 const PRODUCTION_URL = 'https://kidzcoop.app';
 
 /**
@@ -5,7 +7,7 @@ const PRODUCTION_URL = 'https://kidzcoop.app';
  * in the Vercel dashboard) is ignored so sitemap/canonicals never point there.
  */
 function resolveSiteUrl() {
-  const configured = (process.env.NEXT_PUBLIC_SITE_URL || '').trim().replace(/\/+$/, '');
+  const configured = (clientEnv.NEXT_PUBLIC_SITE_URL || '').trim().replace(/\/+$/, '');
   if (!configured) return PRODUCTION_URL;
   try {
     return new URL(configured).hostname.endsWith('.vercel.app') ? PRODUCTION_URL : configured;

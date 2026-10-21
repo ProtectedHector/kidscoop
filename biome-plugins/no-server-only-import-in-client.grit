@@ -1,0 +1,27 @@
+// ADR 0002: a "use client" file may not import a server-only module, and neither may a feature's
+// `public.ts`, which client components import. The list grows with each new server-only module.
+or {
+    JsModuleSource() as $source,
+    `require($source)`,
+    `import($source)`
+} where {
+    or {
+        $program <: contains `"use client"`,
+        $filename <: r".*/src/features/(?:[^/]+/)+public\.ts"
+    },
+    $source <: or {
+        r"[\"']@clerk/nextjs/server[\"']",
+        r"[\"']@convex/_generated/api[\"']",
+        r"[\"']convex/browser[\"']",
+        r"[\"']@/lib/env\.server[\"']",
+        r"[\"']@/lib/session[\"']",
+        r"[\"']@/lib/server/[^\"']*[\"']",
+        r"[\"']@/features/[^\"']*/data/[^\"']*[\"']",
+        r"[\"'][^\"']*/public\.server[\"']"
+    },
+    register_diagnostic(
+        span = $source,
+        message = `A "use client" file or a public.ts may not import a server-only module. See ADR 0002.`,
+        severity = "error"
+    )
+}

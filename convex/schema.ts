@@ -14,6 +14,14 @@ const category = v.union(
 
 const source = v.union(v.literal("migration"), v.literal("make"), v.literal("manual"));
 
+/** Ways sign-in can fail. Keep in sync with src/features/auth/model/alert-kinds.ts. */
+export const alertKind = v.union(
+  v.literal("clerk_not_configured"),
+  v.literal("clerk_load_failed"),
+  v.literal("oauth_failed"),
+  v.literal("user_sync_failed"),
+);
+
 export default defineSchema({
   articles: defineTable({
     externalArticleId: v.number(),
@@ -132,4 +140,13 @@ export default defineSchema({
   })
     .index("by_user_id_and_saved_at", ["userId", "savedAt"])
     .index("by_user_id_and_external_article_id_and_language", ["userId", "externalArticleId", "language"]),
+
+  /** One row per alert kind: failures counted since the last email to the admin. */
+  alerts: defineTable({
+    kind: alertKind,
+    failuresSinceLastEmail: v.number(),
+    lastFailureAt: v.number(),
+    lastEmailAt: v.optional(v.number()),
+    lastDetail: v.optional(v.string()),
+  }).index("by_kind", ["kind"]),
 });
