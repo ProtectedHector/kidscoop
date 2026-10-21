@@ -140,15 +140,15 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
   const boardReady = pieces.length === totalPieces;
 
   return (
-    <section className="mt-12 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20 overflow-hidden">
+    <section className="overflow-hidden p-2 sm:p-4">
       <div className="flex flex-col gap-5">
-        <h2 className="text-2xl font-bold text-white text-center">🧩 {labels.title}</h2>
-        <p className="mx-auto max-w-4xl text-center text-white/70">
-          {labels.description} <span className="text-purple-200/80">{labels.hint}</span>
+        <h2 className="text-2xl font-black text-[#581c87] text-center">🧩 {labels.title}</h2>
+        <p className="mx-auto max-w-4xl text-center text-slate-600">
+          {labels.description} <span className="text-purple-500">{labels.hint}</span>
         </p>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-semibold uppercase tracking-[0.2em] text-white/50">
+            <span className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
               {labels.difficulty}
             </span>
             <div className="flex flex-wrap gap-2">
@@ -162,7 +162,7 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
                     className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                       isActive
                         ? 'bg-gradient-to-r from-amber-400 to-pink-500 text-slate-950 shadow-lg shadow-pink-500/30'
-                        : 'bg-white/10 text-white border border-white/15 hover:bg-white/20'
+                        : 'border border-purple-200 bg-white text-[#581c87] hover:bg-purple-50'
                     }`}
                   >
                     {option} x {option}
@@ -175,7 +175,7 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
           <button
             type="button"
             onClick={shuffleBoard}
-            className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+            className="rounded-full px-4 py-2 text-sm font-semibold transition border border-purple-200 bg-white text-[#581c87] hover:bg-purple-50"
           >
             {labels.shuffle}
           </button>
@@ -185,14 +185,14 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
         <div className="relative">
           <div
-            className={`relative overflow-hidden rounded-2xl border border-white/15 bg-slate-950/40 shadow-2xl ${
+            className={`relative overflow-hidden rounded-2xl border border-purple-200 bg-purple-100 shadow-lg shadow-purple-900/10 ${
               isSolved ? 'animate-puzzle-glow' : ''
             }`}
             style={{ aspectRatio: BOARD_ASPECT_RATIO }}
           >
             {boardReady ? (
               <div
-                className="grid h-full w-full gap-[2px] bg-white/10 p-[2px]"
+                className="grid h-full w-full gap-[2px] bg-purple-200/70 p-[2px]"
                 style={{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }}
               >
                 {pieces.map((piece, index) => {
@@ -222,7 +222,7 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
                       className={`relative min-h-0 rounded-[10px] border transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 ${
                         isSelected
                           ? 'scale-[0.97] border-amber-300 shadow-lg shadow-amber-300/30'
-                          : 'border-white/10 hover:scale-[0.985] hover:border-white/30'
+                          : 'border-white/40 hover:scale-[0.985] hover:border-white'
                       }`}
                       style={tileStyle}
                       aria-label={`${imageAlt} puzzle piece ${piece + 1}`}
@@ -235,7 +235,7 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
                 })}
               </div>
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-white/5 text-sm text-white/60">
+              <div className="flex h-full w-full items-center justify-center bg-purple-50 text-sm text-slate-500">
                 {labels.shuffle}
               </div>
             )}
@@ -273,17 +273,17 @@ export default function ArticlePuzzle({ imageId, imageAlt, labels }: ArticlePuzz
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/15 bg-white/5 p-5">
-          <div className="text-sm font-semibold uppercase tracking-[0.2em] text-white/50">{labels.status}</div>
+        <div className="rounded-2xl border border-purple-100 bg-white p-5">
+          <div className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{labels.status}</div>
           <div className="mt-4 space-y-4">
             <div>
-              <div className="text-3xl font-bold text-white">{moveCount}</div>
-              <div className="text-sm text-white/60">{labels.moves}</div>
+              <div className="text-3xl font-black text-[#581c87]">{moveCount}</div>
+              <div className="text-sm text-slate-500">{labels.moves}</div>
             </div>
             <div className={`rounded-2xl border px-4 py-3 transition ${
               isSolved
-                ? 'border-emerald-300/50 bg-emerald-400/15 text-emerald-100'
-                : 'border-white/10 bg-slate-950/20 text-white/70'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                : 'border-purple-100 bg-purple-50/60 text-slate-600'
             }`}>
               <div className="font-semibold">
                 {isSolved ? labels.solved : selectedIndex === null ? labels.ready : labels.selected}

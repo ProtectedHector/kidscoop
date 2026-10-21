@@ -271,7 +271,7 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
                   <p className="mx-auto mt-2 max-w-3xl text-sm text-slate-500">{t('content.speechNotSupported')}</p>
                 )}
 
-                <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] bg-gradient-to-br from-purple-950 to-[#581c87] p-4 shadow-xl shadow-purple-950/15 sm:p-6">
+                <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] border border-purple-300 bg-gradient-to-br from-white to-purple-50 p-4 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)] sm:p-6">
                   <ArticlePuzzle
                     imageId={article.id}
                     imageAlt={article.title}
@@ -291,11 +291,11 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
                   />
                 </div>
 
-                <div className="mx-auto mt-8 max-w-3xl rounded-[2rem] bg-gradient-to-br from-purple-950 to-[#581c87] p-4 shadow-xl shadow-purple-950/15 sm:p-6">
-                  <AffiliateSection ads={affiliateAds} language={language} tone="dark" layout="carousel" />
+                <div className="mx-auto mt-8 max-w-3xl rounded-[2rem] border border-purple-300 bg-gradient-to-br from-white to-purple-50 p-4 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)] sm:p-6">
+                  <AffiliateSection ads={affiliateAds} language={language} tone="light" layout="carousel" bare />
                 </div>
 
-                <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] bg-gradient-to-br from-purple-950 to-[#581c87] p-4 shadow-xl shadow-purple-950/15 sm:p-6">
+                <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] border border-purple-300 bg-gradient-to-br from-white to-purple-50 p-4 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)] sm:p-6">
                   <ArticleColoringStudio
                     imageId={article.id}
                     imageAlt={article.title}

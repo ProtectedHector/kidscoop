@@ -545,17 +545,17 @@ export default function ArticleColoringStudio({
   };
 
   return (
-    <section className="mt-12 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-white/20 overflow-hidden">
+    <section className="overflow-hidden p-2 sm:p-4">
       <div className="flex flex-col gap-5">
-        <h2 className="text-2xl font-bold text-white text-center">🎨 {labels.title}</h2>
-        <p className="mx-auto max-w-4xl text-center text-white/70">{labels.description}</p>
+        <h2 className="text-2xl font-black text-[#581c87] text-center">🎨 {labels.title}</h2>
+        <p className="mx-auto max-w-4xl text-center text-slate-600">{labels.description}</p>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={undoArtwork}
               disabled={undoCount === 0}
-              className="rounded-full border border-white/20 bg-white/10 p-3 text-white transition enabled:hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-full border border-purple-200 bg-white p-3 text-[#581c87] transition enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label={labels.undo}
               title={labels.undo}
             >
@@ -568,7 +568,7 @@ export default function ArticleColoringStudio({
               type="button"
               onClick={redoArtwork}
               disabled={redoCount === 0}
-              className="rounded-full border border-white/20 bg-white/10 p-3 text-white transition enabled:hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-full border border-purple-200 bg-white p-3 text-[#581c87] transition enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label={labels.redo}
               title={labels.redo}
             >
@@ -581,21 +581,21 @@ export default function ArticleColoringStudio({
           <button
             type="button"
             onClick={resetArtwork}
-            className="min-h-12 rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+            className="min-h-12 rounded-full border border-purple-200 bg-white px-5 py-3 text-sm font-semibold text-[#581c87] transition hover:bg-purple-50"
           >
             {labels.reset}
           </button>
           <button
             type="button"
             onClick={downloadArtwork}
-            className="min-h-12 rounded-full border border-white/20 bg-gradient-to-r from-sky-400 to-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:brightness-110"
+            className="min-h-12 rounded-full border border-sky-300 bg-gradient-to-r from-sky-400 to-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:brightness-110"
           >
             {labels.downloadArtwork}
           </button>
           <button
             type="button"
             onClick={downloadPage}
-            className="min-h-12 rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+            className="min-h-12 rounded-full border border-purple-200 bg-white px-5 py-3 text-sm font-semibold text-[#581c87] transition hover:bg-purple-50"
           >
             {labels.downloadPage}
           </button>
@@ -616,7 +616,7 @@ export default function ArticleColoringStudio({
                 type="button"
                 onClick={() => setSelectedColor(color)}
                 className={`h-11 w-11 rounded-full border-4 transition ${
-                  isActive ? 'scale-110 border-white shadow-lg shadow-white/20' : 'border-white/20'
+                  isActive ? 'scale-110 border-[#581c87] shadow-lg shadow-purple-900/20' : 'border-purple-100'
                 }`}
                 style={{ backgroundColor: color }}
                 aria-label={`Color ${color}`}
@@ -626,7 +626,7 @@ export default function ArticleColoringStudio({
         </div>
       </div>
 
-      <div className="relative mt-6 overflow-hidden rounded-2xl border border-white/15 bg-white shadow-2xl">
+      <div className="relative mt-6 overflow-hidden rounded-2xl border border-purple-200 bg-white shadow-lg shadow-purple-900/10">
         <canvas
           ref={canvasRef}
           className="block w-full h-auto bg-white"
@@ -645,7 +645,7 @@ export default function ArticleColoringStudio({
       </div>
 
       {!isReady && (
-        <p className="mt-4 text-sm text-white/60">{labels.loading}</p>
+        <p className="mt-4 text-sm text-slate-500">{labels.loading}</p>
       )}
     </section>
   );

@@ -136,12 +136,15 @@ export function AffiliateSection({
   compact = false,
   tone = 'dark',
   layout = 'grid',
+  bare = false,
 }: {
   ads: AffiliateAd[];
   language: string;
   compact?: boolean;
   tone?: 'dark' | 'light';
   layout?: 'grid' | 'carousel';
+  /** Drop the section's own box when it already sits inside a card. */
+  bare?: boolean;
 }) {
   const copy = copyByLanguage[language] || copyByLanguage.en;
 
@@ -150,7 +153,7 @@ export function AffiliateSection({
   }
 
   return (
-    <section className={tone === 'dark' ? 'rounded-3xl border border-white/20 bg-gradient-to-br from-purple-950 to-[#581c87] p-5 shadow-2xl shadow-purple-950/20 md:p-6' : 'rounded-3xl border border-purple-100 bg-purple-50/60 p-5 shadow-sm md:p-6'}>
+    <section className={bare ? 'p-2 sm:p-4' : tone === 'dark' ? 'rounded-3xl border border-white/20 bg-gradient-to-br from-purple-950 to-[#581c87] p-5 shadow-2xl shadow-purple-950/20 md:p-6' : 'rounded-3xl border border-purple-100 bg-purple-50/60 p-5 shadow-sm md:p-6'}>
       <p className={tone === 'dark' ? 'mb-2 text-xs font-bold uppercase tracking-[0.2em] text-yellow-200' : 'mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#581c87]'}>
         {copy.eyebrow}
       </p>
