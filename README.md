@@ -22,17 +22,20 @@ npx convex dev   # Convex dev deployment, regenerates convex/_generated
 npm run dev      # http://localhost:3000
 ```
 
-Environment variables go in `.env.local` (see `.env` for the list of names and
-`AGENTS.md` → "Environment & secrets").
+Copy `.env.example` to `.env.local` and fill it in; every variable is validated by
+`src/lib/env.schema.ts`.
 
 ## Structure
 
-- `src/app/` — Next.js App Router pages and API route handlers
-- `src/components/` — React components
-- `src/lib/content.ts` — content access layer (Convex)
+- `src/app/` — routes; public pages in `src/app/[language]/(site)/`, API route handlers in `src/app/api/`
+- `src/features/` — one folder per area (articles, affiliates, favorites, newsletter, auth, admin),
+  each with `components/`, `data/` (Convex access), `model/` and its `public.ts` / `public.server.ts`
+- `src/components/layout/` — shared site shell
+- `src/lib/` — env, session, languages, categories, SEO and server clients (`src/lib/server/`)
 - `src/translations/` — UI strings for every language
 - `convex/` — schema, queries/mutations and HTTP actions used by Make
 - `public/articles/` — `{id}.png` (colour) and `{id}c.png` (colouring page)
+- `docs/coding/`, `docs/adr/`, `CONTEXT.md` — conventions, decisions and glossary
 
 See `AGENTS.md` for conventions and `docs/make-convex-create-strict.md` for the
 Make → Convex publishing contract.
