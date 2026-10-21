@@ -1,90 +1,15 @@
 "use client";
 
 import { useLanguage } from '@/components/layout/language-context';
-import translations from '@/translations/translations.json';
+import { type TranslationKey, translate } from '@/lib/i18n';
 
-type TranslationKey = 
-  | 'nav.home'
-  | 'nav.about'
-  | 'nav.contact'
-  | 'hero.tagline'
-  | 'loading.stories'
-  | 'loading.story'
-  | 'empty.title'
-  | 'empty.message'
-  | 'footer.copyright'
-  | 'content.backToStories'
-  | 'content.readMoreStories'
-  | 'content.storyNotFound'
-  | 'content.storyNotFoundMessage'
-  | 'content.readStory'
-  | 'content.listenArticle'
-  | 'content.stopListening'
-  | 'content.speechNotSupported'
-  | 'content.storySong'
-  | 'content.storySongDescription'
-  | 'content.coloringFun'
-  | 'content.coloringDescription'
-  | 'content.coloringStudioDescription'
-  | 'content.coloringStudioHint'
-  | 'content.coloringUndo'
-  | 'content.coloringRedo'
-  | 'content.coloringReset'
-  | 'content.coloringDownloadArtwork'
-  | 'content.coloringDownloadPage'
-  | 'content.coloringLoading'
-  | 'content.clickToDownload'
-  | 'content.audioNotSupported'
-  | 'content.lyrics'
-  | 'content.lyricsInLanguage'
-  | 'content.puzzleTitle'
-  | 'content.puzzleDescription'
-  | 'content.puzzleHint'
-  | 'content.puzzleSolved'
-  | 'content.puzzleSolvedDescription'
-  | 'content.puzzleShuffle'
-  | 'content.puzzleDifficulty'
-  | 'content.puzzleStatus'
-  | 'content.puzzleMoves'
-  | 'content.puzzleReady'
-  | 'content.puzzleSelected'
-  | 'metadata.title'
-  | 'metadata.description';
-
-export function useTranslation() {
-  const { language } = useLanguage();
-  
-  const t = (key: TranslationKey): string => {
-    const keys = key.split('.');
-    const translation = (translations as any)[language];
-    
-    if (!translation) {
-      console.warn(`Translation not found for language: ${language}`);
-      // Fallback to English
-      const enValue = (translations as any).en;
-      let fallback: any = enValue;
-      for (const k of keys) {
-        fallback = fallback?.[k];
-      }
-      return fallback || key;
-    }
-    
-    let value: any = translation;
-    for (const k of keys) {
-      value = value?.[k];
-      if (value === undefined) {
-        // Fallback to English
-        const enValue = (translations as any).en;
-        let fallback: any = enValue;
-        for (const fallbackKey of keys) {
-          fallback = fallback?.[fallbackKey];
-        }
-        return fallback || key;
-      }
-    }
-    
-    return value || key;
-  };
-  
+/**
+ * `t()` for the current language. Pass `language` when the component already knows it (from route
+ * params), so the first render is in the right language instead of waiting for LanguageContext.
+ */
+export function useTranslation(languageOverride?: string) {
+  const { language: contextLanguage } = useLanguage();
+  const language = languageOverride || contextLanguage;
+  const t = (key: TranslationKey): string => translate(language, key);
   return { t, language };
 }

@@ -10,9 +10,14 @@ import JsonLd from "@/components/json-ld";
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from "@/lib/languages";
 import { PWAProvider } from "@/components/layout/pwa-provider";
 import { clerkEnabled, clientEnv } from "@/lib/env.client";
-import { AccountSync } from "@/features/auth/public";
+import { AccountSync, ClerkHealth, LoginProblemNotice } from "@/features/auth/public";
 
 const inter = Inter({ subsets: ["latin"] });
+
+/** Clerk's sign-in modal and pages in KidZcoop purple. */
+const CLERK_APPEARANCE = {
+  variables: { colorPrimary: "#581c87", borderRadius: "1rem", fontFamily: "inherit" },
+};
 const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path);
 const defaultDescription = "Where curiosity meets discovery. Dive into a world of amazing stories, fascinating facts, and endless adventures designed just for young minds.";
 
@@ -127,7 +132,13 @@ export default async function RootLayout(
       </head>
       <body className={inter.className}>
         {clerkEnabled ? (
-          <ClerkProvider afterSignOutUrl="/">
+          <ClerkProvider
+            afterSignOutUrl={`/${language}`}
+            signInUrl={`/${language}/sign-in`}
+            signUpUrl={`/${language}/sign-up`}
+            appearance={CLERK_APPEARANCE}
+          >
+            <ClerkHealth />
             <AccountSync />
             <PWAProvider>
               <LanguageProvider>{children}</LanguageProvider>
@@ -138,6 +149,7 @@ export default async function RootLayout(
             <LanguageProvider>{children}</LanguageProvider>
           </PWAProvider>
         )}
+        <LoginProblemNotice language={language} />
         {clientEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${clientEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID}`} strategy="afterInteractive" />

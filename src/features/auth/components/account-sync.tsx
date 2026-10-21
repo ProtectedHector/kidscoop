@@ -7,12 +7,14 @@ import {
   clearLocalFavorites,
   syncFavoritesWithAccount,
 } from '@/features/favorites/public';
+import { showLoginProblem } from '@/features/auth/model/login-problems';
 import { trackEvent } from '@/lib/analytics';
 import { clerkEnabled } from '@/lib/env.client';
 
 const syncedUsers = new Set<string>();
 
-export default function UserFavoritesSync() {
+/** After sign-in: saves the user in Convex and merges this device's favorites into the account. */
+export default function AccountSync() {
   return clerkEnabled ? <ClerkUserFavoritesSync /> : null;
 }
 
@@ -43,6 +45,10 @@ function ClerkUserFavoritesSync() {
     syncedUsers.add(user.id);
 
     void fetch('/api/users/sync', { method: 'POST' })
+      .then((response) => {
+        // The server has already reported the failure; here we only tell the visitor.
+        if (!response.ok && response.status !== 401) showLoginProblem('sync_failed');
+      })
       .catch(() => null)
       .then(() => syncFavoritesWithAccount())
       .then((favorites) => {

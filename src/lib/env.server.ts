@@ -40,9 +40,14 @@ export function isProductionDeployment(): boolean {
   return env.VERCEL_ENV === 'production';
 }
 
+/** True in the Node.js server runtime (not Edge, not the browser). */
+export function isNodeRuntime(): boolean {
+  return process.env.NEXT_RUNTIME === 'nodejs';
+}
+
 /** Forces the one parse at server boot. Called from `register()` in `src/instrumentation.ts`. */
 export function assertServerEnv(): void {
-  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
+  if (!isNodeRuntime()) return;
 
   parseOnce();
 }
