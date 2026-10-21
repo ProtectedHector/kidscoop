@@ -81,13 +81,13 @@ export function AffiliateCard({
 }) {
   const cardClass = tone === 'dark'
     ? 'group block rounded-2xl border border-white/15 bg-white/10 p-3 shadow-xl backdrop-blur-md transition hover:-translate-y-0.5 hover:border-yellow-200/50 hover:bg-white/15'
-    : 'group block rounded-2xl border border-purple-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg';
+    : 'group block h-full rounded-2xl border border-purple-100 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:p-3';
   const titleClass = tone === 'dark'
     ? 'max-h-14 overflow-hidden text-sm font-black leading-snug text-white'
-    : 'max-h-14 overflow-hidden text-sm font-black leading-snug text-slate-900';
+    : 'line-clamp-3 text-xs font-black leading-snug text-slate-900 sm:text-sm';
   const asinClass = tone === 'dark'
     ? 'mt-1 text-xs font-semibold uppercase tracking-wide text-white/45'
-    : 'mt-1 text-xs font-semibold uppercase tracking-wide text-slate-400';
+    : 'mt-1 truncate text-[10px] font-semibold uppercase tracking-wide text-slate-400 sm:text-xs';
 
   return (
     <a
@@ -142,7 +142,8 @@ export function AffiliateSection({
   language: string;
   compact?: boolean;
   tone?: 'dark' | 'light';
-  layout?: 'grid' | 'carousel';
+  /** `row`: always three equal columns that fit the box, never a horizontal scroll. */
+  layout?: 'grid' | 'carousel' | 'row';
   /** Drop the section's own box when it already sits inside a card. */
   bare?: boolean;
 }) {
@@ -161,12 +162,14 @@ export function AffiliateSection({
       <div className={
         layout === 'carousel'
           ? 'mt-5 flex snap-x gap-4 overflow-x-auto pb-3'
-          : compact
+          : layout === 'row'
+            ? 'mt-5 grid grid-cols-3 gap-2 sm:gap-4'
+            : compact
             ? 'mt-4 space-y-3'
             : 'mt-5 grid gap-4 sm:grid-cols-3'
       }>
         {ads.map((ad) => (
-          <div key={`${ad.article_id}-${ad.asin}-${ad.position}`} className={layout === 'carousel' ? 'min-w-[16rem] snap-start' : undefined}>
+          <div key={`${ad.article_id}-${ad.asin}-${ad.position}`} className={layout === 'carousel' ? 'min-w-[16rem] snap-start' : layout === 'row' ? 'min-w-0' : undefined}>
             <AffiliateCard
               ad={ad}
               compact={compact}

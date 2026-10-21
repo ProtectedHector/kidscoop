@@ -292,7 +292,7 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
                 </div>
 
                 <div className="mx-auto mt-8 max-w-3xl rounded-[2rem] border border-purple-300 bg-gradient-to-br from-white to-purple-50 p-4 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)] sm:p-6">
-                  <AffiliateSection ads={affiliateAds} language={language} tone="light" layout="carousel" bare />
+                  <AffiliateSection ads={affiliateAds} language={language} tone="light" layout="row" bare />
                 </div>
 
                 <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] border border-purple-300 bg-gradient-to-br from-white to-purple-50 p-4 shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)] sm:p-6">
