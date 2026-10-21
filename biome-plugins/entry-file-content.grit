@@ -1,0 +1,41 @@
+// ADR 0002: a feature's entry files, `public.ts` and `public.server.ts`, are its interface, and an
+// interface is a list. Each holds named re-exports (`export { a } from`) and nothing else: no
+// definitions, no local or default exports, no `export *`. `public.server.ts` must also start with
+// `import 'server-only'`, so a client component importing it fails the build.
+or {
+    or {
+        JsExport(export_clause = $clause) as $item where { not $clause <: JsExportNamedFromClause() },
+        JsImport() as $item where {
+            or {
+                not $item <: r"import\s*[\"']server-only[\"'];?",
+                not $filename <: r".*/public\.server\.ts"
+            }
+        },
+        or {
+            JsVariableStatement(),
+            JsFunctionDeclaration(),
+            JsClassDeclaration(),
+            TsTypeAliasDeclaration(),
+            TsInterfaceDeclaration(),
+            TsEnumDeclaration(),
+            TsModuleDeclaration(),
+            JsExpressionStatement()
+        } as $item where { not $item <: within or { JsExport(), JsFunctionBody() } }
+    } where {
+        $filename <: r".*/src/features/(?:[^/]+/)+public(?:\.server)?\.ts",
+        register_diagnostic(
+            span = $item,
+            message = `An entry file holds named re-exports only: no definitions, no local or default exports, and no "export *". Move the code into a segment and re-export it by name. See ADR 0002.`,
+            severity = "error"
+        )
+    },
+    $program where {
+        $filename <: r".*/src/features/(?:[^/]+/)+public\.server\.ts",
+        not $program <: r"(?s).*?import\s*[\"']server-only[\"'].*",
+        register_diagnostic(
+            span = $program,
+            message = `A public.server.ts must import 'server-only', so that a client component importing it fails the build. See ADR 0002.`,
+            severity = "error"
+        )
+    }
+}

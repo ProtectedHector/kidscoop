@@ -1,18 +1,15 @@
 import { NextResponse } from 'next/server';
-import { api } from '../../../../convex/_generated/api';
-import { getConvexForUser } from '@/lib/server/convex-user';
-import { normalizeFavorites } from '@/lib/favorites';
+import { normalizeFavorites } from '@/features/favorites/public';
+import { listAccountFavorites, saveAccountFavorites } from '@/features/favorites/public.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const session = await getConvexForUser();
-  if (!session) {
+  const favorites = await listAccountFavorites();
+  if (!favorites) {
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   }
-
-  const favorites = await session.client.query(api.favorites.list, {});
   return NextResponse.json({ favorites });
 }
 
@@ -22,17 +19,14 @@ export async function GET() {
  * - mode "replace" (default, after a toggle): the account list becomes exactly `favorites`.
  */
 export async function PUT(request: Request) {
-  const session = await getConvexForUser();
-  if (!session) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-  }
-
-  const body = await request.json().catch(() => null) as { favorites?: unknown; mode?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { favorites?: unknown; mode?: unknown } | null;
   const favorites = normalizeFavorites(body?.favorites);
-  const mutation = body?.mode === 'merge' ? api.favorites.merge : api.favorites.replace;
 
   try {
-    const saved = await session.client.mutation(mutation, { favorites });
+    const saved = await saveAccountFavorites(favorites, body?.mode === 'merge' ? 'merge' : 'replace');
+    if (!saved) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
     return NextResponse.json({ favorites: saved });
   } catch (error) {
     console.error('Could not save favorites in Convex', error);

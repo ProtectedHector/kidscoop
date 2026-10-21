@@ -1,31 +1,19 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
-import ArticlePageClient from '../../../../../components/ArticlePageClient';
-import { getArticlePath, slugifyTitle } from '../../../../../lib/articleRoutes';
-import {
-  buildArticleJsonLd,
-  generateArticleMetadata as generateArticleMetadataForRoute,
-  getArticle,
-} from '../../../../../lib/articleSeo';
-import { jsonLd } from '../../../../../lib/seo';
+import JsonLd from '@/components/json-ld';
+import { getArticleAffiliateAds } from '@/features/affiliates/public.server';
+import { ArticlePage, buildArticleJsonLd, findStoryNeighbours } from '@/features/articles/public';
+import { generateArticleMetadata, getArticle, getArticleSummaries } from '@/features/articles/public.server';
+import { getArticlePath, slugifyTitle } from '@/lib/article-routes';
 
-export async function generateMetadata(
-  props: {
-    params: Promise<{ language: string; id: string; slug: string }>;
-  }
-): Promise<Metadata> {
+type Params = { language: string; id: string; slug: string };
+
+export async function generateMetadata(props: { params: Promise<Params> }): Promise<Metadata> {
   const params = await props.params;
-  return generateArticleMetadataForRoute({
-    language: params.language,
-    id: params.id,
-  });
+  return generateArticleMetadata({ language: params.language, id: params.id });
 }
 
-export default async function ArticleSlugPage(
-  props: {
-    params: Promise<{ language: string; id: string; slug: string }>;
-  }
-) {
+export default async function ArticleSlugPage(props: { params: Promise<Params> }) {
   const params = await props.params;
   const article = await getArticle(params.id, params.language);
 
@@ -38,12 +26,17 @@ export default async function ArticleSlugPage(
     permanentRedirect(getArticlePath(params.language, params.id, article.title));
   }
 
+  const [articles, affiliateAds] = await Promise.all([
+    getArticleSummaries(params.language),
+    getArticleAffiliateAds(article.id),
+  ]);
+
   return (
     <>
-      {buildArticleJsonLd(article, params.language).map((schema, index) => (
-        <script key={index} type="application/ld+json" dangerouslySetInnerHTML={jsonLd(schema)} />
+      {buildArticleJsonLd(article, params.language).map((schema) => (
+        <JsonLd key={schema['@type']} data={schema} />
       ))}
-      <ArticlePageClient initialArticle={article} />
+      <ArticlePage article={article} neighbours={findStoryNeighbours(articles, article)} affiliateAds={affiliateAds} />
     </>
   );
 }

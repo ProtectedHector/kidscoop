@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next';
-import { getArticlePath } from '../lib/articleRoutes';
-import { fetchArticles } from '../lib/content';
-import { CATEGORY_SLUGS, getCategoryPath } from '../lib/categories';
-import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from '../lib/languages';
-import { absoluteUrl } from '../lib/site';
+import { getArticlePath } from '@/lib/article-routes';
+import { fetchArticles } from '@/features/articles/public.server';
+import { CATEGORY_SLUGS, getCategoryPath } from '@/lib/categories';
+import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from '@/lib/languages';
+import { absoluteUrl } from '@/lib/site';
 
 const languages = AVAILABLE_LANGUAGES.map((language) => language.code);
 
@@ -63,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   });
 
-  const staticPages: MetadataRoute.Sitemap = (['about', 'contact'] as const).flatMap((page) => {
+  const staticPages: MetadataRoute.Sitemap = (['about', 'contact', 'privacy'] as const).flatMap((page) => {
     const paths = { es: `/es/${page}`, en: `/en/${page}` };
     return Object.values(paths).map((path) => ({
       url: absoluteUrl(path),

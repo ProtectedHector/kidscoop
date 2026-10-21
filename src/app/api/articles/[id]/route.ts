@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchArticle } from '@/lib/content';
+import { fetchArticle, withLyricsFallback } from '@/features/articles/public.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,7 +7,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
   const params = await props.params;
   const { searchParams } = new URL(request.url);
   const language = searchParams.get('lang') || searchParams.get('language') || 'en';
-  const articleId = parseInt(params.id, 10);
+  const articleId = Number.parseInt(params.id, 10);
 
   if (Number.isNaN(articleId)) {
     return NextResponse.json({ error: 'Invalid article ID' }, { status: 400 });
@@ -15,27 +15,10 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
 
   try {
     const article = await fetchArticle(language, articleId);
-
-    if (article && article.title) {
-      if ((!article.lyrics || article.lyrics.trim() === '') && language !== 'en') {
-        try {
-          const enArticle = await fetchArticle('en', articleId);
-          if (enArticle?.lyrics && enArticle.lyrics.trim() !== '') {
-            article.lyrics = enArticle.lyrics;
-            article.lyrics_language = 'en';
-          }
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Unknown error';
-          console.warn('Could not fetch English lyrics fallback:', message);
-        }
-      } else if (article.lyrics && article.lyrics.trim() !== '') {
-        article.lyrics_language = language;
-      }
-
-      return NextResponse.json(article);
+    if (!article?.title) {
+      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
-
-    return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+    return NextResponse.json(await withLyricsFallback(article, language));
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error fetching article:', message);
@@ -43,9 +26,9 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
       {
         error: 'Failed to fetch article',
         message,
-        hint: 'Check Convex configuration or the Google Sheets fallback URLs.',
+        hint: 'Check NEXT_PUBLIC_CONVEX_URL and the Convex deployment.',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
