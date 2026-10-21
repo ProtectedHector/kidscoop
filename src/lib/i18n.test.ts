@@ -15,7 +15,7 @@ describe('translations', () => {
     expect(Object.keys(translations).sort()).toEqual([...LANGUAGE_CODES].sort());
   });
 
-  it.each(KEYS.filter((key) => key.startsWith('auth.')))('translates %s in all 12 languages', (key) => {
+  it.each(KEYS.filter((key) => key.startsWith('auth.') || key.startsWith('content.coloring')))('translates %s in all 12 languages', (key) => {
     for (const language of LANGUAGE_CODES) {
       const [section, name] = key.split('.');
       const tree = translations as unknown as Record<string, Record<string, Record<string, string>>>;

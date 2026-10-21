@@ -1,6 +1,6 @@
 "use client";
 
-import { PointerEvent, useEffect, useRef, useState } from 'react';
+import { type PointerEvent, type ReactNode, useEffect, useRef, useState } from 'react';
 
 const PALETTE = [
   '#000000',
@@ -48,12 +48,25 @@ interface ArticleColoringStudioLabels {
   downloadArtwork: string;
   downloadPage: string;
   loading: string;
+  /** Link text to the full-screen page (embedded view). */
+  fullscreen?: string;
+  /** Link text back to the story (full-screen view). */
+  backToStory?: string;
 }
 
 interface ArticleColoringStudioProps {
   imageId: number | string;
   imageAlt: string;
   labels: ArticleColoringStudioLabels;
+  /**
+   * `embedded` sits inside the story page. `fullscreen` fills the screen and locks scrolling, so
+   * the page never moves under a finger while painting on a tablet.
+   */
+  variant?: 'embedded' | 'fullscreen';
+  /** Embedded view: where the full-screen link goes. */
+  fullscreenHref?: string;
+  /** Full-screen view: where the back link goes. */
+  backHref?: string;
 }
 
 function cloneImageData(imageData: ImageData) {
@@ -257,6 +270,9 @@ export default function ArticleColoringStudio({
   imageId,
   imageAlt,
   labels,
+  variant = 'embedded',
+  fullscreenHref,
+  backHref,
 }: ArticleColoringStudioProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const outlineCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -544,109 +560,167 @@ export default function ArticleColoringStudio({
     document.body.removeChild(link);
   };
 
+  const iconButton = `rounded-full p-3 transition enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40 border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)]`;
+  const textButton = `min-h-12 rounded-full px-5 py-3 text-sm font-semibold transition hover:bg-purple-50 border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)]`;
+
+  const undoButton = (
+    <button type="button" onClick={undoArtwork} disabled={undoCount === 0} className={iconButton} aria-label={labels.undo} title={labels.undo}>
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7 4 12l5 5" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 17a8 8 0 0 0-8-8H4" />
+      </svg>
+    </button>
+  );
+  const redoButton = (
+    <button type="button" onClick={redoArtwork} disabled={redoCount === 0} className={iconButton} aria-label={labels.redo} title={labels.redo}>
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m15 7 5 5-5 5" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 17a8 8 0 0 1 8-8h8" />
+      </svg>
+    </button>
+  );
+  const downloadArtworkButton = (
+    <button
+      type="button"
+      onClick={downloadArtwork}
+      className="min-h-12 rounded-full border border-sky-300 bg-gradient-to-r from-sky-400 to-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:brightness-110"
+    >
+      {labels.downloadArtwork}
+    </button>
+  );
+  const swatch = (color: string, className: string) => (
+    <button
+      key={color}
+      type="button"
+      onClick={() => setSelectedColor(color)}
+      className={`rounded-full border-4 transition ${className} ${
+        color === selectedColor ? 'scale-110 border-[#581c87] shadow-lg shadow-purple-900/20' : 'border-purple-100'
+      }`}
+      style={{ backgroundColor: color }}
+      aria-label={`Color ${color}`}
+      aria-pressed={color === selectedColor}
+    />
+  );
+  const board = (touchAction: 'manipulation' | 'none', extra: ReactNode = null) => (
+    <>
+      <canvas
+        ref={canvasRef}
+        className="block h-auto w-full bg-white"
+        style={{ aspectRatio: BOARD_ASPECT_RATIO, touchAction, cursor: isReady ? brushCursor : 'default' }}
+        onPointerDown={handleCanvasPointerDown}
+      />
+      <canvas
+        ref={outlineCanvasRef}
+        className="pointer-events-none absolute inset-0 block h-full w-full"
+        style={{ aspectRatio: BOARD_ASPECT_RATIO }}
+      />
+      {extra}
+    </>
+  );
+
+  if (variant === 'fullscreen') {
+    return <FullscreenShell>
+      <header className="flex shrink-0 items-center gap-2 border-b border-purple-200 bg-white/80 px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur">
+        {backHref && (
+          <a href={backHref} className={`inline-flex min-h-12 items-center gap-1 rounded-full px-4 text-sm font-black hover:bg-purple-50 border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)]`}>
+            <span aria-hidden="true">←</span>
+            <span className="hidden sm:inline">{labels.backToStory}</span>
+          </a>
+        )}
+        <h1 className="min-w-0 flex-1 truncate text-lg font-black text-[#581c87]">🎨 {imageAlt}</h1>
+        {undoButton}
+        {redoButton}
+        <button type="button" onClick={resetArtwork} className={`${textButton} hidden sm:inline-flex sm:items-center`}>{labels.reset}</button>
+        {downloadArtworkButton}
+      </header>
+
+      <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 landscape:flex-row">
+        {/* Size container: the board takes the largest 3:2 box that fits, in either orientation. */}
+        <div className="relative flex min-h-0 min-w-0 flex-1 items-center justify-center" style={{ containerType: 'size' }}>
+          <div
+            className="relative overflow-hidden rounded-2xl border border-purple-300 bg-white shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)]"
+            style={{ width: 'min(100cqw, 150cqh)' }}
+          >
+            {board('none', !isReady && (
+              <p className="absolute inset-0 flex items-center justify-center text-sm text-slate-500">{labels.loading}</p>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid shrink-0 grid-cols-[repeat(14,minmax(0,1fr))] gap-1.5 sm:gap-2 landscape:w-44 landscape:grid-cols-4 landscape:content-center lg:landscape:w-52">
+          {PALETTE.map((color) => swatch(color, 'aspect-square w-full'))}
+        </div>
+      </div>
+    </FullscreenShell>;
+  }
+
   return (
     <section className="overflow-hidden p-2 sm:p-4">
       <div className="flex flex-col gap-5">
         <h2 className="text-2xl font-black text-[#581c87] text-center">🎨 {labels.title}</h2>
         <p className="mx-auto max-w-4xl text-center text-slate-600">{labels.description}</p>
+        {fullscreenHref && labels.fullscreen && (
+          <a
+            href={fullscreenHref}
+            className="mx-auto inline-flex min-h-12 items-center gap-2 rounded-full bg-[#581c87] px-6 text-sm font-black text-white shadow-[0_8px_20px_-8px_rgba(88,28,135,0.6)] transition hover:bg-purple-950"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+            </svg>
+            {labels.fullscreen}
+          </a>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={undoArtwork}
-              disabled={undoCount === 0}
-              className="rounded-full p-3 transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label={labels.undo}
-              title={labels.undo}
-            >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7 4 12l5 5" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 17a8 8 0 0 0-8-8H4" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={redoArtwork}
-              disabled={redoCount === 0}
-              className="rounded-full p-3 transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label={labels.redo}
-              title={labels.redo}
-            >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m15 7 5 5-5 5" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 17a8 8 0 0 1 8-8h8" />
-              </svg>
-            </button>
+            {undoButton}
+            {redoButton}
           </div>
-          <button
-            type="button"
-            onClick={resetArtwork}
-            className="min-h-12 rounded-full px-5 py-3 text-sm font-semibold transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50"
-          >
+          <button type="button" onClick={resetArtwork} className={textButton}>
             {labels.reset}
           </button>
-          <button
-            type="button"
-            onClick={downloadArtwork}
-            className="min-h-12 rounded-full border border-sky-300 bg-gradient-to-r from-sky-400 to-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:brightness-110"
-          >
-            {labels.downloadArtwork}
-          </button>
-          <button
-            type="button"
-            onClick={downloadPage}
-            className="min-h-12 rounded-full px-5 py-3 text-sm font-semibold transition border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)] hover:bg-purple-50"
-          >
+          {downloadArtworkButton}
+          <button type="button" onClick={downloadPage} className={textButton}>
             {labels.downloadPage}
           </button>
         </div>
       </div>
 
       <div className="mt-6 overflow-x-auto pb-2">
-        <div
-          className="grid min-w-[48rem] gap-3"
-          style={{ gridTemplateColumns: 'repeat(14, minmax(0, 1fr))' }}
-        >
-          {PALETTE.map((color) => {
-            const isActive = color === selectedColor;
-
-            return (
-              <button
-                key={color}
-                type="button"
-                onClick={() => setSelectedColor(color)}
-                className={`h-11 w-11 rounded-full border-4 transition ${
-                  isActive ? 'scale-110 border-[#581c87] shadow-lg shadow-purple-900/20' : 'border-purple-100'
-                }`}
-                style={{ backgroundColor: color }}
-                aria-label={`Color ${color}`}
-              />
-            );
-          })}
+        <div className="grid min-w-[48rem] gap-3" style={{ gridTemplateColumns: 'repeat(14, minmax(0, 1fr))' }}>
+          {PALETTE.map((color) => swatch(color, 'h-11 w-11'))}
         </div>
       </div>
 
       <div className="relative mt-6 overflow-hidden rounded-2xl border border-purple-200 bg-white shadow-lg shadow-purple-900/10">
-        <canvas
-          ref={canvasRef}
-          className="block w-full h-auto bg-white"
-          style={{
-            aspectRatio: BOARD_ASPECT_RATIO,
-            touchAction: 'manipulation',
-            cursor: isReady ? brushCursor : 'default',
-          }}
-          onPointerDown={handleCanvasPointerDown}
-        />
-        <canvas
-          ref={outlineCanvasRef}
-          className="pointer-events-none absolute inset-0 block h-full w-full"
-          style={{ aspectRatio: BOARD_ASPECT_RATIO }}
-        />
+        {board('manipulation')}
       </div>
 
       {!isReady && (
         <p className="mt-4 text-sm text-slate-500">{labels.loading}</p>
       )}
     </section>
+  );
+}
+
+/** Fills the viewport and stops the page from scrolling, bouncing or zooming while it is open. */
+function FullscreenShell({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    const root = document.documentElement;
+    const previous = { overflow: root.style.overflow, overscroll: root.style.overscrollBehavior };
+    root.style.overflow = 'hidden';
+    root.style.overscrollBehavior = 'none';
+    return () => {
+      root.style.overflow = previous.overflow;
+      root.style.overscrollBehavior = previous.overscroll;
+    };
+  }, []);
+
+  return (
+    <div
+      className="fixed inset-0 flex select-none flex-col overflow-hidden bg-gradient-to-br from-white to-purple-50 [-webkit-touch-callout:none]"
+      style={{ height: '100dvh', touchAction: 'none' }}
+    >
+      {children}
+    </div>
   );
 }

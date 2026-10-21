@@ -31,6 +31,8 @@ export type TranslationKey =
   | 'content.coloringDownloadArtwork'
   | 'content.coloringDownloadPage'
   | 'content.coloringLoading'
+  | 'content.coloringFullscreen'
+  | 'content.coloringBackToStory'
   | 'content.clickToDownload'
   | 'content.audioNotSupported'
   | 'content.lyrics'

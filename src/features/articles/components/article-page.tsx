@@ -13,7 +13,7 @@ import ArticleSnippet from '@/features/articles/components/article-snippet';
 import type { StoryNeighbours } from '@/features/articles/model/story-neighbours';
 import type { ArticleDetail } from '@/features/articles/model/types';
 import { FavoriteButton } from '@/features/favorites/public';
-import { getArticlePath } from '@/lib/article-routes';
+import { getArticlePath, getColoringPath } from '@/lib/article-routes';
 import { getCategoryLabel } from '@/lib/categories';
 import { useTranslation } from '@/hooks/use-translation';
 import { trackEvent } from '@/lib/analytics';
@@ -309,7 +309,9 @@ export default function ArticlePage({ article, neighbours, affiliateAds }: Artic
                       downloadArtwork: t('content.coloringDownloadArtwork'),
                       downloadPage: t('content.coloringDownloadPage'),
                       loading: t('content.coloringLoading'),
+                      fullscreen: t('content.coloringFullscreen'),
                     }}
+                    fullscreenHref={getColoringPath(language, article.id)}
                   />
                 </div>
 

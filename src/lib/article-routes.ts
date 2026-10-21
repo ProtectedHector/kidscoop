@@ -14,3 +14,8 @@ export function slugifyTitle(title: string): string {
 export function getArticlePath(language: string, articleId: number | string, title: string): string {
   return `/${language}/article/${articleId}/${slugifyTitle(title)}`;
 }
+
+/** Full-screen colouring page for a story. `coloring` is a fixed segment, so it wins over `[slug]`. */
+export function getColoringPath(language: string, articleId: number | string): string {
+  return `/${language}/article/${articleId}/coloring`;
+}
