@@ -1,6 +1,6 @@
 import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
-import { CONTENT_CACHE_TAG } from '@/lib/content';
+import { CONTENT_CACHE_TAG } from '@/lib/server/convex';
 import { api, getAdminConvexClient, requireAdminIdentity } from '@/lib/admin';
 
 export const runtime = 'nodejs';

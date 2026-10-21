@@ -9,7 +9,7 @@ import { LANGUAGE_HEADER, SITE_NAME, SITE_URL, SOCIAL_IMAGE, SOCIAL_PROFILES, ab
 import { jsonLd } from "../lib/seo";
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from "../lib/languages";
 import { PWAProvider } from "../components/PWAProvider";
-import { CLERK_ENABLED } from "../lib/auth";
+import { clerkEnabled, clientEnv } from "../lib/env.client";
 
 const inter = Inter({ subsets: ["latin"] });
 const socialImageUrl = absoluteUrl(SOCIAL_IMAGE.path);
@@ -36,8 +36,8 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+  ...(clientEnv.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: clientEnv.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
     : {}),
   appleWebApp: {
     capable: true,
@@ -125,7 +125,7 @@ export default async function RootLayout(
         <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(websiteSchema)} />
       </head>
       <body className={inter.className}>
-        {CLERK_ENABLED ? (
+        {clerkEnabled ? (
           <ClerkProvider afterSignOutUrl="/">
             <PWAProvider>
               <LanguageProvider>{children}</LanguageProvider>
@@ -136,10 +136,10 @@ export default async function RootLayout(
             <LanguageProvider>{children}</LanguageProvider>
           </PWAProvider>
         )}
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+        {clientEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
-            <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}',{send_page_view:false});`}</Script>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${clientEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
+            <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());gtag('config','${clientEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID}',{send_page_view:false});`}</Script>
           </>
         )}
         <Script

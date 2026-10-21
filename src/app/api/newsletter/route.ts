@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { env } from '@/lib/env.server';
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from '@/lib/languages';
 import { getAuthenticatedIdentity } from '@/lib/server/clerk-user';
 import {
@@ -9,9 +10,6 @@ import {
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
-const BREVO_LIST_ID = Number(process.env.BREVO_LIST_ID || process.env.BREVO_KIDZCOOP_LIST_ID || 0);
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -37,7 +35,9 @@ function getLanguageFromReferer(request: Request) {
 }
 
 async function subscribeWithBrevo(email: string) {
-  if (!BREVO_API_KEY || !Number.isFinite(BREVO_LIST_ID) || BREVO_LIST_ID <= 0) {
+  const apiKey = env.BREVO_API_KEY;
+  const listId = env.BREVO_LIST_ID;
+  if (!apiKey || !listId) {
     return false;
   }
 
@@ -46,11 +46,11 @@ async function subscribeWithBrevo(email: string) {
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      'api-key': BREVO_API_KEY,
+      'api-key': apiKey,
     },
     body: JSON.stringify({
       email,
-      listIds: [BREVO_LIST_ID],
+      listIds: [listId],
       updateEnabled: true,
     }),
     cache: 'no-store',

@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { trackEvent } from '../lib/analytics';
+import { clientEnv } from '@/lib/env.client';
+import { isDevelopment } from '@/lib/env.schema';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -54,8 +56,8 @@ export function PWAProvider({ children }: { children: ReactNode }) {
     window.addEventListener('online', onOnline);
     window.addEventListener('offline', onOffline);
 
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      navigator.serviceWorker.register(`/sw.js?v=${process.env.NEXT_PUBLIC_BUILD_ID || 'dev'}`).then((registration) => {
+    if ('serviceWorker' in navigator && !isDevelopment) {
+      navigator.serviceWorker.register(`/sw.js?v=${clientEnv.NEXT_PUBLIC_BUILD_ID || 'dev'}`).then((registration) => {
         if (registration.waiting) setUpdateReady(registration.waiting);
         registration.addEventListener('updatefound', () => {
           const worker = registration.installing;

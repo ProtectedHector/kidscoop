@@ -1,7 +1,8 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { CLERK_ENABLED } from './lib/auth';
+import { clerkEnabled } from './lib/env.client';
+import { isProductionDeployment } from './lib/env.server';
 import { DEFAULT_LANGUAGE, isSupportedLanguage } from './lib/languages';
 import { LANGUAGE_HEADER, SITE_URL } from './lib/site';
 
@@ -43,7 +44,7 @@ function languageRedirect(request: NextRequest) {
  * never redirect when the canonical host is itself a vercel.app host.
  */
 function canonicalHostRedirect(request: NextRequest) {
-  if (process.env.VERCEL_ENV !== 'production' || CANONICAL_HOST.endsWith('.vercel.app')) {
+  if (!isProductionDeployment() || CANONICAL_HOST.endsWith('.vercel.app')) {
     return null;
   }
 
@@ -74,7 +75,7 @@ function handle(request: NextRequest) {
   return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
-const proxy = CLERK_ENABLED
+const proxy = clerkEnabled
   ? clerkMiddleware((_auth, request: NextRequest) => handle(request))
   : function proxyWithoutAuth(request: NextRequest) {
       return handle(request);

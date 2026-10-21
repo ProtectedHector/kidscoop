@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Show, SignInButton, useUser } from '@clerk/nextjs';
 import { trackEvent } from '../lib/analytics';
-import { CLERK_ENABLED } from '@/lib/auth';
+import { clerkEnabled as CLERK_ENABLED } from '@/lib/env.client';
 
 type NewsletterCopy = {
   eyebrow: string;

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Show, SignInButton } from '@clerk/nextjs';
 import { getFavorites, type FavoriteStory } from '../lib/favorites';
 import { trackEvent } from '@/lib/analytics';
-import { CLERK_ENABLED } from '@/lib/auth';
+import { clerkEnabled as CLERK_ENABLED } from '@/lib/env.client';
 
 export default function FavoritesPage({ language }: { language: string }) {
   const [favorites, setFavorites] = useState<FavoriteStory[]>([]);

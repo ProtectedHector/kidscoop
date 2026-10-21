@@ -2,7 +2,7 @@
 
 import { Show, SignInButton, UserButton, useUser } from '@clerk/nextjs';
 import { trackEvent } from '@/lib/analytics';
-import { CLERK_ENABLED } from '@/lib/auth';
+import { clerkEnabled as CLERK_ENABLED } from '@/lib/env.client';
 
 export default function AuthControls({ language }: { language: string }) {
   return CLERK_ENABLED ? <ClerkAuthControls language={language} /> : null;

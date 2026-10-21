@@ -43,7 +43,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
       {
         error: 'Failed to fetch article',
         message,
-        hint: 'Check Convex configuration or the Google Sheets fallback URLs.',
+        hint: 'Check NEXT_PUBLIC_CONVEX_URL and the Convex deployment.',
       },
       { status: 500 }
     );

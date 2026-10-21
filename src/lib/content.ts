@@ -1,36 +1,17 @@
-import { ConvexHttpClient } from 'convex/browser';
+import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { api } from '../../convex/_generated/api';
+import { contentCacheOptions as cacheOptions, getConvexClient as getClient } from './server/convex';
 import { normalizeCategory, type CategorySlug } from './categories';
 import type { AffiliateAd, Article } from './types';
 
 export type { AffiliateAd, Article } from './types';
-
-const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL || '';
 
 export type ConvexArticle = Article & {
   convex_id?: string;
   category?: CategorySlug;
   slug?: string;
 };
-
-/** Content changes only when Make publishes, so cache Convex reads for a week. */
-export const CONTENT_REVALIDATE_SECONDS = 60 * 60 * 24 * 7;
-/** Cache tag for every content read; invalidate it with POST /api/revalidate. */
-export const CONTENT_CACHE_TAG = 'content';
-
-const cacheOptions = { revalidate: CONTENT_REVALIDATE_SECONDS, tags: [CONTENT_CACHE_TAG] };
-
-let client: ConvexHttpClient | null = null;
-
-function getClient() {
-  if (!CONVEX_URL) {
-    throw new Error('NEXT_PUBLIC_CONVEX_URL is not configured');
-  }
-
-  client ||= new ConvexHttpClient(CONVEX_URL);
-  return client;
-}
 
 function sortArticles<T extends { published_date?: string }>(articles: T[]): T[] {
   return [...articles].sort((a, b) => {

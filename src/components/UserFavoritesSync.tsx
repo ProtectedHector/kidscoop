@@ -8,7 +8,7 @@ import {
   syncFavoritesWithAccount,
 } from '@/lib/favorites';
 import { trackEvent } from '@/lib/analytics';
-import { CLERK_ENABLED } from '@/lib/auth';
+import { clerkEnabled as CLERK_ENABLED } from '@/lib/env.client';
 
 const syncedUsers = new Set<string>();
 

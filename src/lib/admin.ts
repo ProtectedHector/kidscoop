@@ -1,4 +1,4 @@
-import { ConvexHttpClient } from 'convex/browser';
+import { getConvexWriter } from './server/convex';
 import { api } from '../../convex/_generated/api';
 import { getAuthenticatedIdentity } from './server/clerk-user';
 
@@ -14,14 +14,12 @@ export async function requireAdminIdentity() {
 }
 
 export function getAdminConvexClient() {
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL;
-  const token = process.env.KIDZCOOP_CONVEX_WRITE_TOKEN;
-
-  if (!convexUrl || !token) {
-    throw new Error('Convex admin is not configured. Set NEXT_PUBLIC_CONVEX_URL and KIDZCOOP_CONVEX_WRITE_TOKEN.');
+  const writer = getConvexWriter();
+  if (!writer) {
+    throw new Error('Convex admin is not configured. Set KIDZCOOP_CONVEX_WRITE_TOKEN.');
   }
 
-  return { client: new ConvexHttpClient(convexUrl), token };
+  return writer;
 }
 
 export { api };
