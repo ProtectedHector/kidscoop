@@ -46,6 +46,13 @@ export default async function ColoringFullscreenPage(props: { params: Promise<Pa
         downloadPage: t('content.coloringDownloadPage'),
         loading: t('content.coloringLoading'),
         backToStory: t('content.coloringBackToStory'),
+        zoomIn: t('content.coloringZoomIn'),
+        zoomOut: t('content.coloringZoomOut'),
+        panUp: t('content.coloringPanUp'),
+        panDown: t('content.coloringPanDown'),
+        panLeft: t('content.coloringPanLeft'),
+        panRight: t('content.coloringPanRight'),
+        resetView: t('content.coloringResetView'),
       }}
     />
   );

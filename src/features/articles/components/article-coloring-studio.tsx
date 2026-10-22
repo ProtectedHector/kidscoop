@@ -37,6 +37,12 @@ const BOARD_ASPECT_RATIO = '3 / 2';
 const LINE_THRESHOLD = 248;
 const LINE_DILATION_RADIUS = 1;
 const FILL_SEED_SEARCH_RADIUS = 8;
+/** Zoom steps for the full-screen board; the first one is "whole picture". */
+const ZOOM_LEVELS = [1, 1.5, 2, 3, 4] as const;
+/** Each arrow press moves the view by this share of the board's size. */
+const PAN_STEP = 0.2;
+/** A press that travels further than this (px) is a drag, not a tap. */
+const TAP_SLOP = 8;
 
 interface ArticleColoringStudioLabels {
   title: string;
@@ -52,6 +58,14 @@ interface ArticleColoringStudioLabels {
   fullscreen?: string;
   /** Link text back to the story (full-screen view). */
   backToStory?: string;
+  /** Zoom and move controls (full-screen view). */
+  zoomIn?: string;
+  zoomOut?: string;
+  panUp?: string;
+  panDown?: string;
+  panLeft?: string;
+  panRight?: string;
+  resetView?: string;
 }
 
 interface ArticleColoringStudioProps {
@@ -286,6 +300,13 @@ export default function ArticleColoringStudio({
   const [isReady, setIsReady] = useState(false);
   const [undoCount, setUndoCount] = useState(0);
   const [redoCount, setRedoCount] = useState(0);
+
+  // Full-screen zoom: `pan` is the board's offset in screen px, applied before the scale.
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [zoomIndex, setZoomIndex] = useState(0);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{ id: number; startX: number; startY: number; panX: number; panY: number; moved: boolean } | null>(null);
+  const zoom = ZOOM_LEVELS[zoomIndex];
 
   const imageSrc = `/articles/${imageId}c.png`;
   const brushCursor = getBrushCursor(selectedColor);
@@ -525,6 +546,80 @@ export default function ArticleColoringStudio({
     fillRegion(event.clientX, event.clientY);
   };
 
+  /** Keeps the zoomed board covering the viewport, so it can never be dragged out of sight. */
+  const clampPan = (x: number, y: number, scale: number) => {
+    const viewport = viewportRef.current;
+    if (!viewport || scale <= 1) {
+      return { x: 0, y: 0 };
+    }
+    const maxX = (viewport.clientWidth * (scale - 1)) / 2;
+    const maxY = (viewport.clientHeight * (scale - 1)) / 2;
+    return { x: Math.min(maxX, Math.max(-maxX, x)), y: Math.min(maxY, Math.max(-maxY, y)) };
+  };
+
+  const changeZoom = (step: 1 | -1) => {
+    const nextIndex = Math.min(ZOOM_LEVELS.length - 1, Math.max(0, zoomIndex + step));
+    const nextZoom = ZOOM_LEVELS[nextIndex];
+    // Scale the offset too, so the spot in the middle of the screen stays in the middle.
+    setPan(clampPan((pan.x * nextZoom) / zoom, (pan.y * nextZoom) / zoom, nextZoom));
+    setZoomIndex(nextIndex);
+  };
+
+  const resetView = () => {
+    setZoomIndex(0);
+    setPan({ x: 0, y: 0 });
+  };
+
+  /** Arrows name the part of the picture you want to see, so "up" slides the board down. */
+  const panBy = (dx: number, dy: number) => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+    setPan(clampPan(pan.x - dx * viewport.clientWidth * PAN_STEP, pan.y - dy * viewport.clientHeight * PAN_STEP, zoom));
+  };
+
+  // Full screen: a tap fills when the finger lifts; a drag (once zoomed in) moves the board instead.
+  const handleBoardPointerDown = (event: PointerEvent<HTMLCanvasElement>) => {
+    event.preventDefault();
+    if (dragRef.current) {
+      return;
+    }
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = { id: event.pointerId, startX: event.clientX, startY: event.clientY, panX: pan.x, panY: pan.y, moved: false };
+  };
+
+  const handleBoardPointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.id !== event.pointerId || zoom <= 1) {
+      return;
+    }
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (!drag.moved && Math.hypot(dx, dy) < TAP_SLOP) {
+      return;
+    }
+    drag.moved = true;
+    setPan(clampPan(drag.panX + dx, drag.panY + dy, zoom));
+  };
+
+  const handleBoardPointerUp = (event: PointerEvent<HTMLCanvasElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.id !== event.pointerId) {
+      return;
+    }
+    dragRef.current = null;
+    if (!drag.moved) {
+      fillRegion(event.clientX, event.clientY);
+    }
+  };
+
+  const handleBoardPointerCancel = (event: PointerEvent<HTMLCanvasElement>) => {
+    if (dragRef.current?.id === event.pointerId) {
+      dragRef.current = null;
+    }
+  };
+
   const downloadArtwork = () => {
     const canvas = canvasRef.current;
     const outlineCanvas = outlineCanvasRef.current;
@@ -601,21 +696,55 @@ export default function ArticleColoringStudio({
       aria-pressed={color === selectedColor}
     />
   );
+  const isFullscreen = variant === 'fullscreen';
   const board = (touchAction: 'manipulation' | 'none', extra: ReactNode = null) => (
     <>
-      <canvas
-        ref={canvasRef}
-        className="block h-auto w-full bg-white"
-        style={{ aspectRatio: BOARD_ASPECT_RATIO, touchAction, cursor: isReady ? brushCursor : 'default' }}
-        onPointerDown={handleCanvasPointerDown}
-      />
-      <canvas
-        ref={outlineCanvasRef}
-        className="pointer-events-none absolute inset-0 block h-full w-full"
-        style={{ aspectRatio: BOARD_ASPECT_RATIO }}
-      />
+      {/* fillRegion maps taps through getBoundingClientRect, so it already follows this transform. */}
+      <div
+        className="relative"
+        style={isFullscreen ? { transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'center' } : undefined}
+      >
+        <canvas
+          ref={canvasRef}
+          className="block h-auto w-full bg-white"
+          style={{ aspectRatio: BOARD_ASPECT_RATIO, touchAction, cursor: isReady ? brushCursor : 'default' }}
+          {...(isFullscreen
+            ? {
+                onPointerDown: handleBoardPointerDown,
+                onPointerMove: handleBoardPointerMove,
+                onPointerUp: handleBoardPointerUp,
+                onPointerCancel: handleBoardPointerCancel,
+              }
+            : { onPointerDown: handleCanvasPointerDown })}
+        />
+        <canvas
+          ref={outlineCanvasRef}
+          className="pointer-events-none absolute inset-0 block h-full w-full"
+          style={{ aspectRatio: BOARD_ASPECT_RATIO }}
+        />
+      </div>
       {extra}
     </>
+  );
+
+  const padButton = `flex h-10 w-10 items-center justify-center justify-self-center rounded-full text-lg font-black transition enabled:hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-40 border border-purple-300 bg-white text-[#581c87] shadow-[0_4px_14px_-6px_rgba(88,28,135,0.4)]`;
+  const arrow = (d: string) => (
+    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={d} />
+    </svg>
+  );
+  const canPan = zoom > 1;
+  // One row under the board in portrait; a cross (zoom on top corners) beside the palette in landscape.
+  const viewControls = (
+    <div className="grid shrink-0 grid-cols-7 gap-1.5 landscape:grid-cols-3 landscape:grid-rows-3" dir="ltr">
+      <button type="button" onClick={() => changeZoom(-1)} disabled={zoomIndex === 0} className={`${padButton} landscape:col-start-1 landscape:row-start-1`} aria-label={labels.zoomOut} title={labels.zoomOut}>−</button>
+      <button type="button" onClick={() => changeZoom(1)} disabled={zoomIndex === ZOOM_LEVELS.length - 1} className={`${padButton} landscape:col-start-3 landscape:row-start-1`} aria-label={labels.zoomIn} title={labels.zoomIn}>+</button>
+      <button type="button" onClick={() => panBy(-1, 0)} disabled={!canPan} className={`${padButton} landscape:col-start-1 landscape:row-start-2`} aria-label={labels.panLeft} title={labels.panLeft}>{arrow('M15 6l-6 6 6 6')}</button>
+      <button type="button" onClick={() => panBy(0, -1)} disabled={!canPan} className={`${padButton} landscape:col-start-2 landscape:row-start-1`} aria-label={labels.panUp} title={labels.panUp}>{arrow('M6 15l6-6 6 6')}</button>
+      <button type="button" onClick={() => panBy(0, 1)} disabled={!canPan} className={`${padButton} landscape:col-start-2 landscape:row-start-3`} aria-label={labels.panDown} title={labels.panDown}>{arrow('M6 9l6 6 6-6')}</button>
+      <button type="button" onClick={() => panBy(1, 0)} disabled={!canPan} className={`${padButton} landscape:col-start-3 landscape:row-start-2`} aria-label={labels.panRight} title={labels.panRight}>{arrow('M9 6l6 6-6 6')}</button>
+      <button type="button" onClick={resetView} disabled={!canPan} className={`${padButton} text-xs landscape:col-start-2 landscape:row-start-2`} aria-label={labels.resetView} title={labels.resetView}>{zoom}×</button>
+    </div>
   );
 
   if (variant === 'fullscreen') {
@@ -638,6 +767,7 @@ export default function ArticleColoringStudio({
         {/* Size container: the board takes the largest 3:2 box that fits, in either orientation. */}
         <div className="relative flex min-h-0 min-w-0 flex-1 items-center justify-center" style={{ containerType: 'size' }}>
           <div
+            ref={viewportRef}
             className="relative overflow-hidden rounded-2xl border border-purple-300 bg-white shadow-[0_8px_30px_-8px_rgba(88,28,135,0.35)]"
             style={{ width: 'min(100cqw, 150cqh)' }}
           >
@@ -647,8 +777,11 @@ export default function ArticleColoringStudio({
           </div>
         </div>
 
-        <div className="grid shrink-0 grid-cols-[repeat(14,minmax(0,1fr))] gap-1.5 sm:gap-2 landscape:w-44 landscape:grid-cols-4 landscape:content-center lg:landscape:w-52">
-          {PALETTE.map((color) => swatch(color, 'aspect-square w-full'))}
+        <div className="flex shrink-0 flex-col gap-3 landscape:w-44 landscape:justify-center lg:landscape:w-52">
+          {viewControls}
+          <div className="grid grid-cols-[repeat(14,minmax(0,1fr))] gap-1.5 sm:gap-2 landscape:grid-cols-4">
+            {PALETTE.map((color) => swatch(color, 'aspect-square w-full'))}
+          </div>
         </div>
       </div>
     </FullscreenShell>;
