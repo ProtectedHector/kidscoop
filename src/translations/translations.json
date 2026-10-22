@@ -56,7 +56,14 @@
       "puzzleReady": "Ready to play",
       "puzzleSelected": "Piece selected",
       "coloringFullscreen": "Color in full screen",
-      "coloringBackToStory": "Back to the story"
+      "coloringBackToStory": "Back to the story",
+      "coloringZoomIn": "Zoom in",
+      "coloringZoomOut": "Zoom out",
+      "coloringPanUp": "Move up",
+      "coloringPanDown": "Move down",
+      "coloringPanLeft": "Move left",
+      "coloringPanRight": "Move right",
+      "coloringResetView": "Fit to screen"
     },
     "metadata": {
       "title": "KidZcoop - Amazing Stories for Kids",
@@ -133,7 +140,14 @@
       "puzzleReady": "Listo para jugar",
       "puzzleSelected": "Pieza seleccionada",
       "coloringFullscreen": "Colorear en pantalla completa",
-      "coloringBackToStory": "Volver a la historia"
+      "coloringBackToStory": "Volver a la historia",
+      "coloringZoomIn": "Acercar",
+      "coloringZoomOut": "Alejar",
+      "coloringPanUp": "Mover arriba",
+      "coloringPanDown": "Mover abajo",
+      "coloringPanLeft": "Mover a la izquierda",
+      "coloringPanRight": "Mover a la derecha",
+      "coloringResetView": "Ver entero"
     },
     "metadata": {
       "title": "KidZcoop - Historias Increíbles para Niños",
@@ -210,7 +224,14 @@
       "puzzleReady": "Prêt à jouer",
       "puzzleSelected": "Pièce sélectionnée",
       "coloringFullscreen": "Colorier en plein écran",
-      "coloringBackToStory": "Retour à l'histoire"
+      "coloringBackToStory": "Retour à l'histoire",
+      "coloringZoomIn": "Zoomer",
+      "coloringZoomOut": "Dézoomer",
+      "coloringPanUp": "Aller en haut",
+      "coloringPanDown": "Aller en bas",
+      "coloringPanLeft": "Aller à gauche",
+      "coloringPanRight": "Aller à droite",
+      "coloringResetView": "Voir en entier"
     },
     "metadata": {
       "title": "KidZcoop - Histoires Incroyables pour Enfants",
@@ -287,7 +308,14 @@
       "puzzleReady": "Bereit zum Spielen",
       "puzzleSelected": "Teil ausgewählt",
       "coloringFullscreen": "Im Vollbild ausmalen",
-      "coloringBackToStory": "Zurück zur Geschichte"
+      "coloringBackToStory": "Zurück zur Geschichte",
+      "coloringZoomIn": "Vergrößern",
+      "coloringZoomOut": "Verkleinern",
+      "coloringPanUp": "Nach oben",
+      "coloringPanDown": "Nach unten",
+      "coloringPanLeft": "Nach links",
+      "coloringPanRight": "Nach rechts",
+      "coloringResetView": "Ganzes Bild"
     },
     "metadata": {
       "title": "KidZcoop - Erstaunliche Geschichten für Kinder",
@@ -364,7 +392,14 @@
       "puzzleReady": "Pronto a giocare",
       "puzzleSelected": "Pezzo selezionato",
       "coloringFullscreen": "Colora a schermo intero",
-      "coloringBackToStory": "Torna alla storia"
+      "coloringBackToStory": "Torna alla storia",
+      "coloringZoomIn": "Ingrandisci",
+      "coloringZoomOut": "Rimpicciolisci",
+      "coloringPanUp": "Sposta in alto",
+      "coloringPanDown": "Sposta in basso",
+      "coloringPanLeft": "Sposta a sinistra",
+      "coloringPanRight": "Sposta a destra",
+      "coloringResetView": "Vedi tutto"
     },
     "metadata": {
       "title": "KidZcoop - Storie Incredibili per Bambini",
@@ -441,7 +476,14 @@
       "puzzleReady": "Pronto para jogar",
       "puzzleSelected": "Peça selecionada",
       "coloringFullscreen": "Colorir em ecrã inteiro",
-      "coloringBackToStory": "Voltar à história"
+      "coloringBackToStory": "Voltar à história",
+      "coloringZoomIn": "Aproximar",
+      "coloringZoomOut": "Afastar",
+      "coloringPanUp": "Mover para cima",
+      "coloringPanDown": "Mover para baixo",
+      "coloringPanLeft": "Mover para a esquerda",
+      "coloringPanRight": "Mover para a direita",
+      "coloringResetView": "Ver inteiro"
     },
     "metadata": {
       "title": "KidZcoop - Histórias Incríveis para Crianças",
@@ -518,7 +560,14 @@
       "puzzleReady": "准备开始",
       "puzzleSelected": "已选拼图块",
       "coloringFullscreen": "全屏涂色",
-      "coloringBackToStory": "返回故事"
+      "coloringBackToStory": "返回故事",
+      "coloringZoomIn": "放大",
+      "coloringZoomOut": "缩小",
+      "coloringPanUp": "向上移动",
+      "coloringPanDown": "向下移动",
+      "coloringPanLeft": "向左移动",
+      "coloringPanRight": "向右移动",
+      "coloringResetView": "查看全图"
     },
     "metadata": {
       "title": "KidZcoop - 孩子们的精彩故事",
@@ -595,7 +644,14 @@
       "puzzleReady": "プレイする準備完了",
       "puzzleSelected": "選択中のピース",
       "coloringFullscreen": "全画面でぬりえ",
-      "coloringBackToStory": "ストーリーにもどる"
+      "coloringBackToStory": "ストーリーにもどる",
+      "coloringZoomIn": "拡大",
+      "coloringZoomOut": "縮小",
+      "coloringPanUp": "上へ移動",
+      "coloringPanDown": "下へ移動",
+      "coloringPanLeft": "左へ移動",
+      "coloringPanRight": "右へ移動",
+      "coloringResetView": "全体を表示"
     },
     "metadata": {
       "title": "KidZcoop - 子供のための素晴らしい物語",
@@ -672,7 +728,14 @@
       "puzzleReady": "플레이할 준비 완료",
       "puzzleSelected": "선택된 조각",
       "coloringFullscreen": "전체 화면으로 색칠하기",
-      "coloringBackToStory": "이야기로 돌아가기"
+      "coloringBackToStory": "이야기로 돌아가기",
+      "coloringZoomIn": "확대",
+      "coloringZoomOut": "축소",
+      "coloringPanUp": "위로 이동",
+      "coloringPanDown": "아래로 이동",
+      "coloringPanLeft": "왼쪽으로 이동",
+      "coloringPanRight": "오른쪽으로 이동",
+      "coloringResetView": "전체 보기"
     },
     "metadata": {
       "title": "KidZcoop - 어린이를 위한 놀라운 이야기",
@@ -749,7 +812,14 @@
       "puzzleReady": "جاهز للعب",
       "puzzleSelected": "القطعة المحددة",
       "coloringFullscreen": "التلوين بملء الشاشة",
-      "coloringBackToStory": "العودة إلى القصة"
+      "coloringBackToStory": "العودة إلى القصة",
+      "coloringZoomIn": "تكبير",
+      "coloringZoomOut": "تصغير",
+      "coloringPanUp": "تحريك للأعلى",
+      "coloringPanDown": "تحريك للأسفل",
+      "coloringPanLeft": "تحريك لليسار",
+      "coloringPanRight": "تحريك لليمين",
+      "coloringResetView": "عرض الصورة كاملة"
     },
     "metadata": {
       "title": "KidZcoop - قصص مذهلة للأطفال",
@@ -826,7 +896,14 @@
       "puzzleReady": "खेलने के लिए तैयार",
       "puzzleSelected": "चुना गया टुकड़ा",
       "coloringFullscreen": "पूरी स्क्रीन पर रंग भरें",
-      "coloringBackToStory": "कहानी पर वापस जाएँ"
+      "coloringBackToStory": "कहानी पर वापस जाएँ",
+      "coloringZoomIn": "ज़ूम इन",
+      "coloringZoomOut": "ज़ूम आउट",
+      "coloringPanUp": "ऊपर ले जाएँ",
+      "coloringPanDown": "नीचे ले जाएँ",
+      "coloringPanLeft": "बाएँ ले जाएँ",
+      "coloringPanRight": "दाएँ ले जाएँ",
+      "coloringResetView": "पूरा चित्र देखें"
     },
     "metadata": {
       "title": "KidZcoop - बच्चों के लिए अद्भुत कहानियाँ",
@@ -903,7 +980,14 @@
       "puzzleReady": "Готово к игре",
       "puzzleSelected": "Часть выбрана",
       "coloringFullscreen": "Раскрашивать на весь экран",
-      "coloringBackToStory": "Вернуться к истории"
+      "coloringBackToStory": "Вернуться к истории",
+      "coloringZoomIn": "Увеличить",
+      "coloringZoomOut": "Уменьшить",
+      "coloringPanUp": "Вверх",
+      "coloringPanDown": "Вниз",
+      "coloringPanLeft": "Влево",
+      "coloringPanRight": "Вправо",
+      "coloringResetView": "Показать целиком"
     },
     "metadata": {
       "title": "KidZcoop - Удивительные Истории для Детей",
