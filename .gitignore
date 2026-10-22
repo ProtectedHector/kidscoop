@@ -48,3 +48,4 @@ yarn-error.log*
 
 # build/IDE artefacts
 *.tsbuildinfo
+next-env.d.ts
